@@ -32,7 +32,7 @@ export default function CountdownTimer({ target }: { target: string }) {
     <div className="flex gap-4">
       {units.map(([label, value]) => (
         <div key={label} className="text-center">
-          <span className="font-display text-2xl md:text-3xl text-text-primary tabular-nums">
+          <span className="font-display text-3xl md:text-4xl font-bold text-text-primary tabular-nums">
             {value === null ? "--" : String(value).padStart(2, "0")}
           </span>
           <span className="block text-[10px] tracking-widest text-text-secondary mt-1">
