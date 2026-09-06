@@ -15,7 +15,7 @@ export default function Hero({ drop }: { drop: Drop }) {
           fill
           priority
           sizes="58vw"
-          className="object-cover object-top contrast-125"
+          className="object-cover object-top contrast-125 [mask-image:radial-gradient(ellipse_at_center,black_52%,transparent_100%)]"
         />
         {/* Blend the image edges into base-bg rather than showing a hard crop */}
         <div className="absolute inset-0 bg-gradient-to-r from-base-bg via-base-bg/10 to-transparent" />
@@ -30,7 +30,7 @@ export default function Hero({ drop }: { drop: Drop }) {
       <div className="relative mx-auto max-w-7xl px-6 pt-32 pb-20">
         <div className="max-w-xl">
           <p className="text-accent text-xs tracking-widest mb-4">• {drop.name} •</p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold uppercase leading-[0.95] text-text-primary">
+          <h1 className="font-display text-5xl md:text-5xl font-bold uppercase leading-[0.95] text-text-primary">
             {drop.tagline.split(". ").map((line, i) => (
               <span key={i} className={i === 1 ? "block text-text-secondary" : "block"}>
                 {line}
@@ -84,7 +84,7 @@ export default function Hero({ drop }: { drop: Drop }) {
             alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
             fill
             sizes="100vw"
-            className="object-cover object-top contrast-125"
+            className="object-cover object-top contrast-125 [mask-image:radial-gradient(ellipse_at_center,black_52%,transparent_100%)]"
           />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base-bg to-transparent" />
