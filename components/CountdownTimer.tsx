@@ -13,18 +13,19 @@ function getRemaining(target: string) {
 }
 
 export default function CountdownTimer({ target }: { target: string }) {
-  const [time, setTime] = useState(() => getRemaining(target));
+  const [time, setTime] = useState<ReturnType<typeof getRemaining> | null>(null);
 
   useEffect(() => {
+    setTime(getRemaining(target));
     const id = setInterval(() => setTime(getRemaining(target)), 1000);
     return () => clearInterval(id);
   }, [target]);
 
-  const units: [string, number][] = [
-    ["DAYS", time.days],
-    ["HRS", time.hours],
-    ["MINS", time.mins],
-    ["SECS", time.secs],
+  const units: [string, number | null][] = [
+    ["DAYS", time?.days ?? null],
+    ["HRS", time?.hours ?? null],
+    ["MINS", time?.mins ?? null],
+    ["SECS", time?.secs ?? null],
   ];
 
   return (
@@ -32,7 +33,7 @@ export default function CountdownTimer({ target }: { target: string }) {
       {units.map(([label, value]) => (
         <div key={label} className="text-center">
           <span className="font-display text-2xl md:text-3xl text-text-primary tabular-nums">
-            {String(value).padStart(2, "0")}
+            {value === null ? "--" : String(value).padStart(2, "0")}
           </span>
           <span className="block text-[10px] tracking-widest text-text-secondary mt-1">
             {label}
