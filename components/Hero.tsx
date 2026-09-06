@@ -1,11 +1,30 @@
+import Image from "next/image";
 import CountdownTimer from "./CountdownTimer";
 import type { Drop } from "@/data/drops";
 
 export default function Hero({ drop }: { drop: Drop }) {
   return (
-    <section className="relative pt-32 pb-20 px-6 border-b border-base-border">
-      <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-12 items-center">
-        <div>
+    <section className="relative overflow-hidden border-b border-base-border">
+      {/* Full-bleed campaign image (desktop): sits behind/beside the copy,
+          no card/border — blends into the page background via gradients
+          instead of being framed as a separate widget. */}
+      <div className="hidden md:block absolute inset-y-0 right-0 w-[58%]">
+        <Image
+          src="/images/hero-drop-001.jpg"
+          alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
+          fill
+          priority
+          sizes="58vw"
+          className="object-cover object-top"
+        />
+        {/* Blend the image edges into base-bg rather than showing a hard crop */}
+        <div className="absolute inset-0 bg-gradient-to-r from-base-bg via-base-bg/10 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-base-bg to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-base-bg to-transparent" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-6 pt-32 pb-20">
+        <div className="max-w-xl">
           <p className="text-accent text-xs tracking-widest mb-4">{drop.name}</p>
           <h1 className="font-display text-5xl md:text-7xl leading-[0.95] text-text-primary">
             {drop.tagline.split(". ").map((line, i) => (
@@ -20,7 +39,7 @@ export default function Hero({ drop }: { drop: Drop }) {
             fabrics. Limited pieces. Built for the culture.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-6 border border-base-border rounded-sm p-5 max-w-md">
+          <div className="mt-8 flex flex-wrap gap-6 border border-base-border rounded-sm p-5 max-w-md bg-base-bg/60 backdrop-blur-sm">
             <div>
               <p className="text-[10px] tracking-widest text-text-secondary mb-2">
                 PRE-ORDER CLOSES IN
@@ -52,8 +71,17 @@ export default function Hero({ drop }: { drop: Drop }) {
           </div>
         </div>
 
-        <div className="relative aspect-[4/5] bg-base-surface rounded-sm border border-base-border flex items-center justify-center">
-          <p className="text-text-secondary text-sm">Hero campaign image</p>
+        {/* Mobile: image stacks below the copy, same border-less blended treatment */}
+        <div className="md:hidden relative mt-12 -mx-6 h-[420px]">
+          <Image
+            src="/images/hero-drop-001.jpg"
+            alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
+            fill
+            sizes="100vw"
+            className="object-cover object-top"
+          />
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base-bg to-transparent" />
         </div>
       </div>
     </section>
