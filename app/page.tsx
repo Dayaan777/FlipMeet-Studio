@@ -1,15 +1,24 @@
+import NavBar from "@/components/NavBar";
+import Hero from "@/components/Hero";
+import LookCarousel from "@/components/LookCarousel";
+import TryOnPanel from "@/components/TryOnPanel";
+import TrustBadges from "@/components/TrustBadges";
+import Footer from "@/components/Footer";
+import { drops } from "@/data/drops";
+
 export default function Home() {
+  const drop = drops[0];
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-6">
-      <div className="text-center">
-        <p className="text-accent text-sm tracking-wide mb-4">Drop 001</p>
-        <h1 className="text-4xl md:text-6xl font-display font-bold text-text-primary">
-          FlipMeet Studio
-        </h1>
-        <p className="text-text-secondary mt-4">
-          Home page build coming next.
-        </p>
-      </div>
-    </main>
+    <>
+      <NavBar />
+      <main className="bg-base-bg">
+        <Hero drop={drop} />
+        <LookCarousel drop={drop} />
+        <TryOnPanel drop={drop} />
+        <TrustBadges />
+      </main>
+      <Footer />
+    </>
   );
 }
