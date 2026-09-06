@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`bg-base-bg ${display.variable} ${body.variable}`}>
       <body>{children}</body>
     </html>
   );
