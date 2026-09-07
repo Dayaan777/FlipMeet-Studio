@@ -15,13 +15,8 @@ export default function Hero({ drop }: { drop: Drop }) {
           fill
           priority
           sizes="58vw"
-          className="object-cover object-top contrast-125 [mask-image:radial-gradient(ellipse_78%_92%_at_58%_50%,black_45%,transparent_100%)]"
+          className="object-cover object-top contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_18%,black_88%,transparent_100%)]"
         />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[url('/images/hero-drop-001.jpg')] bg-cover bg-top bg-no-repeat brightness-150 [clip-path:polygon(0_0,48%_0,48%_100%,0_100%)] [mask-image:linear-gradient(to_right,black_0%,black_72%,transparent_100%)]"
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.45)_100%)]" />
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-base-bg to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-base-bg to-transparent" />
         <button type="button" className="absolute bottom-6 right-6 rounded-full border border-text-secondary/50 bg-base-bg/70 px-4 py-2 text-[10px] tracking-widest text-text-primary backdrop-blur-sm">
@@ -86,11 +81,7 @@ export default function Hero({ drop }: { drop: Drop }) {
             alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
             fill
             sizes="100vw"
-            className="object-cover object-top contrast-125 [mask-image:radial-gradient(ellipse_78%_92%_at_58%_50%,black_45%,transparent_100%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[url('/images/hero-drop-001.jpg')] bg-cover bg-top bg-no-repeat brightness-150 [clip-path:polygon(0_0,48%_0,48%_100%,0_100%)] [mask-image:linear-gradient(to_right,black_0%,black_72%,transparent_100%)]"
+            className="object-cover object-top contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_14%,black_86%,transparent_100%)]"
           />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base-bg to-transparent" />
