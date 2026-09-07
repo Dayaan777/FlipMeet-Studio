@@ -15,7 +15,7 @@ export default function Hero({ drop }: { drop: Drop }) {
           fill
           priority
           sizes="58vw"
-          className="object-cover object-top contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_18%,black_88%,transparent_100%)]"
+          className="object-cover object-top brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_18%,black_88%,transparent_100%)]"
         />
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-base-bg to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-base-bg to-transparent" />
@@ -81,7 +81,7 @@ export default function Hero({ drop }: { drop: Drop }) {
             alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
             fill
             sizes="100vw"
-            className="object-cover object-top contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_14%,black_86%,transparent_100%)]"
+            className="object-cover object-top brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_14%,black_86%,transparent_100%)]"
           />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base-bg to-transparent" />
