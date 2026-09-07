@@ -51,11 +51,13 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                     >
                       <div className="relative mx-auto mb-5 flex h-64 max-w-[14rem] items-end justify-center sm:h-72 md:h-80">
                         <div className={`absolute bottom-2 h-4/5 w-3/5 rounded-[45%] bg-gradient-to-b from-text-secondary/30 via-text-secondary/10 to-transparent blur-2xl transition-all duration-500 ${isActive ? "scale-125 bg-accent/20" : ""}`} />
-                        <div className={`relative h-4/5 w-2/5 rounded-t-[45%] bg-gradient-to-b from-text-secondary/70 via-text-secondary/25 to-base-bg transition-all duration-500 ${isActive ? "shadow-[0_0_36px_-10px_rgba(255,77,30,0.9)]" : ""}`} />
-                        <div className="absolute bottom-0 flex w-1/2 justify-between px-2">
-                          <span className="h-12 w-1/3 rounded-b-full bg-text-secondary/25" />
-                          <span className="h-12 w-1/3 rounded-b-full bg-text-secondary/25" />
-                        </div>
+                        <Image
+                          src={look.images[0]}
+                          alt={`${look.name} — ${look.description}`}
+                          fill
+                          sizes="(min-width: 768px) 20vw, 70vw"
+                          className={`object-contain transition-all duration-500 ${isActive ? "drop-shadow-[0_0_24px_rgba(255,77,30,0.45)]" : ""}`}
+                        />
                       </div>
                       <p className="text-sm text-text-primary">{look.name}</p>
                       <p className="mt-1 text-xs text-text-secondary">{look.description}</p>
