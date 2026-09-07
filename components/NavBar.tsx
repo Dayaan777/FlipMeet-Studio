@@ -27,7 +27,7 @@ export default function NavBar() {
       }`}
     >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">
-        <a href="/" className="font-display text-2xl tracking-wide text-text-primary">
+        <a href="/" className="font-display text-2xl font-bold tracking-tight text-text-primary">
           FLIPMEET STUDIO
         </a>
 
@@ -41,12 +41,17 @@ export default function NavBar() {
           ))}
         </ul>
 
-        <a
-          href="/cart"
-          className="text-xs tracking-widest border border-base-border rounded-sm px-4 py-2 text-text-primary hover:border-text-secondary transition-colors"
-        >
-          CART ({itemCount})
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/cart"
+            className="text-xs tracking-widest border border-base-border rounded-full px-4 py-2 text-text-primary hover:border-text-secondary transition-colors"
+          >
+            CART ({itemCount})
+          </a>
+          <button type="button" aria-label="Open menu" className="text-text-primary text-xl leading-none">
+            ≡
+          </button>
+        </div>
       </nav>
     </header>
   );

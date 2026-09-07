@@ -10,7 +10,7 @@ const config: Config = {
       colors: {
         // Design tokens from FLIPMEET_STUDIO_GUIDE.md §2 Visual Identity
         base: {
-          bg: "#0A0A0A",
+          bg: "#000000",
           surface: "#111111",
           border: "#242424",
         },
