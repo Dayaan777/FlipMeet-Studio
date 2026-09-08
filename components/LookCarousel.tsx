@@ -24,6 +24,7 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
             <button type="button" aria-label="Previous look" onClick={() => shift(-1)} className="z-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-base-border text-lg text-text-secondary transition-colors hover:border-text-secondary hover:text-text-primary">←</button>
             <div className="min-w-0 flex-1">
               <div className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem]" aria-live="polite">
+                <div aria-hidden="true" className="pointer-events-none absolute bottom-[7.25rem] left-1/2 z-0 h-16 w-[90%] -translate-x-1/2 rounded-[50%] border border-accent/55 bg-[radial-gradient(ellipse_at_center,rgba(255,77,30,0.12)_0%,rgba(16,16,16,0.96)_54%,rgba(0,0,0,0.98)_100%)] shadow-[0_0_28px_rgba(255,77,30,0.16),inset_0_8px_18px_rgba(255,255,255,0.05),inset_0_-18px_24px_rgba(0,0,0,0.9)] [transform:translateX(-50%)_perspective(900px)_rotateX(58deg)] sm:bottom-[7.75rem] sm:h-20" />
                 {drop.looks.map((look, index) => {
                   const position = relative(index);
                   const distance = Math.abs(position);
