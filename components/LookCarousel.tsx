@@ -16,9 +16,6 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
         <p className="mb-2 text-center text-xs tracking-widest text-accent">THE COLLECTION</p>
         <h2 className="mb-14 text-center font-display text-3xl text-text-primary md:text-4xl">{drop.name} - {count} OUTFITS</h2>
         <div className="relative">
-          <div className="pointer-events-none absolute inset-x-[7%] bottom-[4.25rem] h-28 rounded-[50%] border-2 border-text-secondary/70 bg-[radial-gradient(ellipse_at_center,rgba(255,77,30,0.18)_0%,rgba(24,24,24,0.92)_44%,rgba(0,0,0,0.98)_72%)] shadow-[0_18px_28px_rgba(0,0,0,0.95),inset_0_4px_0_rgba(255,255,255,0.2),inset_0_-16px_22px_rgba(0,0,0,0.9),0_0_28px_rgba(255,77,30,0.2)] sm:inset-x-[13%]" />
-          <div className="pointer-events-none absolute inset-x-[9%] bottom-[4.65rem] h-16 rounded-[50%] border border-accent/55 shadow-[0_0_20px_rgba(255,77,30,0.28),inset_0_4px_8px_rgba(255,255,255,0.14)] sm:inset-x-[15%]" />
-          <div className="pointer-events-none absolute inset-x-[14%] bottom-10 h-10 rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(255,77,30,0.3)_0%,rgba(0,0,0,0.85)_52%,rgba(0,0,0,0)_78%)] blur-md sm:inset-x-[20%]" />
           <div className="flex items-center gap-4 md:gap-8">
             <button type="button" aria-label="Previous look" onClick={() => shift(-1)} className="z-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-base-border text-lg text-text-secondary transition-colors hover:border-text-secondary hover:text-text-primary">←</button>
             <div className="min-w-0 flex-1">
