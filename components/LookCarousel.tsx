@@ -31,13 +31,15 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                   const opacity = activeLook ? 1 : distance === 1 ? 0.62 : Math.max(0.22, 0.38 - (distance - 2) * 0.05);
                   return (
                     <button type="button" key={look.id} onClick={() => setActive(index)} aria-label={`Show ${look.name}`} aria-current={activeLook ? "true" : undefined} className="absolute inset-0 flex flex-col items-center text-center transition-[transform,opacity,filter] duration-500 ease-out" style={{ transform, opacity, zIndex: count - distance, filter: activeLook ? "none" : `blur(${Math.min(distance, 2) * 0.35}px)` }}>
-                      <div className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]">
+                      <div className="relative mb-5 flex h-80 w-full max-w-[18rem] translate-y-5 items-end justify-center sm:h-96 sm:max-w-[21rem]">
                         <div className={`absolute bottom-2 h-4/5 w-3/5 rounded-[45%] blur-2xl transition-all duration-500 ${activeLook ? "scale-125 bg-accent/20" : "bg-text-secondary/10"}`} />
                         <Image src={look.images[0]} alt={`${look.name} — ${look.description}`} fill sizes="(min-width: 768px) 28rem, 75vw" className={`object-contain transition-all duration-500 ${activeLook ? "drop-shadow-[0_0_24px_rgba(255,77,30,0.45)]" : ""}`} />
                       </div>
-                      <p className="text-sm text-text-primary">{look.name}</p>
-                      <p className="mt-1 text-xs text-text-secondary">{look.description}</p>
-                      <span className={`mx-auto mt-3 block h-0.5 transition-all duration-300 ${activeLook ? "w-8 bg-accent" : "w-1.5 rounded-full bg-text-secondary"}`} />
+                      <div className={`transition-opacity duration-300 ${activeLook ? "opacity-100" : "pointer-events-none invisible opacity-0"}`} aria-hidden={!activeLook}>
+                        <p className="text-sm text-text-primary">{look.name}</p>
+                        <p className="mt-1 text-xs text-text-secondary">{look.description}</p>
+                        <span className="mx-auto mt-3 block h-0.5 w-8 bg-accent" />
+                      </div>
                     </button>
                   );
                 })}
