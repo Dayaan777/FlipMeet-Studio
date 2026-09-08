@@ -6,12 +6,92 @@ import type { Drop, Look } from "@/data/drops";
 
 const featuredLookIds = ["look-01", "look-04", "look-05", "look-06"];
 
-function PlatformRing() {
+function PlatformRing({ activeIndex, totalLooks }: { activeIndex: number; totalLooks: number }) {
+  // Spread the bloom across the width proportionally to the active look position
+  const bloomXPercent = totalLooks > 1 ? (activeIndex / (totalLooks - 1)) * 100 : 50;
+
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-x-[-10%] bottom-8 h-24 rounded-[50%] bg-[linear-gradient(108deg,transparent_12%,rgba(255,255,255,0.15)_28%,rgba(255,255,255,0.045)_42%,transparent_58%),radial-gradient(ellipse_at_50%_38%,rgba(255,255,255,0.14)_0%,rgba(255,77,30,0.16)_18%,rgba(25,25,25,0.98)_52%,rgba(3,3,3,1)_100%)] shadow-[0_10px_18px_rgba(0,0,0,0.8),0_0_42px_rgba(255,77,30,0.12),0_0_80px_rgba(255,77,30,0.08),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_3px_7px_rgba(255,255,255,0.12),inset_0_-2px_0_rgba(0,0,0,0.92),inset_0_-10px_14px_rgba(0,0,0,0.72)] [transform:perspective(900px)_rotateX(62deg)_rotateZ(-2deg)] after:absolute after:inset-[3px] after:rounded-[50%] after:bg-[linear-gradient(108deg,transparent_18%,rgba(255,255,255,0.1)_31%,transparent_50%),radial-gradient(ellipse_at_50%_25%,rgba(255,255,255,0.08),transparent_42%,rgba(0,0,0,0.28)_100%)]"
-    />
+      className="pointer-events-none absolute inset-x-0 bottom-[3.25rem] h-[120px]"
+    >
+      {/* Active-look orange floor bloom — positioned under the active outfit */}
+      <div
+        className="absolute bottom-0 h-[90px] w-[28%] -translate-x-1/2 transition-[left] duration-300 ease-in-out"
+        style={{ left: `${bloomXPercent}%` }}
+      >
+        <div className="h-full w-full rounded-[50%] bg-[radial-gradient(ellipse_at_50%_100%,rgba(255,100,20,0.55)_0%,rgba(255,60,0,0.22)_35%,transparent_70%)] blur-[2px]" />
+      </div>
+
+      {/* SVG concentric ring platform */}
+      <svg
+        viewBox="0 0 1000 120"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* Outer ring groove gradient — dark base with slight grey rim on top */}
+          <linearGradient id="ringStrokeOuter" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#555555" stopOpacity="1" />
+            <stop offset="30%" stopColor="#2a2a2a" stopOpacity="1" />
+            <stop offset="100%" stopColor="#0d0d0d" stopOpacity="1" />
+          </linearGradient>
+          {/* Inner ring groove gradient */}
+          <linearGradient id="ringStrokeInner" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#444444" stopOpacity="1" />
+            <stop offset="25%" stopColor="#1e1e1e" stopOpacity="1" />
+            <stop offset="100%" stopColor="#080808" stopOpacity="1" />
+          </linearGradient>
+          {/* Specular arc highlight — the bright streak on the top-left of the ring in the reference */}
+          <linearGradient id="specularArc" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="20%" stopColor="rgba(255,255,255,0.06)" />
+            <stop offset="38%" stopColor="rgba(255,255,255,0.28)" />
+            <stop offset="52%" stopColor="rgba(255,255,255,0.18)" />
+            <stop offset="70%" stopColor="rgba(255,255,255,0.04)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+          {/* Clip path to show only the top arc of the ring for the specular highlight */}
+          <clipPath id="topHalfClip">
+            <rect x="0" y="0" width="1000" height="60" />
+          </clipPath>
+        </defs>
+
+        {/* ── Outer ring ── fill matches background so only the stroke groove is visible */}
+        <ellipse
+          cx="500" cy="80" rx="490" ry="38"
+          fill="#050505"
+          stroke="url(#ringStrokeOuter)"
+          strokeWidth="5"
+        />
+
+        {/* ── Inner ring ── slightly smaller, same treatment */}
+        <ellipse
+          cx="500" cy="80" rx="455" ry="28"
+          fill="none"
+          stroke="url(#ringStrokeInner)"
+          strokeWidth="3.5"
+        />
+
+        {/* ── Specular arc highlight on the top portion of the outer ring ── */}
+        <ellipse
+          cx="500" cy="80" rx="490" ry="38"
+          fill="none"
+          stroke="url(#specularArc)"
+          strokeWidth="5"
+          clipPath="url(#topHalfClip)"
+        />
+
+        {/* ── Very subtle inner surface sheen between the two rings ── */}
+        <ellipse
+          cx="500" cy="80" rx="472" ry="33"
+          fill="none"
+          stroke="rgba(255,255,255,0.04)"
+          strokeWidth="30"
+        />
+      </svg>
+    </div>
   );
 }
 
@@ -22,23 +102,35 @@ function FeaturedLook({ look, active, onSelect }: { look: Look; active: boolean;
       aria-pressed={active}
       onClick={onSelect}
       className={`relative flex min-w-0 flex-1 cursor-pointer flex-col items-center text-center transition-opacity duration-200 ${
-        active ? "z-10 opacity-100" : "opacity-60 hover:opacity-90"
+        active ? "z-10 opacity-100" : "opacity-55 hover:opacity-85"
       }`}
     >
-      <div className={`relative z-10 flex h-64 w-full origin-bottom items-end justify-center transition-transform duration-200 sm:h-72 lg:h-80 ${active ? "scale-[1.04]" : "scale-[0.97]"}`}>
-        <div className={`absolute bottom-9 h-2/3 w-2/3 rounded-[50%] blur-2xl ${active ? "bg-accent/20" : "bg-text-secondary/10"}`} />
+      {/* Outfit image — feet touch bottom of the image container which lands on the ring */}
+      <div
+        className={`relative z-10 flex h-64 w-full origin-bottom items-end justify-center transition-transform duration-200 sm:h-72 lg:h-80 ${
+          active ? "scale-[1.06]" : "scale-[0.96]"
+        }`}
+      >
         <Image
           src={look.images[0]}
           alt={`${look.name} — ${look.description}`}
           fill
           sizes="(min-width: 1024px) 20vw, 45vw"
-          className="translate-y-2 object-contain"
+          className="object-contain object-bottom"
         />
       </div>
-      <div className="relative z-10 mt-5 flex min-h-14 flex-col items-center">
-        <p className={`text-sm ${active ? "text-text-primary" : "text-text-secondary"}`}>{look.name}</p>
-        <p className="mt-1 text-[11px] text-text-secondary">{look.description}</p>
-        <span className={`mt-3 block h-0.5 w-7 ${active ? "bg-accent" : "rounded-full bg-text-primary"}`} />
+
+      {/* Label + indicator beneath the outfit */}
+      <div className="relative z-10 mt-4 flex min-h-14 flex-col items-center">
+        <p className={`text-[11px] font-bold uppercase tracking-widest ${active ? "text-text-primary" : "text-text-secondary"}`}>
+          {look.name}
+        </p>
+        <p className="mt-1 text-[10px] text-text-secondary">{look.description}</p>
+        <span
+          className={`mt-3 block transition-all duration-200 ${
+            active ? "h-0.5 w-7 bg-accent" : "h-2 w-2 rounded-full bg-white/40"
+          }`}
+        />
       </div>
     </button>
   );
@@ -61,13 +153,23 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
         <h2 id="featured-looks-heading" className="text-balance text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl">
           {drop.name} - FEATURED LOOKS
         </h2>
+
         <div className="relative mx-auto mt-10 max-w-6xl px-1 pb-1 sm:px-3">
-          <PlatformRing />
+          {/* Platform ring — sits at the footer of the outfit grid */}
+          <PlatformRing activeIndex={focusedIndex} totalLooks={looks.length} />
+
+          {/* Outfit grid */}
           <div className="relative z-10 grid grid-cols-4 items-end gap-2 sm:gap-4 lg:gap-8">
             {looks.map((look, index) => (
-              <FeaturedLook key={look.id} look={look} active={index === focusedIndex} onSelect={() => setFocusedIndex(index)} />
+              <FeaturedLook
+                key={look.id}
+                look={look}
+                active={index === focusedIndex}
+                onSelect={() => setFocusedIndex(index)}
+              />
             ))}
           </div>
+
           <button
             type="button"
             aria-label="Previous featured look"
