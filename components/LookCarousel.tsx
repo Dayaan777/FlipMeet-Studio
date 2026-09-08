@@ -7,6 +7,10 @@ import type { Drop } from "@/data/drops";
 export default function LookCarousel({ drop }: { drop: Drop }) {
   const [active, setActive] = useState(0);
   const count = drop.looks.length;
+  const imageOffsets: Record<string, number> = {
+    "look-02": 18,
+    "look-03": 24,
+  };
   const shift = (direction: number) => setActive((index) => (index + direction + count) % count);
   const relative = (index: number) => ((index - active + Math.ceil(count / 2)) % count) - Math.ceil(count / 2);
 
@@ -29,7 +33,7 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                   const opacity = activeLook ? 1 : distance === 1 ? 0.62 : Math.max(0.22, 0.38 - (distance - 2) * 0.05);
                   return (
                     <button type="button" key={look.id} onClick={() => setActive(index)} aria-label={`Show ${look.name}`} aria-current={activeLook ? "true" : undefined} className="absolute inset-0 flex flex-col items-center text-center transition-[transform,opacity,filter] duration-500 ease-out" style={{ transform, opacity, zIndex: count - distance, transformOrigin: "center 76%", filter: activeLook ? "none" : `blur(${Math.min(distance, 2) * 0.35}px)` }}>
-                      <div className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]">
+                      <div className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]" style={{ transform: `translateY(${imageOffsets[look.id] ?? 0}px)` }}>
                         <div className={`absolute bottom-2 h-4/5 w-3/5 rounded-[45%] blur-2xl transition-all duration-500 ${activeLook ? "scale-125 bg-accent/20" : "bg-text-secondary/10"}`} />
                         <Image src={look.images[0]} alt={`${look.name} — ${look.description}`} fill sizes="(min-width: 768px) 28rem, 75vw" className={`object-contain transition-all duration-500 ${activeLook ? "drop-shadow-[0_0_24px_rgba(255,77,30,0.45)]" : ""}`} />
                       </div>
