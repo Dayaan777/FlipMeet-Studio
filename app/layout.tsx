@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "FlipMeet Studio",
   description:
     "A new clothing label from the FlipMeet ecosystem. Premium fabrics. Limited pieces. Built for the culture.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
