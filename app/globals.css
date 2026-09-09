@@ -23,6 +23,20 @@ body {
   outline-offset: 2px;
 }
 
+.video-carousel-card {
+  transform: var(--carousel-transform);
+}
+
+@media (min-width: 640px) {
+  .video-carousel-card[data-position="prev"] {
+    --carousel-transform: translate3d(-124%, 0, 0) scale(0.82);
+  }
+
+  .video-carousel-card[data-position="next"] {
+    --carousel-transform: translate3d(124%, 0, 0) scale(0.82);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

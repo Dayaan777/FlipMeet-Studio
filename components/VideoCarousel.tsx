@@ -221,7 +221,7 @@ export default function VideoCarousel() {
           />
 
           {/* Reel stage viewport */}
-          <div className="relative mb-16 h-[490px] w-[82vw] max-w-[310px] sm:mb-0 sm:h-[540px] sm:w-full sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
+          <div className="relative mb-16 h-[490px] w-full max-w-none sm:mb-0 sm:h-[540px] sm:w-full sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
             {realVideos.map((video, index) => {
               const rel = getRelativePosition(index);
               const isActive = rel === 0;
@@ -239,11 +239,11 @@ export default function VideoCarousel() {
                 opacityStyle = 1;
                 zIndex = 20;
               } else if (isPrev) {
-                transformStyle = "translate3d(-124%, 0, 0) scale(0.82)";
+                transformStyle = "translate3d(-78%, 0, 0) scale(0.9)";
                 opacityStyle = 0.38;
                 zIndex = 10;
               } else if (isNext) {
-                transformStyle = "translate3d(124%, 0, 0) scale(0.82)";
+                transformStyle = "translate3d(78%, 0, 0) scale(0.9)";
                 opacityStyle = 0.38;
                 zIndex = 10;
               } else {
@@ -255,20 +255,21 @@ export default function VideoCarousel() {
               return (
                 <div
                   key={video.id}
+                  data-position={isPrev ? "prev" : isNext ? "next" : undefined}
                   onClick={() => {
                     if (!isActive) shift(rel > 0 ? 1 : -1);
                   }}
-                  className={`absolute inset-0 transition-all duration-500 ease-out ${
+                  className={`video-carousel-card absolute inset-y-0 left-4 right-4 rounded-xl transition-all duration-500 ease-out sm:inset-0 sm:rounded-none ${
                     isActive ? "cursor-pointer" : "cursor-pointer hover:opacity-60"
                   } ${!isVisible ? "pointer-events-none" : ""}`}
                   style={{
-                    transform: transformStyle,
+                    "--carousel-transform": transformStyle,
                     opacity: opacityStyle,
                     zIndex,
-                  }}
+                  } as React.CSSProperties}
                 >
                   {/* Video frame: raw, full-bleed, borderless */}
-                  <div className="relative h-full w-full overflow-hidden bg-base-surface">
+                  <div className="relative h-full w-full overflow-hidden rounded-xl bg-base-surface sm:rounded-none">
                     <video
                       ref={(el) => {
                         videoRefs.current[index] = el;
