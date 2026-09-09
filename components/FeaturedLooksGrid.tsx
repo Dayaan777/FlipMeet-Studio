@@ -67,7 +67,7 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
           {drop.name} - FEATURED LOOKS
         </h2>
 
-        <div className="relative mx-auto mt-10 max-w-6xl px-1 pb-1 sm:px-3">
+        <div className="relative mx-auto mt-10 max-w-6xl px-4 pb-16 sm:px-3 sm:pb-1">
           {/* Platform ring — sits at the footer of the outfit grid */}
           <PlatformRing
             bloomX={looks.length > 1 ? (focusedIndex / (looks.length - 1)) * 100 : 50}
@@ -75,7 +75,7 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
           />
 
           {/* Outfit grid */}
-          <div className="relative z-10 grid grid-cols-4 items-end gap-2 sm:gap-4 lg:gap-8">
+          <div className="relative z-10 grid grid-cols-4 items-end gap-5 sm:gap-4 lg:gap-8">
             {looks.map((look, index) => (
               <FeaturedLook
                 key={look.id}
@@ -90,7 +90,7 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
             type="button"
             aria-label="Previous featured look"
             onClick={() => moveFocus(-1)}
-            className="absolute left-[-1.25rem] top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-text-secondary/50 text-xl text-text-primary transition-colors hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-[-2.5rem]"
+            className="absolute bottom-0 left-1/2 z-20 flex size-10 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 text-xl text-text-primary transition-colors hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-[-2.5rem] sm:top-1/2 sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2"
           >
             <span aria-hidden="true">←</span>
           </button>
@@ -98,7 +98,7 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
             type="button"
             aria-label="Next featured look"
             onClick={() => moveFocus(1)}
-            className="absolute right-[-1.25rem] top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-text-secondary/50 text-xl text-text-primary transition-colors hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-[-2.5rem]"
+            className="absolute bottom-0 left-1/2 z-20 flex size-10 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 text-xl text-text-primary transition-colors hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-[-2.5rem] sm:left-auto sm:top-1/2 sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2"
           >
             <span aria-hidden="true">→</span>
           </button>

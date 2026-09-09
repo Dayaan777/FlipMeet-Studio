@@ -196,7 +196,7 @@ export default function VideoCarousel() {
             type="button"
             aria-label="Previous video"
             onClick={() => shift(-1)}
-            className="absolute left-2 top-[38%] z-30 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-6 md:left-12 md:size-12 md:text-xl"
+            className="absolute bottom-0 left-1/2 z-30 flex size-10 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-6 sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:left-12 md:size-12 md:text-xl"
           >
             <span aria-hidden="true">←</span>
           </button>
@@ -205,7 +205,7 @@ export default function VideoCarousel() {
             type="button"
             aria-label="Next video"
             onClick={() => shift(1)}
-            className="absolute right-2 top-[38%] z-30 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-6 md:right-12 md:size-12 md:text-xl"
+            className="absolute bottom-0 left-1/2 z-30 flex size-10 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-6 sm:left-auto sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:right-12 md:size-12 md:text-xl"
           >
             <span aria-hidden="true">→</span>
           </button>
@@ -221,7 +221,7 @@ export default function VideoCarousel() {
           />
 
           {/* Reel stage viewport */}
-          <div className="relative h-[490px] w-full max-w-[310px] sm:h-[540px] sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
+          <div className="relative mb-16 h-[490px] w-[82vw] max-w-[310px] sm:mb-0 sm:h-[540px] sm:w-full sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
             {realVideos.map((video, index) => {
               const rel = getRelativePosition(index);
               const isActive = rel === 0;
@@ -239,11 +239,11 @@ export default function VideoCarousel() {
                 opacityStyle = 1;
                 zIndex = 20;
               } else if (isPrev) {
-                transformStyle = "translate3d(-108%, 0, 0) scale(0.86)";
+                transformStyle = "translate3d(-124%, 0, 0) scale(0.82)";
                 opacityStyle = 0.38;
                 zIndex = 10;
               } else if (isNext) {
-                transformStyle = "translate3d(108%, 0, 0) scale(0.86)";
+                transformStyle = "translate3d(124%, 0, 0) scale(0.82)";
                 opacityStyle = 0.38;
                 zIndex = 10;
               } else {
