@@ -38,13 +38,13 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
         </h2>
 
         <div className="relative">
-          <div className="flex items-center gap-4 md:gap-8">
+          <div className="relative flex items-center gap-4 pb-14 md:gap-8 md:pb-0">
             {/* Prev arrow */}
             <button
               type="button"
               aria-label="Previous look"
               onClick={() => shift(-1)}
-              className="z-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
             >
               ←
             </button>
@@ -154,7 +154,7 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
               type="button"
               aria-label="Next look"
               onClick={() => shift(1)}
-              className="z-20 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
             >
               →
             </button>
