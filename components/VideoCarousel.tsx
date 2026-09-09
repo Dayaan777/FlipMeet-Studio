@@ -196,7 +196,7 @@ export default function VideoCarousel() {
             type="button"
             aria-label="Previous video"
             onClick={() => shift(-1)}
-            className="absolute bottom-0 left-1/2 z-30 flex size-10 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-6 sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:left-12 md:size-12 md:text-xl"
+            className="absolute bottom-12 left-1/2 z-30 flex size-10 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-6 sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:left-12 md:size-12 md:text-xl"
           >
             <span aria-hidden="true">←</span>
           </button>
@@ -205,7 +205,7 @@ export default function VideoCarousel() {
             type="button"
             aria-label="Next video"
             onClick={() => shift(1)}
-            className="absolute bottom-0 left-1/2 z-30 flex size-10 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-6 sm:left-auto sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:right-12 md:size-12 md:text-xl"
+            className="absolute bottom-12 left-1/2 z-30 flex size-10 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-6 sm:left-auto sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:right-12 md:size-12 md:text-xl"
           >
             <span aria-hidden="true">→</span>
           </button>
@@ -338,7 +338,7 @@ export default function VideoCarousel() {
 
           {/* Small orange progress dots matching the site's existing dot style (6 dots total) */}
           <div
-            className="mt-6 flex items-center justify-center gap-2"
+            className="mt-10 flex items-center justify-center gap-2 sm:mt-6"
             role="tablist"
             aria-label="Video carousel pagination"
           >
