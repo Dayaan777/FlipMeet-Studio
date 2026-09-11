@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-const VALID_PASSWORD = process.env.ADMIN_PASSWORD || "type password here";
-
 export async function POST(request: Request) {
+  const validPassword = (process.env.ADMIN_PASSWORD || "type password here").trim();
   let password = "";
   const contentType = request.headers.get("content-type") || "";
 
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
     }
   }
 
-  if (password === VALID_PASSWORD) {
+  if (password === validPassword || password.trim() === validPassword) {
     const isProduction = process.env.NODE_ENV === "production";
 
     // If client requested via JSON
