@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
@@ -302,10 +302,10 @@ export default function DashboardPage() {
               </button>
 
               <Link
-                href="/account"
+                href="/"
                 className="rounded-sm bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors"
               >
-                Collector View →
+                View Storefront →
               </Link>
             </div>
           </div>

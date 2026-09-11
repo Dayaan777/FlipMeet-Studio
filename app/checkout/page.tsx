@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -6,13 +6,11 @@ import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/lib/cart-store";
-import { useAuthStore } from "@/lib/auth-store";
 import { useOrderStore, Order } from "@/lib/order-store";
 import { drops } from "@/data/drops";
 
 export default function CheckoutPage() {
   const { items, clear } = useCartStore();
-  const { user, isAuthenticated } = useAuthStore();
   const { createOrder } = useOrderStore();
 
   const drop = drops[0];
@@ -26,15 +24,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
-  // Auto-fill customer profile details
-  useEffect(() => {
-    if (user) {
-      if (user.name) setName(user.name);
-      if (user.email) setEmail(user.email);
-      if (user.phone) setPhone(user.phone);
-      if (user.address) setAddress(user.address);
-    }
-  }, [user]);
+
 
   const total = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
 
@@ -61,7 +51,7 @@ export default function CheckoutPage() {
     });
 
     const newOrder = createOrder({
-      customerId: user ? user.id : `guest-${Date.now().toString(36)}`,
+      customerId: `guest-${Date.now().toString(36)}`,
       customerName: name.trim(),
       customerEmail: email.trim(),
       customerPhone: phone.trim(),
@@ -149,10 +139,10 @@ export default function CheckoutPage() {
               </a>
 
               <Link
-                href="/account#orders"
+                href="/drop/drop-001"
                 className="block w-full rounded-sm border border-base-border bg-base-bg py-3 text-xs font-bold uppercase tracking-widest text-text-primary hover:border-text-secondary transition-colors"
               >
-                VIEW ORDER IN ACCOUNT →
+                RETURN TO DROP 001 →
               </Link>
             </div>
           </div>
@@ -206,20 +196,7 @@ export default function CheckoutPage() {
             {/* Left 2 Cols: Form */}
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Account status banner */}
-                {!isAuthenticated && (
-                  <div className="rounded-sm border border-base-border bg-base-surface/60 p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <span className="text-text-secondary">
-                      Have a FlipMeet account? Sign in to use saved delivery details.
-                    </span>
-                    <Link
-                      href="/login?next=/checkout"
-                      className="text-accent font-bold uppercase tracking-wider hover:underline"
-                    >
-                      SIGN IN →
-                    </Link>
-                  </div>
-                )}
+
 
                 {/* Contact & Delivery Form */}
                 <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 backdrop-blur-sm space-y-4">
