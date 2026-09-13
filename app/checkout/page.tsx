@@ -28,7 +28,7 @@ export default function CheckoutPage() {
 
   const total = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name || !email || !phone || !address) {
@@ -42,30 +42,60 @@ export default function CheckoutPage() {
       const look = drop.looks.find((l) => l.id === item.lookId);
       return {
         lookId: item.lookId,
+        product_id: item.lookId,
         name: item.name,
         size: item.size,
         price: item.price || 18500,
+        price_at_purchase: item.price || 18500,
         quantity: item.quantity,
         image: look?.images[0] || "/images/looks/look-01.jpg",
       };
     });
 
-    const newOrder = createOrder({
-      customerId: `guest-${Date.now().toString(36)}`,
-      customerName: name.trim(),
-      customerEmail: email.trim(),
-      customerPhone: phone.trim(),
-      shippingAddress: address.trim(),
-      dropId: "drop-001",
-      items: orderItems,
-      total: total > 0 ? total : 18500,
-      deliveryWindow: { start: "2026-10-20", end: "2026-10-30" },
-      notes: notes.trim(),
-    });
+    const calculatedTotal = total > 0 ? total : 18500;
 
-    clear();
-    setIsSubmitting(false);
-    setCompletedOrder(newOrder);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          shipping_address: address.trim(),
+          notes: notes.trim(),
+          total: calculatedTotal,
+          items: orderItems,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create order.");
+      }
+
+      const newOrder = createOrder({
+        id: data.order?.id,
+        customerId: `guest-${Date.now().toString(36)}`,
+        customerName: name.trim(),
+        customerEmail: email.trim(),
+        customerPhone: phone.trim(),
+        shippingAddress: address.trim(),
+        dropId: "drop-001",
+        items: orderItems,
+        total: calculatedTotal,
+        deliveryWindow: { start: "2026-10-20", end: "2026-10-30" },
+        notes: notes.trim(),
+      });
+
+      clear();
+      setCompletedOrder(newOrder);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Error placing order.";
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getWhatsAppLink = (order: Order) => {

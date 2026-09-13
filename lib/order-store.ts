@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -38,7 +38,7 @@ export type Order = {
 
 type OrderState = {
   orders: Order[];
-  createOrder: (data: Omit<Order, "id" | "createdAt" | "status">) => Order;
+  createOrder: (data: Omit<Order, "id" | "createdAt" | "status"> & { id?: string }) => Order;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   getOrdersByCustomer: (customerId: string, email?: string) => Order[];
   getOrderById: (orderId: string) => Order | undefined;
@@ -189,7 +189,7 @@ export const useOrderStore = create<OrderState>()(
       createOrder: (data) => {
         const newOrder: Order = {
           ...data,
-          id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+          id: data.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
           status: "pending",
           createdAt: new Date().toISOString(),
         };
