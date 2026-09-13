@@ -233,6 +233,13 @@ export default function AdminPage() {
             </button>
 
             <Link
+              href="/dashboard"
+              className="rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-text-primary hover:border-text-secondary transition-colors"
+            >
+              ORDERS DASHBOARD →
+            </Link>
+
+            <Link
               href="/"
               target="_blank"
               className="rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-text-primary hover:border-text-secondary transition-colors"

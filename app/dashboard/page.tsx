@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { useAuthStore } from "@/lib/auth-store";
 import { useOrderStore, Order, OrderStatus } from "@/lib/order-store";
 import { drops } from "@/data/drops";
 
@@ -58,31 +57,11 @@ const ALL_STATUSES: OrderStatus[] = [
 ];
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, loginAsDemo } = useAuthStore();
   const { orders, updateOrderStatus, resetToSampleData } = useOrderStore();
-
-  const [passwordInput, setPasswordInput] = useState("");
-  const [passwordUnlocked, setPasswordUnlocked] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
-  // Check if admin: either logged in as admin role or entered dashboard password
-  const isAdmin = (isAuthenticated && user?.role === "admin") || passwordUnlocked;
-
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Default pass: flipmeet2026 or matches env
-    if (passwordInput === "flipmeet2026" || passwordInput.trim() === "admin") {
-      setPasswordUnlocked(true);
-      loginAsDemo("admin");
-      setPasswordError("");
-    } else {
-      setPasswordError("Invalid admin access key.");
-    }
-  };
 
   // Filtered orders
   const filteredOrders = useMemo(() => {
@@ -193,76 +172,6 @@ export default function DashboardPage() {
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
   };
 
-  // PASSWORD / ACCESS GATE
-  if (!isAdmin) {
-    return (
-      <>
-        <NavBar />
-        <main className="min-h-screen bg-base-bg px-6 pt-36 pb-20 flex items-center justify-center">
-          <div className="w-full max-w-md rounded-sm border border-base-border bg-base-surface/80 p-8 backdrop-blur-md">
-            <div className="text-center mb-6">
-              <span className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
-                RESTRICTED // STUDIO MANAGEMENT
-              </span>
-              <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-2">
-                ADMIN ACCESS
-              </h1>
-              <p className="text-xs text-text-secondary mt-2">
-                Enter your studio access key to manage orders and drop inventory.
-              </p>
-            </div>
-
-            {passwordError && (
-              <div className="mb-6 rounded-sm border border-accent/40 bg-accent/10 px-4 py-2.5 text-xs text-accent text-center font-bold">
-                {passwordError}
-              </div>
-            )}
-
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                  Studio Access Key
-                </label>
-                <input
-                  type="password"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter password (default: flipmeet2026)"
-                  className="w-full rounded-sm border border-base-border bg-base-bg px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors"
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors"
-              >
-                UNLOCK DASHBOARD
-              </button>
-            </form>
-
-            <div className="mt-8 border-t border-base-border pt-6 text-center">
-              <p className="text-[10px] uppercase tracking-widest text-text-secondary/70 mb-3">
-                Or Quick Test As Demo Admin
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  loginAsDemo("admin");
-                  setPasswordUnlocked(true);
-                }}
-                className="w-full rounded-sm border border-accent/40 bg-accent/10 py-2.5 text-xs font-bold tracking-wider text-accent hover:bg-accent hover:text-text-primary transition-colors"
-              >
-                ⚡ Sign In As Studio Admin
-              </button>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
   return (
     <>
       <NavBar />
@@ -284,6 +193,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin"
+                className="rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-text-primary hover:border-text-secondary transition-colors"
+              >
+                PRODUCT INVENTORY →
+              </Link>
+
               <button
                 type="button"
                 onClick={handleExportCSV}
@@ -307,6 +223,16 @@ export default function DashboardPage() {
               >
                 View Storefront →
               </Link>
+
+              <form action="/api/admin/logout" method="POST">
+                <button
+                  type="submit"
+                  className="rounded-sm border border-base-border bg-base-bg px-3.5 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-accent hover:border-accent/40 transition-colors"
+                  title="Lock administrative session"
+                >
+                  LOCK SESSION
+                </button>
+              </form>
             </div>
           </div>
 

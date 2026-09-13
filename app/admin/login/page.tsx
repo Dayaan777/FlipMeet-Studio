@@ -24,7 +24,10 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        window.location.href = "/admin";
+        window.location.href =
+          window.location.pathname === "/admin/login"
+            ? "/admin"
+            : window.location.pathname;
       } else {
         setError(data.error || "Incorrect password.");
         setLoading(false);

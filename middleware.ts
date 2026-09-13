@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If session cookie is missing for /admin or /admin/*, show the password input page
+  // If session cookie is missing for /admin or /dashboard routes, show the password input page
   if (!isAuthenticated) {
     return NextResponse.rewrite(new URL("/admin/login", request.url));
   }
@@ -29,5 +29,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/dashboard", "/dashboard/:path*"],
 };
