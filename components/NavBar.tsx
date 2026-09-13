@@ -17,6 +17,18 @@ export default function NavBar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const itemCount = useCartStore((s) => s.items.length);
+  const [cartBump, setCartBump] = useState(false);
+  const prevCountRef = useRef(itemCount);
+
+  useEffect(() => {
+    if (itemCount > prevCountRef.current) {
+      setCartBump(true);
+      const t = setTimeout(() => setCartBump(false), 400);
+      prevCountRef.current = itemCount;
+      return () => clearTimeout(t);
+    }
+    prevCountRef.current = itemCount;
+  }, [itemCount]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -71,9 +83,18 @@ export default function NavBar() {
           {/* Cart link */}
           <a
             href="/cart"
-            className="text-xs tracking-widest border border-base-border rounded-full px-4 py-2 text-text-primary hover:border-text-secondary transition-colors"
+            className={`relative text-xs tracking-widest border rounded-full px-4 py-2 text-text-primary transition-colors ${
+              cartBump
+                ? "border-accent text-accent"
+                : "border-base-border hover:border-text-secondary"
+            }`}
           >
-            CART ({itemCount})
+            CART{" "}
+            <span
+              className={`inline-block tabular-nums ${cartBump ? "animate-cart-bump text-accent" : ""}`}
+            >
+              ({itemCount})
+            </span>
           </a>
 
           {/* Mobile hamburger button */}

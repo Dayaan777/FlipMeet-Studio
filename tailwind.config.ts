@@ -30,6 +30,22 @@ const config: Config = {
       borderRadius: {
         sm: "4px",
       },
+      keyframes: {
+        "cart-bump": {
+          "0%":   { transform: "scale(1)" },
+          "30%":  { transform: "scale(1.28)" },
+          "60%":  { transform: "scale(0.92)" },
+          "100%": { transform: "scale(1)" },
+        },
+        "toast-in": {
+          "0%":   { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "cart-bump": "cart-bump 0.35s cubic-bezier(0.36,0.07,0.19,0.97)",
+        "toast-in":  "toast-in 0.2s ease-out forwards",
+      },
     },
   },
   plugins: [],
