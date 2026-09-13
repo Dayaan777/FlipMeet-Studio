@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import type { Drop, Look } from "@/data/drops";
 import PlatformRing from "@/components/PlatformRing";
 
@@ -102,6 +103,16 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
           >
             <span aria-hidden="true">→</span>
           </button>
+        </div>
+
+        {/* CTA to view look details */}
+        <div className="mt-12 text-center">
+          <Link
+            href={`/product/${looks[focusedIndex]?.id || "look-01"}`}
+            className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-accent hover:bg-accent hover:text-text-primary transition-all duration-200"
+          >
+            VIEW {looks[focusedIndex]?.name || "LOOK"} DETAILS →
+          </Link>
         </div>
       </div>
     </section>

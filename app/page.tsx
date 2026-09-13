@@ -6,10 +6,10 @@ import TryOnPanel from "@/components/TryOnPanel";
 import TrustBadges from "@/components/TrustBadges";
 import VideoCarousel from "@/components/VideoCarousel";
 import Footer from "@/components/Footer";
-import { drops } from "@/data/drops";
+import { getSupabaseDrop } from "@/lib/products";
 
-export default function Home() {
-  const drop = drops[0];
+export default async function Home() {
+  const drop = await getSupabaseDrop();
 
   return (
     <>
