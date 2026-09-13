@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqazaajfycutqildyrqw.supabase.co";
@@ -103,6 +104,8 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = getAdminClient();
 
+    let finalOrder: any = null;
+
     // 1. If service role key is configured, insert directly into tables
     if (serviceRoleKey) {
       const { data: order, error: orderError } = await supabaseAdmin
@@ -128,43 +131,69 @@ export async function POST(request: Request) {
 
       if (itemsError) throw itemsError;
 
-      return NextResponse.json(
+      finalOrder = {
+        ...order,
+        items: orderItemsPayload,
+      };
+    } else {
+      // 2. Fallback: Call database SECURITY DEFINER function
+      const { data: order, error: rpcError } = await supabaseAdmin.rpc(
+        "create_order_secure",
         {
-          success: true,
-          order: {
-            ...order,
-            items: orderItemsPayload,
-          },
-        },
-        { status: 201 }
+          p_order_id: orderId,
+          p_customer_name: resolvedName,
+          p_email: resolvedEmail,
+          p_phone: resolvedPhone,
+          p_total: resolvedTotal,
+          p_status: "pending",
+          p_shipping_address: resolvedAddress,
+          p_notes: resolvedNotes,
+          p_items: orderItemsPayload,
+        }
       );
+
+      if (rpcError) throw rpcError;
+
+      finalOrder = {
+        ...order,
+        items: orderItemsPayload,
+      };
     }
 
-    // 2. Fallback: Call database SECURITY DEFINER function
-    const { data: order, error: rpcError } = await supabaseAdmin.rpc(
-      "create_order_secure",
-      {
-        p_order_id: orderId,
-        p_customer_name: resolvedName,
-        p_email: resolvedEmail,
-        p_phone: resolvedPhone,
-        p_total: resolvedTotal,
-        p_status: "pending",
-        p_shipping_address: resolvedAddress,
-        p_notes: resolvedNotes,
-        p_items: orderItemsPayload,
-      }
-    );
+    // 3. Dispatch transactional confirmation email via Resend
+    try {
+      const emailItems = orderItemsPayload.map((item: any) => {
+        const matched = items.find(
+          (i: any) =>
+            i.lookId === item.product_id ||
+            i.product_id === item.product_id ||
+            i.productId === item.product_id
+        );
+        return {
+          name: matched?.name || item.product_id.toUpperCase(),
+          size: item.size,
+          quantity: item.quantity,
+          price: item.price_at_purchase,
+        };
+      });
 
-    if (rpcError) throw rpcError;
+      await sendOrderConfirmationEmail({
+        orderId,
+        customerName: resolvedName,
+        customerEmail: resolvedEmail,
+        shippingAddress: resolvedAddress,
+        total: resolvedTotal,
+        items: emailItems,
+        deliveryEstimate: "20–30 Oct 2026",
+      });
+    } catch (emailErr) {
+      console.error("[Checkout] Failed to dispatch confirmation email:", emailErr);
+    }
 
     return NextResponse.json(
       {
         success: true,
-        order: {
-          ...order,
-          items: orderItemsPayload,
-        },
+        order: finalOrder,
       },
       { status: 201 }
     );
