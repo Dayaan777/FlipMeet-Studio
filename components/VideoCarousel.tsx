@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -64,7 +64,6 @@ const realVideos: VideoItem[] = [
 
 export default function VideoCarousel() {
   const [active, setActive] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const total = realVideos.length;
 
@@ -80,6 +79,7 @@ export default function VideoCarousel() {
   useEffect(() => {
     videoRefs.current.forEach((video, idx) => {
       if (!video) return;
+      video.muted = true;
       if (idx === active) {
         video.currentTime = 0;
         const playPromise = video.play();
@@ -97,15 +97,6 @@ export default function VideoCarousel() {
       }
     });
   }, [active]);
-
-  // Sync mute state across videos
-  useEffect(() => {
-    videoRefs.current.forEach((video) => {
-      if (video) {
-        video.muted = isMuted;
-      }
-    });
-  }, [isMuted]);
 
   // Touch swipe support for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -138,11 +129,6 @@ export default function VideoCarousel() {
     while (diff > total / 2) diff -= total;
     while (diff < -total / 2) diff += total;
     return diff;
-  };
-
-  const toggleSound = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsMuted((prev) => !prev);
   };
 
   const togglePlay = (e: React.MouseEvent) => {
@@ -276,7 +262,7 @@ export default function VideoCarousel() {
                       src={video.src}
                       poster={video.poster}
                       playsInline
-                      muted={isMuted}
+                      muted
                       loop
                       autoPlay={isActive}
                       preload={isVisible ? "auto" : "none"}
@@ -296,15 +282,10 @@ export default function VideoCarousel() {
                         </span>
 
                         <div className="flex items-center gap-2">
-                          {/* Audio toggle button */}
-                          <button
-                            type="button"
-                            onClick={toggleSound}
-                            aria-label={isMuted ? "Unmute video" : "Mute video"}
-                            className="flex items-center gap-1 rounded-sm border border-white/20 bg-black/60 px-2 py-1 text-[9px] font-medium tracking-wider text-text-primary backdrop-blur-sm transition-colors hover:border-accent hover:text-accent"
-                          >
-                            {isMuted ? "MUTED" : "SOUND ON"}
-                          </button>
+                          {/* Muted indicator */}
+                          <span className="flex items-center rounded-sm border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-medium tracking-wider text-text-secondary backdrop-blur-sm">
+                            MUTED
+                          </span>
 
                           {/* Play/pause toggle */}
                           <button
