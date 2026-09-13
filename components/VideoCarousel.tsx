@@ -282,11 +282,6 @@ export default function VideoCarousel() {
                         </span>
 
                         <div className="flex items-center gap-2">
-                          {/* Muted indicator */}
-                          <span className="flex items-center rounded-sm border border-white/10 bg-black/60 px-2 py-1 text-[9px] font-medium tracking-wider text-text-secondary backdrop-blur-sm">
-                            MUTED
-                          </span>
-
                           {/* Play/pause toggle */}
                           <button
                             type="button"
