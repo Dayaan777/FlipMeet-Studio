@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { useOrderStore, Order, OrderStatus } from "@/lib/order-store";
+import type { Order, OrderStatus } from "@/lib/order-store";
 import { drops } from "@/data/drops";
 
 const STATUS_LABELS: Record<OrderStatus, { label: string; bg: string; text: string; border: string }> = {
@@ -56,12 +56,102 @@ const ALL_STATUSES: OrderStatus[] = [
   "cancelled",
 ];
 
+// Helper to normalize Supabase records into the client Order structure
+function normalizeSupabaseOrder(dbOrder: any): Order {
+  const drop = drops[0];
+  const itemsList = Array.isArray(dbOrder.items) ? dbOrder.items : [];
+
+  return {
+    id: dbOrder.id,
+    customerId: dbOrder.customer_id || `cust-${dbOrder.id}`,
+    customerName: dbOrder.customer_name || dbOrder.customerName || "Customer",
+    customerEmail: dbOrder.email || dbOrder.customerEmail || "",
+    customerPhone: dbOrder.phone || dbOrder.customerPhone || "",
+    shippingAddress: dbOrder.shipping_address || dbOrder.shippingAddress || "",
+    dropId: "drop-001",
+    total: Number(dbOrder.total) || 0,
+    status: (dbOrder.status || "pending").toLowerCase() as OrderStatus,
+    createdAt: dbOrder.created_at || new Date().toISOString(),
+    deliveryWindow: { start: "2026-10-20", end: "2026-10-30" },
+    notes: dbOrder.notes || "",
+    items: itemsList.map((item: any) => {
+      const productId = item.product_id || item.productId || item.lookId || "look-01";
+      const matchedLook = drop?.looks.find((l) => l.id === productId);
+      return {
+        lookId: productId,
+        name: matchedLook?.name || productId.toUpperCase(),
+        size: item.size || "M",
+        price: Number(item.price_at_purchase || item.price) || 18500,
+        quantity: Number(item.quantity) || 1,
+        image: matchedLook?.images[0] || `/images/looks/${productId}.jpg`,
+      };
+    }),
+  };
+}
+
 export default function DashboardPage() {
-  const { orders, updateOrderStatus, resetToSampleData } = useOrderStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const fetchOrders = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    else setRefreshing(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/admin/orders");
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
+      const data = await res.json();
+      if (data.success && Array.isArray(data.orders)) {
+        setOrders(data.orders.map(normalizeSupabaseOrder));
+      } else {
+        throw new Error(data.error || "Failed to load orders");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error fetching orders";
+      console.error("Fetch orders error:", msg);
+      setError(msg);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
+    // Optimistic UI update
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+    );
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
+    }
+
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: newStatus }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to persist status change.");
+      }
+    } catch (err) {
+      console.error("Failed to update status in Supabase:", err);
+      fetchOrders(false);
+    }
+  };
 
   // Filtered orders
   const filteredOrders = useMemo(() => {
@@ -91,27 +181,24 @@ export default function DashboardPage() {
     const pendingCount = orders.filter((o) => o.status === "pending").length;
     const inProductionCount = orders.filter((o) => o.status === "in_production").length;
 
-    // Total cap: 6 looks x 100 units = 600 pieces max for Drop 001
-    const totalCap = 600;
-    const allocationPercent = Math.min(100, Math.round((totalUnitsSold / totalCap) * 100));
-
     return {
       totalRevenue,
       totalOrders: orders.length,
       totalUnitsSold,
       pendingCount,
       inProductionCount,
-      allocationPercent,
+      allocationPercent: Math.min(100, Math.round((totalUnitsSold / 600) * 100)),
     };
   }, [orders]);
 
-  // Allocation breakdown per Look
+  // Allocation quota per look (each limited to 100)
   const lookAllocation = useMemo(() => {
     const drop = drops[0];
     const counts: Record<string, number> = {};
 
     drop.looks.forEach((look) => {
       counts[look.name] = 0;
+      counts[look.id] = 0;
     });
 
     orders
@@ -119,11 +206,12 @@ export default function DashboardPage() {
       .forEach((o) => {
         o.items.forEach((item) => {
           counts[item.name] = (counts[item.name] || 0) + item.quantity;
+          counts[item.lookId] = (counts[item.lookId] || 0) + item.quantity;
         });
       });
 
     return drop.looks.map((look) => {
-      const sold = counts[look.name] || 0;
+      const sold = (counts[look.name] || 0) + (counts[look.id] || 0);
       const limit = 100;
       return {
         id: look.id,
@@ -210,11 +298,13 @@ export default function DashboardPage() {
 
               <button
                 type="button"
-                onClick={resetToSampleData}
-                title="Reset sample orders for testing"
-                className="rounded-sm border border-base-border bg-base-bg px-3.5 py-2.5 text-xs font-bold text-text-secondary hover:text-text-primary transition-colors"
+                onClick={() => fetchOrders(false)}
+                disabled={refreshing || loading}
+                title="Fetch latest orders from Supabase"
+                className="rounded-sm border border-base-border bg-base-bg px-3.5 py-2.5 text-xs font-bold text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
-                ↺ Reset Orders
+                <span className={refreshing ? "animate-spin" : ""}>↺</span>
+                {refreshing ? "Refreshing..." : "Refresh Orders"}
               </button>
 
               <Link
@@ -235,6 +325,20 @@ export default function DashboardPage() {
               </form>
             </div>
           </div>
+
+          {/* Error Banner */}
+          {error && (
+            <div className="mb-6 rounded-sm border border-red-500/40 bg-red-500/10 p-4 text-xs text-red-400 flex items-center justify-between">
+              <span>Error loading orders: {error}</span>
+              <button
+                type="button"
+                onClick={() => fetchOrders()}
+                className="rounded-sm bg-red-500/20 px-3 py-1 font-bold text-red-300 hover:bg-red-500/30 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          )}
 
           {/* KPI CARDS */}
           <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -311,19 +415,19 @@ export default function DashboardPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search order ID, customer, phone..."
-                  className="rounded-sm border border-base-border bg-base-bg px-3.5 py-1.5 text-xs text-text-primary placeholder:text-text-secondary/50 focus:border-accent focus:outline-none w-full sm:w-64"
+                  placeholder="Search by ID, name, phone, item..."
+                  className="w-full sm:w-64 rounded-sm border border-base-border bg-base-surface px-3 py-1.5 text-xs text-text-primary placeholder:text-text-secondary/50 focus:border-accent focus:outline-none transition-colors"
                 />
               </div>
 
-              {/* Status filter bar */}
-              <div className="flex flex-wrap gap-1.5 border-y border-base-border/70 py-2.5">
+              {/* Status Filter Pills */}
+              <div className="flex flex-wrap gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setStatusFilter("all")}
-                  className={`rounded-sm px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                  className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors ${
                     statusFilter === "all"
-                      ? "bg-text-primary text-black"
+                      ? "bg-accent text-text-primary"
                       : "bg-base-surface text-text-secondary hover:text-text-primary"
                   }`}
                 >
@@ -336,7 +440,7 @@ export default function DashboardPage() {
                       key={st}
                       type="button"
                       onClick={() => setStatusFilter(st)}
-                      className={`rounded-sm px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                      className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors ${
                         statusFilter === st
                           ? "bg-accent text-text-primary"
                           : "bg-base-surface text-text-secondary hover:text-text-primary"
@@ -350,9 +454,16 @@ export default function DashboardPage() {
 
               {/* Orders Table Container */}
               <div className="overflow-x-auto rounded-sm border border-base-border bg-base-surface/60">
-                {filteredOrders.length === 0 ? (
+                {loading ? (
+                  <div className="p-16 text-center text-xs text-text-secondary flex flex-col items-center justify-center gap-3">
+                    <span className="size-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                    <span>Loading live orders from Supabase...</span>
+                  </div>
+                ) : filteredOrders.length === 0 ? (
                   <div className="p-12 text-center text-xs text-text-secondary">
-                    No orders match the current filter or search term.
+                    {orders.length === 0
+                      ? "No orders found in Supabase database yet."
+                      : "No orders match the current filter or search term."}
                   </div>
                 ) : (
                   <table className="w-full text-left text-xs text-text-secondary">
@@ -434,7 +545,7 @@ export default function DashboardPage() {
                               <select
                                 value={order.status}
                                 onChange={(e) =>
-                                  updateOrderStatus(order.id, e.target.value as OrderStatus)
+                                  handleUpdateStatus(order.id, e.target.value as OrderStatus)
                                 }
                                 className={`rounded-sm border px-2 py-1 text-[11px] font-bold uppercase tracking-wider bg-base-bg cursor-pointer transition-colors focus:outline-none ${statusCfg.text} ${statusCfg.border}`}
                               >
@@ -458,10 +569,9 @@ export default function DashboardPage() {
                               <button
                                 type="button"
                                 onClick={() => handleSendWhatsAppUpdate(order)}
-                                title="Send WhatsApp Update to Customer"
-                                className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-400 hover:bg-emerald-500 hover:text-black transition-colors"
+                                className="rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-400 hover:bg-emerald-500 hover:text-black transition-colors"
                               >
-                                💬
+                                WhatsApp ↗
                               </button>
                             </td>
                           </tr>
@@ -536,9 +646,9 @@ export default function DashboardPage() {
                     </span>
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase ${
-                        STATUS_LABELS[selectedOrder.status].bg
-                      } ${STATUS_LABELS[selectedOrder.status].text} ${
-                        STATUS_LABELS[selectedOrder.status].border
+                        STATUS_LABELS[selectedOrder.status]?.bg || "bg-yellow-500/10"
+                      } ${STATUS_LABELS[selectedOrder.status]?.text || "text-yellow-400"} ${
+                        STATUS_LABELS[selectedOrder.status]?.border || "border-yellow-500/30"
                       }`}
                     >
                       {selectedOrder.status.replace("_", " ")}
