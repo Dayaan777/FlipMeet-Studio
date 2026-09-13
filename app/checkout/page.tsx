@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
@@ -116,27 +116,6 @@ export default function CheckoutPage() {
     }
   };
 
-  const getWhatsAppLink = (order: Order) => {
-    const summary = order.items
-      .map((i) => `• ${i.name} [Size: ${i.size}] x${i.quantity}`)
-      .join("\n");
-
-    const message = encodeURIComponent(
-      `*NEW FLIPMEET ORDER: ${order.id}*\n` +
-      `--------------------------------\n` +
-      `*Customer:* ${order.customerName}\n` +
-      `*Phone:* ${order.customerPhone}\n` +
-      `*Address:* ${order.shippingAddress}\n` +
-      `\n*Items:*\n${summary}\n` +
-      `\n*Total:* PKR ${order.total.toLocaleString()}\n` +
-      `*Delivery Window:* 20–30 Oct 2026\n` +
-      (order.notes ? `*Notes:* ${order.notes}\n` : "") +
-      `\n_Please confirm my Drop 001 order._`
-    );
-
-    return `https://wa.me/?text=${message}`;
-  };
-
   // SUCCESS CONFIRMATION SCREEN
   if (completedOrder) {
     return (
@@ -156,7 +135,7 @@ export default function CheckoutPage() {
             </h1>
 
             <p className="text-xs text-text-secondary mt-3">
-              Your garment allocation has been recorded in our production ledger. Please finalize confirmation directly via WhatsApp.
+              Your order has been placed and a confirmation email is on its way to <span className="text-text-primary font-bold">{completedOrder.customerEmail}</span>. We&apos;ll be in touch before dispatch.
             </p>
 
             <div className="my-6 rounded-sm border border-base-border bg-base-bg p-4 text-left text-xs space-y-2">
@@ -177,18 +156,9 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-3">
-              <a
-                href={getWhatsAppLink(completedOrder)}
-                target="_blank"
-                rel="noreferrer"
-                className="block w-full rounded-sm bg-emerald-600 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-500 transition-colors"
-              >
-                CONFIRM VIA WHATSAPP NOW 💬
-              </a>
-
               <Link
                 href="/drop/drop-001"
-                className="block w-full rounded-sm border border-base-border bg-base-bg py-3 text-xs font-bold uppercase tracking-widest text-text-primary hover:border-text-secondary transition-colors"
+                className="block w-full rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors text-center"
               >
                 RETURN TO DROP 001 →
               </Link>
@@ -375,7 +345,7 @@ export default function CheckoutPage() {
                   disabled={isSubmitting}
                   className="w-full rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? "PLACING ORDER..." : "PLACE ORDER & CONFIRM VIA WHATSAPP →"}
+                  {isSubmitting ? "PLACING ORDER..." : "PLACE ORDER →"}
                 </button>
               </form>
             </div>

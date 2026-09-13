@@ -164,11 +164,16 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationEmailDat
       html: emailHtml,
     });
 
-    console.log("[Resend] Order confirmation email dispatched:", result);
-    return { success: true, result };
+    if (result.error) {
+      console.error("[Resend] Error response from Resend API:", result.error);
+      return { success: false, error: result.error.message || result.error };
+    }
+
+    console.log("[Resend] Order confirmation email dispatched successfully:", result.data);
+    return { success: true, result: result.data };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error sending email via Resend";
-    console.error("[Resend] Failed to send order confirmation email:", message);
+    console.error("[Resend] Exception sending order confirmation email:", message);
     return { success: false, error: message };
   }
 }

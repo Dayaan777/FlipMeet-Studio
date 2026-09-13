@@ -143,7 +143,7 @@ export default function CartPage() {
                 </Link>
 
                 <p className="text-[10px] text-center text-text-secondary mt-3">
-                  Order confirmation handled directly via WhatsApp.
+                  Order confirmation receipt sent directly to your email.
                 </p>
               </div>
             </div>
