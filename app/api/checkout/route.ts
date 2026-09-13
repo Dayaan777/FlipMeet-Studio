@@ -52,16 +52,17 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!resolvedEmail || !resolvedEmail.includes("@")) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!resolvedEmail || !emailRegex.test(resolvedEmail)) {
       return NextResponse.json(
         { error: "A valid email address is required." },
         { status: 400 }
       );
     }
 
-    if (!resolvedPhone) {
+    if (!resolvedPhone || !/^\d+$/.test(resolvedPhone)) {
       return NextResponse.json(
-        { error: "Phone number is required." },
+        { error: "Phone number is required and must contain numeric digits only." },
         { status: 400 }
       );
     }

@@ -21,18 +21,36 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
-
-
 
   const total = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError("");
+    setPhoneError("");
 
-    if (!name || !email || !phone || !address) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
       alert("Please fill in all contact and delivery details.");
+      return;
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      setEmailError("Please enter a valid email address (e.g. name@domain.com).");
+      return;
+    }
+
+    if (!/^\d+$/.test(phone.trim())) {
+      setPhoneError("Phone number must contain numbers only (no letters or symbols).");
+      return;
+    }
+
+    if (phone.trim().length < 8) {
+      setPhoneError("Phone number must be at least 8 digits.");
       return;
     }
 
@@ -104,7 +122,7 @@ export default function CheckoutPage() {
       .join("\n");
 
     const message = encodeURIComponent(
-      `*NEW FLIPMEET PRE-ORDER: ${order.id}*\n` +
+      `*NEW FLIPMEET ORDER: ${order.id}*\n` +
       `--------------------------------\n` +
       `*Customer:* ${order.customerName}\n` +
       `*Phone:* ${order.customerPhone}\n` +
@@ -113,7 +131,7 @@ export default function CheckoutPage() {
       `\n*Total:* PKR ${order.total.toLocaleString()}\n` +
       `*Delivery Window:* 20–30 Oct 2026\n` +
       (order.notes ? `*Notes:* ${order.notes}\n` : "") +
-      `\n_Please confirm my Drop 001 slot._`
+      `\n_Please confirm my Drop 001 order._`
     );
 
     return `https://wa.me/?text=${message}`;
@@ -131,7 +149,7 @@ export default function CheckoutPage() {
             </span>
 
             <p className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
-              PRE-ORDER RECORDED // SLOT RESERVED
+              ORDER CONFIRMED // ALLOCATION RESERVED
             </p>
             <h1 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
               ORDER {completedOrder.id}
@@ -190,7 +208,7 @@ export default function CheckoutPage() {
         <main className="min-h-screen bg-base-bg px-6 pt-36 pb-20 flex items-center justify-center">
           <div className="w-full max-w-md text-center rounded-sm border border-base-border bg-base-surface/80 p-8">
             <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-text-primary">
-              NO ITEMS IN PRE-ORDER BAG
+              NO ITEMS IN BAG
             </h1>
             <p className="text-xs text-text-secondary mt-2 mb-6">
               Add garments from Drop 001 to your bag before checking out.
@@ -218,7 +236,7 @@ export default function CheckoutPage() {
               DROP 001 // FINAL STEP
             </p>
             <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
-              PRE-ORDER CHECKOUT
+              CHECKOUT
             </h1>
           </div>
 
@@ -256,26 +274,72 @@ export default function CheckoutPage() {
                       <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (emailError) setEmailError("");
+                        }}
                         placeholder="zaid@domain.com"
-                        className="w-full rounded-sm border border-base-border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors"
+                        className={`w-full rounded-sm border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:outline-none transition-colors ${
+                          emailError ? "border-red-500 focus:border-red-500" : "border-base-border focus:border-accent"
+                        }`}
                         required
                       />
+                      {emailError && (
+                        <p className="mt-1 text-xs text-red-400">{emailError}</p>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                      WhatsApp Number (For Order Confirmation & Dispatch Ping) *
+                      Phone Number (Numbers only) *
                     </label>
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+92 321 8841920"
-                      className="w-full rounded-sm border border-base-border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors"
+                      onChange={(e) => {
+                        const numeric = e.target.value.replace(/\D/g, "");
+                        setPhone(numeric);
+                        if (phoneError) setPhoneError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Backspace" ||
+                          e.key === "Delete" ||
+                          e.key === "Tab" ||
+                          e.key === "Escape" ||
+                          e.key === "Enter" ||
+                          e.key === "ArrowLeft" ||
+                          e.key === "ArrowRight" ||
+                          e.key === "Home" ||
+                          e.key === "End" ||
+                          (e.ctrlKey && (e.key === "a" || e.key === "c" || e.key === "v" || e.key === "x")) ||
+                          (e.metaKey && (e.key === "a" || e.key === "c" || e.key === "v" || e.key === "x"))
+                        ) {
+                          return;
+                        }
+                        if (!/^[0-9]$/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pasteData = e.clipboardData.getData("text");
+                        const numericOnly = pasteData.replace(/\D/g, "");
+                        setPhone((prev) => prev + numericOnly);
+                        if (phoneError) setPhoneError("");
+                      }}
+                      placeholder="03218841920"
+                      className={`w-full rounded-sm border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:outline-none transition-colors ${
+                        phoneError ? "border-red-500 focus:border-red-500" : "border-base-border focus:border-accent"
+                      }`}
                       required
                     />
+                    {phoneError && (
+                      <p className="mt-1 text-xs text-red-400">{phoneError}</p>
+                    )}
                   </div>
 
                   <div>
@@ -311,7 +375,7 @@ export default function CheckoutPage() {
                   disabled={isSubmitting}
                   className="w-full rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? "RESERVING ALLOCATION..." : "RESERVE & CONFIRM VIA WHATSAPP →"}
+                  {isSubmitting ? "PLACING ORDER..." : "PLACE ORDER & CONFIRM VIA WHATSAPP →"}
                 </button>
               </form>
             </div>
@@ -320,7 +384,7 @@ export default function CheckoutPage() {
             <div>
               <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 backdrop-blur-sm sticky top-28 space-y-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
-                  RESERVED ALLOCATION
+                  ORDER SUMMARY
                 </p>
 
                 <div className="divide-y divide-base-border/50 max-h-72 overflow-y-auto">

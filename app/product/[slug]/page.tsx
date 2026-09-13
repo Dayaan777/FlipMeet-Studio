@@ -24,7 +24,7 @@ export async function generateMetadata({
 
   return {
     title: `${product.name} — ${product.description} | FlipMeet Studio`,
-    description: `Pre-order ${product.name} from FlipMeet Studio Drop 001. Limited to 100 pieces.`,
+    description: `Order ${product.name} from FlipMeet Studio Drop 001. Limited to 100 pieces.`,
   };
 }
 

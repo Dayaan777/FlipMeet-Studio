@@ -141,7 +141,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 </div>
               </div>
 
-              {/* Stock status & Pre-order window */}
+              {/* Stock status & Delivery window */}
               <div className="rounded-sm border border-base-border bg-base-surface/60 p-4 text-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-text-secondary uppercase tracking-wider">Availability</span>
@@ -163,7 +163,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                   onClick={handleAddToCart}
                   className="w-full rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-[0.2em] text-text-primary hover:bg-accent-dim transition-colors shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
                 >
-                  {added ? "CHECK ADDED TO PRE-ORDER BAG" : "ADD TO PRE-ORDER BAG"}
+                  {added ? "✓ ADDED TO BAG" : "ADD TO BAG"}
                 </button>
 
                 <button

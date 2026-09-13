@@ -43,7 +43,7 @@ export default function Hero({ drop }: { drop: Drop }) {
           <div className="mt-8 flex flex-wrap gap-6 border-y border-base-border py-5 max-w-md bg-base-bg/40 backdrop-blur-sm">
             <div>
               <p className="text-[10px] tracking-widest text-text-secondary mb-2">
-                PRE-ORDER CLOSES IN
+                ORDERS CLOSE IN
               </p>
               <CountdownTimer target={drop.preOrderCloses} />
             </div>
@@ -64,7 +64,7 @@ export default function Hero({ drop }: { drop: Drop }) {
               href={`/drop/${drop.id}`}
               className="bg-accent hover:bg-accent-dim transition-colors text-text-primary text-sm tracking-wide px-6 py-3 rounded-sm inline-flex items-center gap-2"
             >
-              PRE-ORDER {drop.name}
+              ORDER {drop.name}
               <span aria-hidden="true">→</span>
             </a>
             <button className="border border-base-border hover:border-text-secondary transition-colors text-text-primary text-sm tracking-wide px-6 py-3 rounded-sm inline-flex items-center gap-2">

@@ -167,7 +167,7 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
               href={`/product/${drop.looks[active]?.id || "look-01"}`}
               className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-accent hover:bg-accent hover:text-text-primary transition-all duration-200"
             >
-              PRE-ORDER {drop.looks[active]?.name || "LOOK"} →
+              ORDER {drop.looks[active]?.name || "LOOK"} →
             </Link>
           </div>
         </div>

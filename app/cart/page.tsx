@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +25,7 @@ export default function CartPage() {
                 DROP 001 // SECURE YOUR CUT
               </p>
               <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
-                PRE-ORDER BAG ({items.length})
+                BAG ({items.length})
               </h1>
             </div>
 
@@ -43,7 +43,7 @@ export default function CartPage() {
           {items.length === 0 ? (
             <div className="rounded-sm border border-base-border bg-base-surface/50 p-12 text-center">
               <p className="text-sm font-bold uppercase tracking-wider text-text-primary">
-                Your pre-order bag is empty
+                Your bag is empty
               </p>
               <p className="text-xs text-text-secondary mt-1 max-w-sm mx-auto">
                 Explore the six limited chapters of Drop 001 and select your size before the window closes.
@@ -106,7 +106,7 @@ export default function CartPage() {
               {/* Order Summary & Checkout CTA */}
               <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 h-fit backdrop-blur-sm">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-4">
-                  PRE-ORDER SUMMARY
+                  ORDER SUMMARY
                 </p>
 
                 <div className="space-y-3 text-xs border-b border-base-border pb-4">
@@ -143,7 +143,7 @@ export default function CartPage() {
                 </Link>
 
                 <p className="text-[10px] text-center text-text-secondary mt-3">
-                  Pre-order confirmation handled directly via WhatsApp.
+                  Order confirmation handled directly via WhatsApp.
                 </p>
               </div>
             </div>

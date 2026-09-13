@@ -187,7 +187,7 @@ export default function DashboardPage() {
   // Direct WhatsApp status message
   const handleSendWhatsAppUpdate = (order: Order) => {
     const text = encodeURIComponent(
-      `Hello ${order.customerName}! Update on your FlipMeet Studio Drop 001 Pre-Order (${order.id}): Your order status is now "${order.status.toUpperCase()}". Scheduled delivery: ${new Date(order.deliveryWindow.start).toLocaleDateString("en-GB", { month: "short", day: "2-digit" })} – ${new Date(order.deliveryWindow.end).toLocaleDateString("en-GB", { month: "short", day: "2-digit", year: "numeric" })}. Thank you for building for the culture!`
+      `Hello ${order.customerName}! Update on your FlipMeet Studio Drop 001 Order (${order.id}): Your order status is now "${order.status.toUpperCase()}". Scheduled delivery: ${new Date(order.deliveryWindow.start).toLocaleDateString("en-GB", { month: "short", day: "2-digit" })} – ${new Date(order.deliveryWindow.end).toLocaleDateString("en-GB", { month: "short", day: "2-digit", year: "numeric" })}. Thank you for building for the culture!`
     );
     const phone = order.customerPhone.replace(/[^0-9]/g, "");
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                 OPERATIONS DASHBOARD
               </h1>
               <p className="text-xs text-text-secondary mt-1">
-                Live pre-order fulfillment queue, inventory allocation, and customer communications.
+                Live order fulfillment queue, inventory allocation, and customer communications.
               </p>
             </div>
 
@@ -315,7 +315,7 @@ export default function DashboardPage() {
             {/* Card 1 */}
             <div className="rounded-sm border border-base-border bg-base-surface/80 p-5 backdrop-blur-sm">
               <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
-                Pre-Order Gross Revenue
+                Total Gross Revenue
               </p>
               <p className="font-display text-2xl sm:text-3xl font-bold text-text-primary mt-2">
                 PKR {metrics.totalRevenue.toLocaleString()}
@@ -555,7 +555,7 @@ export default function DashboardPage() {
 
               <div className="rounded-sm border border-base-border bg-base-surface/80 p-5 backdrop-blur-sm space-y-4">
                 <p className="text-xs text-text-secondary">
-                  Live pre-order quota tracking for all six chapters in DROP 001.
+                  Live order quota tracking for all six chapters in DROP 001.
                 </p>
 
                 <div className="space-y-4">
@@ -591,7 +591,7 @@ export default function DashboardPage() {
                   Fulfillment Schedule
                 </p>
                 <p className="text-xs text-text-secondary mt-1">
-                  Pre-order closes Oct 1st. Batch manufacturing starts Oct 2nd. Shipments dispatch Oct 20–30 via private courier.
+                  Orders close Oct 1st. Batch manufacturing starts Oct 2nd. Shipments dispatch Oct 20–30 via private courier.
                 </p>
               </div>
             </div>

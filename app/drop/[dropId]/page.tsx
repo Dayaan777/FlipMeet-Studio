@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "DROP 001 Collection | FlipMeet Studio",
-  description: "Six Outfits. One First Chapter. Limited edition pre-order collection.",
+  description: "Six Outfits. One First Chapter. Limited edition collection.",
 };
 
 export async function generateStaticParams() {
@@ -97,7 +97,7 @@ export default async function DropPage({
                     <div className="mt-4 flex items-center justify-between text-[10px] tracking-widest text-text-secondary uppercase">
                       <span>Sizes: {product.sizes.join(" · ")}</span>
                       <span className="font-bold text-text-primary group-hover:text-accent transition-colors">
-                        PRE-ORDER →
+                        ORDER NOW →
                       </span>
                     </div>
                   </div>
