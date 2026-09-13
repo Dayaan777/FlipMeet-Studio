@@ -49,7 +49,6 @@ export default function ProductDetailClient({ product }: { product: Product }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Image Display */}
           <div className="relative aspect-[3/4] w-full rounded-sm border border-base-border bg-base-surface overflow-hidden flex items-end justify-center p-6">
-            <div className="absolute inset-0 bg-radial from-accent/5 via-transparent to-transparent pointer-events-none" />
             <div className="relative h-full w-full flex items-end justify-center">
               <Image
                 src={imageSrc}
@@ -57,7 +56,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 fill
                 priority
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-contain object-bottom drop-shadow-[0_0_30px_rgba(255,77,30,0.3)]"
+                className="object-contain object-bottom"
               />
             </div>
             <div className="absolute top-4 left-4 rounded-full border border-base-border bg-base-bg/80 px-3 py-1 text-[10px] tracking-widest uppercase text-text-secondary backdrop-blur-sm">
