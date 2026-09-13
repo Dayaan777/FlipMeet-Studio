@@ -3,14 +3,17 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@/lib/products";
 
 export default function ProductDetailClient({ product }: { product: Product }) {
+  const router = useRouter();
   const [selectedSize, setSelectedSize] = useState(
     product.sizes && product.sizes.length > 0 ? product.sizes[0] : "M"
   );
   const [added, setAdded] = useState(false);
+  const items = useCartStore((s) => s.items);
   const addItem = useCartStore((s) => s.addItem);
 
   const handleAddToCart = () => {
@@ -23,6 +26,22 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
+  };
+
+  const handleProceedToCheckout = () => {
+    const alreadyInCart = items.some(
+      (item) => item.lookId === product.id && item.size === selectedSize
+    );
+    if (!alreadyInCart) {
+      addItem({
+        lookId: product.id,
+        name: product.name,
+        size: selectedSize,
+        price: product.price || 18500,
+        quantity: 1,
+      });
+    }
+    router.push("/checkout");
   };
 
   const imageSrc = product.images && product.images.length > 0
@@ -135,12 +154,13 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                 {added ? "✓ ADDED TO PRE-ORDER BAG" : "ADD TO PRE-ORDER BAG"}
               </button>
 
-              <Link
-                href="/cart"
+              <button
+                type="button"
+                onClick={handleProceedToCheckout}
                 className="block w-full rounded-sm border border-base-border bg-base-surface py-3.5 text-center text-xs font-bold uppercase tracking-widest text-text-primary hover:border-text-secondary transition-colors"
               >
                 PROCEED TO CHECKOUT →
-              </Link>
+              </button>
             </div>
 
             {/* Spec & Craft details */}

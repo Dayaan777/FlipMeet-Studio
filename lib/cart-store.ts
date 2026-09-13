@@ -21,7 +21,20 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       addItem: (item) =>
-        set((state) => ({ items: [...state.items, item] })),
+        set((state) => {
+          const index = state.items.findIndex(
+            (i) => i.lookId === item.lookId && i.size === item.size
+          );
+          if (index > -1) {
+            const updated = [...state.items];
+            updated[index] = {
+              ...updated[index],
+              quantity: updated[index].quantity + item.quantity,
+            };
+            return { items: updated };
+          }
+          return { items: [...state.items, item] };
+        }),
       removeItem: (lookId, size) =>
         set((state) => ({
           items: state.items.filter(
