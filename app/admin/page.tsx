@@ -142,54 +142,63 @@ export default function AdminPage() {
     };
 
     try {
-      if (activeModal === "add") {
-        // Direct Supabase INSERT
-        const { error } = await supabase.from("products").insert(payload);
-        if (error) throw error;
-        setStatusMessage({ type: "success", text: `Product "${payload.name}" created in Supabase.` });
-      } else {
-        // Direct Supabase UPDATE
-        const { error } = await supabase
-          .from("products")
-          .update(payload)
-          .eq("id", payload.id);
-        if (error) throw error;
-        setStatusMessage({ type: "success", text: `Product "${payload.name}" updated in Supabase.` });
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.error || "Failed to save product.");
       }
+
+      setStatusMessage({
+        type: "success",
+        text: `Product "${payload.name}" ${activeModal === "add" ? "created" : "updated"} successfully.`,
+      });
 
       setActiveModal(null);
       await fetchProducts();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save product.";
-      setStatusMessage({ type: "error", text: `Error saving to Supabase: ${message}` });
+      setStatusMessage({ type: "error", text: message });
     } finally {
       setFormSaving(false);
     }
   };
 
-  // Delete product from Supabase
+  // Delete product via server-side authenticated route
   const handleDeleteProduct = async () => {
     if (!deletingProduct) return;
     setDeleteLoading(true);
     setStatusMessage(null);
 
     try {
-      const { error } = await supabase
-        .from("products")
-        .delete()
-        .eq("id", deletingProduct.id);
+      const response = await fetch("/api/admin/products", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: deletingProduct.id }),
+      });
 
-      if (error) throw error;
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.error || "Failed to delete product.");
+      }
 
       setStatusMessage({
         type: "success",
-        text: `Product "${deletingProduct.name}" deleted from Supabase.`,
+        text: `Product "${deletingProduct.name}" deleted successfully.`,
       });
       setDeletingProduct(null);
       await fetchProducts();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to delete product.";
-      setStatusMessage({ type: "error", text: `Error deleting product: ${message}` });
+      setStatusMessage({ type: "error", text: message });
     } finally {
       setDeleteLoading(false);
     }
