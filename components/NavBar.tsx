@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useCartStore } from "@/lib/cart-store";
 
@@ -16,6 +17,7 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
   const [scrolled, setScrolled] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const itemCount = useCartStore((s) => s.items.length);
@@ -49,13 +51,21 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Prevent background scroll when mobile drawer is open
+  // Close the drawer whenever navigation changes, including client-side route transitions.
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Prevent background scroll while the drawer is open and restore it on close/unmount.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [mobileMenuOpen]);
 
   return (
