@@ -11,7 +11,7 @@ const LINKS = [
   { label: "STUDIO", href: "/studio" },
 ];
 
-export default function NavBar() {
+export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -60,7 +60,11 @@ export default function NavBar() {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
-        scrolled ? "bg-base-bg/90 backdrop-blur border-b border-base-border" : "bg-transparent"
+        scrolled
+          ? "bg-base-bg/90 backdrop-blur border-b border-base-border"
+          : mobileSolid
+            ? "max-md:bg-base-bg/95 max-md:backdrop-blur-md max-md:border-b max-md:border-base-border bg-transparent"
+            : "bg-transparent"
       }`}
     >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">

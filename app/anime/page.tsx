@@ -38,12 +38,10 @@ const ANIME_SERIES = [
 export default function AnimePage() {
   return (
     <>
-      <NavBar />
-      <main className="bg-base-bg min-h-screen">
+      <NavBar mobileSolid />
+      <main className="bg-base-bg min-h-screen pt-[73px] md:pt-0">
         {/* Hero uses the artwork's square ratio on mobile and the wide desktop ratio at larger breakpoints. */}
         <section className="relative w-full aspect-square md:aspect-[1538/688] overflow-hidden border-b border-base-border bg-black">
-          {/* Mobile-only navbar contrast layer; the image remains visible below the real nav. */}
-          <div className="absolute inset-x-0 top-0 z-20 h-28 bg-gradient-to-b from-black/80 via-black/35 to-transparent md:hidden pointer-events-none" />
 
           {/* Desktop keeps the original wide artwork; mobile uses the dedicated square composition. */}
           <div className="absolute inset-0 hidden md:block">
