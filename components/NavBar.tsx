@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useCartStore } from "@/lib/cart-store";
 
@@ -68,17 +69,17 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
       }`}
     >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">
-        <a href="/" className="font-display text-2xl font-bold tracking-tight text-text-primary">
+        <Link href="/" className="font-display text-2xl font-bold tracking-tight text-text-primary">
           FLIPMEET STUDIO
-        </a>
+        </Link>
 
         {/* Desktop nav links */}
         <ul className="hidden md:flex items-center gap-8 text-xs tracking-widest text-text-secondary">
           {LINKS.map((link) => (
             <li key={link.href}>
-              <a href={link.href} className="hover:text-text-primary transition-colors">
+              <Link href={link.href} className="hover:text-text-primary transition-colors">
                 {link.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -106,6 +107,8 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
           <button
             type="button"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation-drawer"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             className="md:hidden text-text-primary text-2xl leading-none px-1"
           >
@@ -116,20 +119,25 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
 
       {/* Mobile slide-out drawer menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[73px] z-40 bg-base-bg/95 backdrop-blur-xl md:hidden border-t border-base-border animate-in fade-in duration-200">
-          <div className="flex h-full flex-col justify-between p-6">
+        <div
+          id="mobile-navigation-drawer"
+          role="dialog"
+          aria-label="Mobile navigation"
+          className="fixed inset-x-0 top-[73px] bottom-0 z-[60] overflow-y-auto bg-base-bg/95 backdrop-blur-xl md:hidden border-t border-base-border animate-in fade-in duration-200"
+        >
+          <div className="flex min-h-full flex-col justify-between p-6">
             <div className="space-y-6">
               {/* Navigation links */}
               <ul className="space-y-4 pt-4 text-sm font-display tracking-widest text-text-secondary">
                 {LINKS.map((link) => (
                   <li key={link.href}>
-                    <a
+                    <Link
                       href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block hover:text-text-primary transition-colors"
+                      className="block py-1 hover:text-text-primary transition-colors"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
