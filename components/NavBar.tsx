@@ -5,6 +5,7 @@ import { useCartStore } from "@/lib/cart-store";
 
 const LINKS = [
   { label: "DROP 001", href: "/drop/drop-001" },
+  { label: "ANIME", href: "/anime" },
   { label: "ABOUT", href: "/about" },
   { label: "PROCESS", href: "/process" },
   { label: "STUDIO", href: "/studio" },
