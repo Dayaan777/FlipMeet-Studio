@@ -7,9 +7,9 @@ export default function AnimePage() {
     <>
       <NavBar />
       <main className="bg-base-bg min-h-screen">
-        {/* Hero Section with exact aspect ratio framing matching the original image */}
-        <section className="relative w-full min-h-[540px] sm:min-h-[600px] md:min-h-0 md:aspect-[1024/457] flex flex-col justify-between overflow-hidden border-b border-base-border bg-black">
-          {/* Full-bleed background image with zero cropping on the right */}
+        {/* Hero Section: aspect ratio 1024/457 matches the full uncropped artwork */}
+        <section className="relative w-full aspect-[1024/457] min-h-[460px] sm:min-h-[520px] md:min-h-0 flex flex-col justify-between overflow-hidden border-b border-base-border bg-black">
+          {/* Background image: object-contain ensures 100% of the composition (including torii gate & vertical Japanese text on the right) is always fully visible without cropping */}
           <div className="absolute inset-0">
             <Image
               src="/images/anime-hero.jpg"
@@ -17,7 +17,7 @@ export default function AnimePage() {
               fill
               priority
               sizes="100vw"
-              className="object-cover md:object-fill lg:object-cover object-center"
+              className="object-contain object-center"
             />
           </div>
 
@@ -25,12 +25,12 @@ export default function AnimePage() {
           <div className="pt-24 sm:pt-28" />
 
           {/* Interactive CTA & Scroll Indicator positioned naturally to match the reference */}
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-12 md:px-16 pb-8 sm:pb-10 md:pb-12 flex flex-col justify-end">
-            {/* Outline CTA button aligned under the text block */}
-            <div className="mb-6 sm:mb-8">
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-12 md:px-16 pb-6 sm:pb-8 md:pb-10 flex flex-col justify-end">
+            {/* Solid orange CTA button */}
+            <div className="mb-4 sm:mb-6">
               <a
                 href="#collection"
-                className="inline-flex items-center justify-center gap-3 rounded-sm border border-white/25 bg-black/40 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:border-white hover:bg-black/60 transition-all duration-200 backdrop-blur-sm"
+                className="inline-flex items-center justify-center gap-3 rounded-sm bg-accent px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40"
               >
                 SHOP ANIME →
               </a>
