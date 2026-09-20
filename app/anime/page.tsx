@@ -2,6 +2,39 @@ import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
+const ANIME_SERIES = [
+  {
+    name: "ONE PIECE",
+    slug: "one-piece",
+    image: "/images/anime/series/one-piece.jpg",
+    href: "#one-piece",
+  },
+  {
+    name: "JUJUTSU KAISEN",
+    slug: "jujutsu-kaisen",
+    image: "/images/anime/series/jujutsu-kaisen.jpg",
+    href: "#jujutsu-kaisen",
+  },
+  {
+    name: "NARUTO",
+    slug: "naruto",
+    image: "/images/anime/series/naruto.jpg",
+    href: "#naruto",
+  },
+  {
+    name: "DEMON SLAYER",
+    slug: "demon-slayer",
+    image: "/images/anime/series/demon-slayer.jpg",
+    href: "#demon-slayer",
+  },
+  {
+    name: "ATTACK ON TITAN",
+    slug: "attack-on-titan",
+    image: "/images/anime/series/attack-on-titan.jpg",
+    href: "#attack-on-titan",
+  },
+];
+
 export default function AnimePage() {
   return (
     <>
@@ -44,6 +77,49 @@ export default function AnimePage() {
 
         {/* Anchor point for collection section */}
         <div id="collection" />
+
+        {/* Anime Series Section */}
+        <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-16 sm:py-24 border-b border-base-border">
+          {/* Label */}
+          <div className="flex items-center gap-3 text-xs tracking-[0.25em] text-text-secondary uppercase mb-8">
+            <span className="w-5 h-[1px] bg-accent" />
+            <span className="font-semibold text-text-secondary">ANIME SERIES</span>
+          </div>
+
+          {/* 5 Portrait Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-5">
+            {ANIME_SERIES.map((series) => (
+              <a
+                key={series.slug}
+                href={series.href}
+                className="group relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-sm border border-base-border bg-base-card hover:border-accent/60 transition-all duration-300 block shadow-md hover:shadow-accent/10"
+              >
+                {/* Character Artwork */}
+                <Image
+                  src={series.image}
+                  alt={series.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  className="object-cover object-center brightness-90 contrast-105 group-hover:scale-105 group-hover:brightness-100 transition-all duration-500"
+                />
+
+                {/* Moody Vignette / Dark Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-base-bg via-base-bg/40 to-transparent" />
+                <div className="absolute inset-0 border border-white/5 group-hover:border-accent/30 transition-colors pointer-events-none" />
+
+                {/* Bottom-left Content */}
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end">
+                  <span className="text-xs sm:text-sm font-display tracking-widest text-text-primary uppercase font-bold group-hover:text-accent transition-colors">
+                    {series.name}
+                  </span>
+                  <span className="text-xs text-text-secondary group-hover:text-accent group-hover:translate-x-1.5 transition-all mt-1 inline-block">
+                    →
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
       </main>
       <Footer />
     </>
