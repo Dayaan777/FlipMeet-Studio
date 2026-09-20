@@ -7,9 +7,9 @@ export default function AnimePage() {
     <>
       <NavBar />
       <main className="bg-base-bg min-h-screen">
-        {/* Hero Section */}
-        <section className="relative min-h-screen flex flex-col justify-between overflow-hidden border-b border-base-border">
-          {/* Background Image with baked-in title & tagline */}
+        {/* Hero Section with exact aspect ratio framing matching the original image */}
+        <section className="relative w-full min-h-[540px] sm:min-h-[600px] md:min-h-0 md:aspect-[1024/457] flex flex-col justify-between overflow-hidden border-b border-base-border bg-black">
+          {/* Full-bleed background image with zero cropping on the right */}
           <div className="absolute inset-0">
             <Image
               src="/images/anime-hero.jpg"
@@ -17,35 +17,34 @@ export default function AnimePage() {
               fill
               priority
               sizes="100vw"
-              className="object-cover object-[30%_center] md:object-center"
+              className="object-cover md:object-fill lg:object-cover object-center"
             />
-            {/* Top fade for navbar readability */}
-            <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-base-bg/80 via-base-bg/30 to-transparent pointer-events-none" />
-            {/* Bottom edge fade seamlessly transitioning to the rest of the page */}
-            <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-base-bg via-base-bg/40 to-transparent pointer-events-none" />
           </div>
 
-          {/* Spacer to push interactive CTA naturally below the baked-in text */}
-          <div className="pt-24" />
+          {/* Spacer for navigation clearance */}
+          <div className="pt-24 sm:pt-28" />
 
-          {/* Interactive CTA positioned cleanly beneath the image's text block */}
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-12 md:px-16 pb-24 md:pb-28">
-            <div className="max-w-md pt-[38vh] sm:pt-[42vh] md:pt-[45vh]">
+          {/* Interactive CTA & Scroll Indicator positioned naturally to match the reference */}
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-12 md:px-16 pb-8 sm:pb-10 md:pb-12 flex flex-col justify-end">
+            {/* Outline CTA button aligned under the text block */}
+            <div className="mb-6 sm:mb-8">
               <a
                 href="#collection"
-                className="inline-flex items-center justify-center gap-3 rounded-sm bg-accent px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40"
+                className="inline-flex items-center justify-center gap-3 rounded-sm border border-white/25 bg-black/40 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:border-white hover:bg-black/60 transition-all duration-200 backdrop-blur-sm"
               >
                 SHOP ANIME →
               </a>
             </div>
-          </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 pointer-events-none">
-            <span className="text-[10px] tracking-[0.25em] uppercase text-text-secondary/70 font-medium">
-              SCROLL
-            </span>
-            <div className="w-[1px] h-7 bg-gradient-to-b from-accent to-transparent animate-pulse" />
+            {/* Scroll Indicator at bottom left */}
+            <div className="flex items-center gap-2.5 text-text-secondary/70">
+              <div className="w-3.5 h-5 rounded-full border border-text-secondary/50 flex items-start justify-center p-0.5">
+                <div className="w-1 h-1 bg-accent rounded-full animate-bounce" />
+              </div>
+              <span className="text-[10px] tracking-[0.25em] uppercase font-medium">
+                SCROLL
+              </span>
+            </div>
           </div>
         </section>
 
