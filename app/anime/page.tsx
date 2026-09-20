@@ -2,8 +2,7 @@ import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
-const FEATURED_JERSEY_IMAGE =
-  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Jersey%20look%20for%20%28WEBSITE%29-rOroc9coSYHxiavIxXod8cvmlPcgXW.png";
+const FEATURED_JERSEY_IMAGE = "/images/anime/featured-jersey-placeholder.png";
 
 const ANIME_SERIES = [
   {
@@ -174,7 +173,7 @@ export default function AnimePage() {
               <span className="text-[10px] font-bold tracking-[0.32em] text-accent">ONE PIECE</span>
               <h3 className="mt-3 font-display text-2xl font-bold tracking-tight text-text-primary">ZORO JERSEY</h3>
               <p className="mt-2 text-[10px] tracking-[0.24em] text-text-secondary">ANIME COLLECTION</p>
-              <p className="mt-8 text-sm font-semibold tracking-[0.16em] text-text-primary">₦6,999</p>
+              <p className="mt-8 text-sm font-semibold tracking-[0.16em] text-text-primary">Rs. 6,999</p>
               <a href="#zoro-jersey" className="mt-8 inline-flex border border-accent px-5 py-3 text-[10px] font-bold tracking-[0.18em] text-text-primary transition hover:bg-accent hover:text-black">VIEW DETAILS →</a>
             </div>
 
