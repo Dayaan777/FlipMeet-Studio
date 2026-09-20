@@ -76,10 +76,12 @@ export default function Hero({ drop }: { drop: Drop }) {
 
         {/* Mobile: image stacks below the copy, same border-less blended treatment */}
         <div className="md:hidden relative mt-12 -mx-6 h-[min(118vw,520px)]">
-          <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
-            alt="FlipMeet Studio anime collection campaign — figure beneath a red moon and torii gates"
-            className="absolute inset-0 size-full object-cover object-center brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_8%,black_86%,transparent_100%)]"
+          <Image
+            src="/images/hero-drop-001.jpg"
+            alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
+            fill
+            sizes="100vw"
+            className="object-cover object-top brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_8%,black_86%,transparent_100%)]"
           />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-base-bg to-transparent" />

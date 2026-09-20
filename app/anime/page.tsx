@@ -42,8 +42,8 @@ export default function AnimePage() {
       <main className="bg-base-bg min-h-screen">
         {/* Hero Section: aspect ratio 1538/688 matches the clean uncropped artwork */}
         <section className="relative w-full aspect-[1538/688] min-h-[480px] sm:min-h-[540px] md:min-h-0 overflow-hidden border-b border-base-border bg-black">
-          {/* Background image: full clean artwork with no baked-in UI */}
-          <div className="absolute inset-0">
+          {/* Desktop keeps the original wide artwork; mobile uses the dedicated square composition. */}
+          <div className="absolute inset-0 hidden md:block">
             <Image
               src="/images/anime-hero.jpg"
               alt="FlipMeet Studio Anime Collection"
@@ -51,6 +51,13 @@ export default function AnimePage() {
               priority
               sizes="100vw"
               className="object-contain md:object-cover object-center"
+            />
+          </div>
+          <div className="absolute inset-0 md:hidden aspect-square">
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
+              alt="FlipMeet Studio Anime Collection"
+              className="size-full object-cover object-center"
             />
           </div>
 
