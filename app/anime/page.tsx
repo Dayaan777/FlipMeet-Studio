@@ -38,19 +38,27 @@ const ANIME_SERIES = [
 export default function AnimePage() {
   return (
     <>
-      <NavBar />
-      <main className="bg-base-bg min-h-screen">
-        {/* Hero Section: aspect ratio 1538/688 matches the clean uncropped artwork */}
-        <section className="relative w-full aspect-[1538/688] min-h-[480px] sm:min-h-[540px] md:min-h-0 overflow-hidden border-b border-base-border bg-black">
-          {/* Background image: full clean artwork with no baked-in UI */}
-          <div className="absolute inset-0">
+      <NavBar mobileSolid />
+      <main className="bg-base-bg min-h-screen pt-[73px] md:pt-0">
+        {/* Hero uses the artwork's square ratio on mobile and the wide desktop ratio at larger breakpoints. */}
+        <section className="relative w-full aspect-square md:aspect-[1538/688] overflow-hidden border-b border-base-border bg-black">
+
+          {/* Desktop keeps the original wide artwork; mobile uses the dedicated square composition. */}
+          <div className="absolute inset-0 hidden md:block">
             <Image
               src="/images/anime-hero.jpg"
               alt="FlipMeet Studio Anime Collection"
               fill
               priority
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, 80vw"
               className="object-contain md:object-cover object-center"
+            />
+          </div>
+          <div className="absolute inset-0 md:hidden aspect-square">
+            <img
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
+              alt="FlipMeet Studio Anime Collection"
+              className="size-full object-cover object-center"
             />
           </div>
 
@@ -58,7 +66,7 @@ export default function AnimePage() {
           <div className="absolute left-[5.2%] top-[65%] z-10">
             <a
               href="#collection"
-              className="inline-flex items-center justify-center gap-3 rounded-sm bg-accent px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40"
+              className="inline-flex w-auto items-center justify-center gap-2 rounded-sm bg-accent px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40 md:gap-3 md:px-8 md:py-3.5 md:text-xs md:tracking-[0.2em]"
             >
               SHOP ANIME →
             </a>

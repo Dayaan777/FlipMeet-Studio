@@ -75,7 +75,7 @@ export default function Hero({ drop }: { drop: Drop }) {
         </div>
 
         {/* Mobile: image stacks below the copy, same border-less blended treatment */}
-        <div className="md:hidden relative mt-12 -mx-6 h-[420px]">
+        <div className="md:hidden relative mt-12 -mx-6 h-[min(118vw,520px)]">
           <Image
             src="/images/hero-drop-001.jpg"
             alt="FlipMeet Studio Drop 001 campaign — two models wearing Look 01"
