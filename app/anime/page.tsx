@@ -50,7 +50,7 @@ export default function AnimePage() {
               alt="FlipMeet Studio Anime Collection"
               fill
               priority
-              sizes="100vw"
+              sizes="(max-width: 768px) 100vw, 80vw"
               className="object-contain md:object-cover object-center"
             />
           </div>
