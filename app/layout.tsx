@@ -30,6 +30,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`bg-base-bg ${display.variable} ${body.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem("fm_gender");
+                if (theme) document.documentElement.dataset.theme = theme;
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body>
         <ThemeProvider />
         {children}
