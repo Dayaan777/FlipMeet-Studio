@@ -3,8 +3,6 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import AnimeDropReveal from "@/components/AnimeDropReveal";
 
-const FEATURED_JERSEY_IMAGE = "/images/anime/featured-jersey-placeholder.png";
-
 const ANIME_SERIES = [
   {
     name: "ONE PIECE",
@@ -129,74 +127,6 @@ export default function AnimePage() {
                 </div>
               </a>
             ))}
-          </div>
-        </section>
-
-        {/* The Anime Drop */}
-        <section className="relative overflow-hidden border-b border-base-border bg-[#050505] px-6 py-16 sm:px-8 sm:py-24 lg:px-12">
-          <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[auto_1fr_auto_auto] lg:gap-10">
-            {/* Left: Info & Controls */}
-            <div className="relative z-10 flex flex-col items-start">
-              <span className="mb-3 text-[10px] font-bold tracking-[0.34em] text-accent">FEATURED</span>
-              <h2 className="font-display text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">THE ANIME DROP</h2>
-              <p className="mt-2 text-sm tracking-[0.22em] text-text-secondary">アニメ・ドロップ</p>
-              <p className="mt-5 max-w-xs text-xs leading-5 text-text-secondary">Limited pieces. Iconic characters.<br />Only at FlipMeet Studio.</p>
-              
-              {/* Pagination */}
-              <div className="mt-8 flex items-center gap-4">
-                <span className="text-[11px] font-bold tracking-[0.18em] text-text-primary">01 / 06</span>
-                <div className="relative h-px w-24 bg-white/15">
-                  <div className="h-px w-6 bg-accent" />
-                </div>
-                <button type="button" aria-label="Previous featured piece" className="text-sm text-text-secondary transition hover:text-accent">←</button>
-                <button type="button" aria-label="Next featured piece" className="text-sm text-text-secondary transition hover:text-accent">→</button>
-              </div>
-              <a href="#featured-pieces" className="mt-8 border border-accent px-5 py-3 text-[10px] font-bold tracking-[0.18em] text-text-primary transition hover:bg-accent hover:text-black">VIEW ALL PIECES →</a>
-            </div>
-
-            {/* Center: Jersey Image with Brush Background */}
-            <div className="relative flex h-96 items-center justify-center overflow-hidden">
-              {/* Moody brush-stroke background elements */}
-              <div className="absolute inset-x-[-15%] top-1/2 h-40 -translate-y-1/2 rotate-[-12deg] bg-[#1a3d2a]/60 blur-sm" />
-              <div className="absolute left-1/4 top-[35%] h-32 w-48 rotate-[8deg] bg-gradient-to-br from-[#2a5540]/40 to-transparent blur-md" />
-              <div className="absolute right-1/4 top-[55%] h-24 w-40 -rotate-[6deg] bg-[#0d2418]/50" />
-              
-              {/* Jersey Image */}
-              <img 
-                src={FEATURED_JERSEY_IMAGE} 
-                alt="Black Zoro FlipMeet jersey" 
-                className="relative z-10 h-80 w-auto object-contain drop-shadow-[0_24px_32px_rgba(0,0,0,0.9)]" 
-              />
-            </div>
-
-            {/* Right: Product Info */}
-            <div className="relative z-10 flex flex-col border-l border-white/10 pl-6">
-              <span className="text-[10px] font-bold tracking-[0.32em] text-accent">ONE PIECE</span>
-              <h3 className="mt-3 font-display text-2xl font-bold tracking-tight text-text-primary">ZORO JERSEY</h3>
-              <p className="mt-2 text-[10px] tracking-[0.24em] text-text-secondary">ANIME COLLECTION</p>
-              <p className="mt-8 text-sm font-semibold tracking-[0.16em] text-text-primary">Rs. 6,999</p>
-              <a href="#zoro-jersey" className="mt-8 inline-flex border border-accent px-5 py-3 text-[10px] font-bold tracking-[0.18em] text-text-primary transition hover:bg-accent hover:text-black">VIEW DETAILS →</a>
-            </div>
-
-            {/* Far Right: Thumbnail Strip */}
-            <div className="flex flex-col gap-3">
-              {["one-piece", "jujutsu-kaisen", "naruto", "demon-slayer"].map((slug, index) => (
-                <button 
-                  type="button" 
-                  key={slug} 
-                  aria-label={`View ${slug} preview`} 
-                  className={`relative h-20 w-16 overflow-hidden border transition ${index === 0 ? "border-accent" : "border-white/15 hover:border-accent/50"}`}
-                >
-                  <Image 
-                    src={`/images/anime/series/${slug}.jpg`} 
-                    alt="" 
-                    fill 
-                    sizes="64px" 
-                    className={`object-cover transition ${index === 0 ? "brightness-100 grayscale-0" : "brightness-60 grayscale hover:brightness-75 hover:grayscale-0"}`}
-                  />
-                </button>
-              ))}
-            </div>
           </div>
         </section>
 
