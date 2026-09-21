@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import PlatformRing from "@/components/PlatformRing";
+import AnimeStage from "@/components/AnimeStage";
 
 const ANIME_LOOKS = [
   { id: "anime-look-01", name: "LOOK 01", character: "EREN YEAGER", series: "ATTACK ON TITAN" },
@@ -61,54 +61,8 @@ export default function AnimeDropCarousel() {
                 className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem]"
                 aria-live="polite"
               >
-                {/* Dark stone floor surface — cracked texture via layered gradients */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-[5%] bottom-[5.5rem] sm:bottom-[6rem] h-[72px] sm:h-[80px] rounded-[50%]"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse 90% 60% at 50% 90%, #1a1a1a 0%, #0d0d0d 55%, #060606 100%)",
-                    boxShadow: "0 0 0 1px #1f1f1f, 0 0 60px 4px rgba(0,0,0,0.9)",
-                  }}
-                />
-                {/* Cracked stone surface texture lines */}
-                <svg
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-[5%] bottom-[5.5rem] sm:bottom-[6rem] h-[72px] sm:h-[80px] w-[90%] opacity-30"
-                  viewBox="0 0 800 80"
-                  preserveAspectRatio="none"
-                >
-                  <ellipse cx="400" cy="55" rx="392" ry="22" fill="none" stroke="#2a2a2a" strokeWidth="0.8" />
-                  <ellipse cx="400" cy="55" rx="350" ry="18" fill="none" stroke="#1e1e1e" strokeWidth="0.5" />
-                  {/* faint crack lines */}
-                  <path d="M310 46 L295 58 L320 64" fill="none" stroke="#333" strokeWidth="0.4" />
-                  <path d="M490 50 L510 60 L498 68" fill="none" stroke="#333" strokeWidth="0.4" />
-                  <path d="M400 48 L388 56 L395 65 L410 60" fill="none" stroke="#333" strokeWidth="0.4" />
-                </svg>
-
-                {/* Soft overhead light beam — cinematic single-source key light */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[30%] h-[65%]"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.012) 40%, transparent 80%)",
-                  }}
-                />
-
-                {/* Base fog / mist at platform level */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 bottom-[4.5rem] sm:bottom-[5rem] h-16"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(255,255,255,0.035) 0%, rgba(180,180,200,0.015) 45%, transparent 75%)",
-                    filter: "blur(6px)",
-                  }}
-                />
-
-                {/* Platform Ring — reused from homepage */}
-                <PlatformRing bloomX={50} className="bottom-[6.75rem] sm:bottom-[7.25rem]" />
+                {/* ── Custom Two-Tier Stone Stage (Raised Center Pedestal, Glowing Rim, Fog, Wet Reflection & Edge Rocks) ── */}
+                <AnimeStage className="bottom-[4.75rem] sm:bottom-[5.25rem]" />
 
                 {/* Outfit cards — placeholder silhouettes */}
                 {ANIME_LOOKS.map((item, index) => {
@@ -147,42 +101,47 @@ export default function AnimeDropCarousel() {
                           : `blur(${Math.min(distance, 2) * 0.35}px)`,
                       }}
                     >
-                      {/* Placeholder silhouette card */}
+                      {/* Look card standing on stage */}
                       <div className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]">
-                        {/* Dark stone pedestal under placeholder */}
+                        {/* Dark stone garment silhouette plaque */}
                         <div
-                          className="absolute bottom-0 inset-x-[18%] h-full rounded-sm overflow-hidden"
+                          className="relative bottom-0 h-full w-[64%] rounded-sm overflow-hidden border border-white/10 flex flex-col justify-between p-4 transition-all duration-300"
                           style={{
                             background:
-                              "linear-gradient(170deg, #181818 0%, #0e0e0e 50%, #080808 100%)",
+                              "linear-gradient(180deg, rgba(26,26,30,0.85) 0%, rgba(13,13,16,0.92) 55%, rgba(6,6,8,0.98) 100%)",
                             boxShadow: isActive
-                              ? "0 0 40px 4px rgba(255,77,30,0.18), inset 0 0 20px rgba(0,0,0,0.8)"
-                              : "inset 0 0 20px rgba(0,0,0,0.8)",
+                              ? "0 0 36px 4px rgba(255,77,30,0.2), inset 0 0 1px 1px rgba(255,77,30,0.3)"
+                              : "inset 0 0 1px 1px rgba(255,255,255,0.04)",
                           }}
                         >
-                          {/* Subtle vertical crack texture */}
-                          <div className="absolute inset-0 opacity-20"
-                            style={{
-                              backgroundImage:
-                                "repeating-linear-gradient(180deg, transparent 0px, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px)",
-                            }}
-                          />
-                          {/* Placeholder label inside the card */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-40">
-                            <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
-                              <span className="text-[10px] tracking-widest text-white/60 font-display">{String(index + 1).padStart(2, "0")}</span>
-                            </div>
-                            <div className="text-[8px] tracking-[0.2em] text-white/40 uppercase">LOOK COMING</div>
+                          {/* Top badge with look number */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase">
+                              {item.id.replace("anime-look-", "0")}
+                            </span>
+                            <span className="text-[8px] font-mono tracking-widest text-text-secondary/60">
+                              FLIPMEET
+                            </span>
                           </div>
-                          {/* Active glow rim */}
-                          {isActive && (
-                            <div
-                              className="absolute inset-0 pointer-events-none"
-                              style={{
-                                boxShadow: "inset 0 0 0 1px rgba(255,77,30,0.35)",
-                              }}
-                            />
-                          )}
+
+                          {/* Center emblem */}
+                          <div className="my-auto flex flex-col items-center justify-center gap-2.5">
+                            <div className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center bg-black/40">
+                              <span className="text-xs tracking-widest text-white/75 font-display">
+                                {item.name}
+                              </span>
+                            </div>
+                            <span className="text-[9px] tracking-[0.22em] text-text-secondary uppercase text-center">
+                              {item.character}
+                            </span>
+                          </div>
+
+                          {/* Bottom meta tag */}
+                          <div className="border-t border-white/10 pt-2 flex items-center justify-between text-[8px] tracking-[0.16em] text-text-secondary/70">
+                            <span>SAMPLE</span>
+                            <span className="text-accent">•</span>
+                            <span>STUDIO</span>
+                          </div>
                         </div>
                       </div>
 
