@@ -24,7 +24,7 @@ export default async function Home() {
         <TrustBadges />
         <VideoCarousel />
       </main>
-      <Footer />
-    </GenderGate>
+     <Footer />
+    </>
   );
 }
