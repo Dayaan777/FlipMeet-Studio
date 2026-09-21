@@ -75,7 +75,7 @@ export default async function DropPage({
                         alt={`${product.name} — ${product.description}`}
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                        className="object-contain object-bottom transition-transform duration-500 group-hover:scale-105 group-hover:drop-shadow-[0_0_24px_rgba(255,77,30,0.4)]"
+                        className="object-contain object-bottom transition-all duration-500 group-hover:scale-105 group-hover:[filter:drop-shadow(0_0_24px_rgb(var(--accent)/0.4))]"
                       />
                     </div>
                   </div>

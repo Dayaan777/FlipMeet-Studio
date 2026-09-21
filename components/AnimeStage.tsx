@@ -132,13 +132,13 @@ export default function AnimeStage({ className = "" }: AnimeStageProps) {
 
           {/* Electric Orange Rim Light Gradient for Pedestal Base */}
           <linearGradient id="stOrangeRimGlow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="rgba(255,77,30,0)" />
-            <stop offset="15%" stopColor="rgba(255,77,30,0.4)" />
-            <stop offset="35%" stopColor="rgba(255,120,60,0.9)" />
-            <stop offset="50%" stopColor="rgba(255,230,200,1)" />
-            <stop offset="65%" stopColor="rgba(255,120,60,0.9)" />
-            <stop offset="85%" stopColor="rgba(255,77,30,0.4)" />
-            <stop offset="100%" stopColor="rgba(255,77,30,0)" />
+            <stop offset="0%"   style={{ stopColor: "rgb(var(--accent))", stopOpacity: 0 }} />
+            <stop offset="15%"  style={{ stopColor: "rgb(var(--accent))", stopOpacity: 0.4 }} />
+            <stop offset="35%"  stopColor="rgba(255,120,60,0.9)" />
+            <stop offset="50%"  stopColor="rgba(255,230,200,1)" />
+            <stop offset="65%"  stopColor="rgba(255,120,60,0.9)" />
+            <stop offset="85%"  style={{ stopColor: "rgb(var(--accent))", stopOpacity: 0.4 }} />
+            <stop offset="100%" style={{ stopColor: "rgb(var(--accent))", stopOpacity: 0 }} />
           </linearGradient>
 
           {/* Left/Right Craggy Rocks Gradients */}
@@ -264,7 +264,7 @@ export default function AnimeStage({ className = "" }: AnimeStageProps) {
         <path
           d="M 320,182 A 180 20 0 0 0 680,182"
           fill="none"
-          stroke="#FF4D1E"
+          style={{ stroke: "rgb(var(--accent))" }}
           strokeWidth="12"
           opacity="0.35"
           filter="url(#stGlowSoft)"
@@ -273,7 +273,7 @@ export default function AnimeStage({ className = "" }: AnimeStageProps) {
         <path
           d="M 320,182 A 180 20 0 0 0 680,182"
           fill="none"
-          stroke="#FF6B35"
+          style={{ stroke: "rgb(var(--accent))" }}
           strokeWidth="5"
           opacity="0.85"
           filter="url(#stGlowTight)"

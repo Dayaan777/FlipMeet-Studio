@@ -6,6 +6,7 @@ import TryOnPanel from "@/components/TryOnPanel";
 import TrustBadges from "@/components/TrustBadges";
 import VideoCarousel from "@/components/VideoCarousel";
 import Footer from "@/components/Footer";
+import GenderGate from "@/components/GenderGate";
 import { getSupabaseDrop } from "@/lib/products";
 
 export default async function Home() {
@@ -13,6 +14,7 @@ export default async function Home() {
 
   return (
     <>
+      <GenderGate />
       <NavBar />
       <main className="bg-base-bg">
         <Hero drop={drop} />

@@ -117,11 +117,8 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                           alt={`${look.name} — ${look.description}`}
                           fill
                           sizes="(min-width: 768px) 28rem, 75vw"
-                          className={`object-contain object-bottom transition-all duration-500 ${
-                            activeLook
-                              ? "drop-shadow-[0_0_24px_rgba(255,77,30,0.45)]"
-                              : ""
-                          }`}
+                          className="object-contain object-bottom transition-all duration-500"
+                          style={activeLook ? { filter: "drop-shadow(0 0 24px rgb(var(--accent) / 0.45))" } : undefined}
                         />
                       </div>
 

@@ -152,7 +152,8 @@ export default function VideoCarousel() {
       {/* Background ambient orange glow behind center stage */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(255,77,30,0.12)_0%,rgba(255,77,30,0.03)_45%,transparent_70%)] blur-2xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 blur-2xl"
+        style={{ background: "radial-gradient(ellipse at center, rgb(var(--accent) / 0.12) 0%, rgb(var(--accent) / 0.03) 45%, transparent 70%)" }}
       />
 
       <div className="relative mx-auto max-w-7xl">
@@ -333,9 +334,10 @@ export default function VideoCarousel() {
                   <span
                     className={`block transition-all duration-300 ${
                       isSelected
-                        ? "h-0.5 w-7 bg-accent shadow-[0_0_8px_rgba(255,77,30,0.6)]"
+                        ? "h-0.5 w-7 bg-accent"
                         : "size-2 rounded-full bg-white/30 hover:bg-white/60"
                     }`}
+                    style={isSelected ? { boxShadow: "0 0 8px rgb(var(--accent) / 0.6)" } : undefined}
                   />
                 </button>
               );
