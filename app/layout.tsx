@@ -35,9 +35,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                var theme = localStorage.getItem("fm_gender");
-                if (theme) document.documentElement.dataset.theme = theme;
-              } catch (_) {}
+                var g = localStorage.getItem('fm_gender');
+                if (g) document.documentElement.dataset.theme = g;
+              } catch (e) {}
             `,
           }}
         />
