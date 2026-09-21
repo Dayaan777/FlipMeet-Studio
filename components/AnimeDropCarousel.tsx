@@ -1,14 +1,50 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import AnimeStage from "@/components/AnimeStage";
 
 const ANIME_LOOKS = [
-  { id: "anime-look-01", name: "LOOK 01", character: "EREN YEAGER", series: "ATTACK ON TITAN" },
-  { id: "anime-look-02", name: "LOOK 02", character: "RORONOA ZORO", series: "ONE PIECE" },
-  { id: "anime-look-03", name: "LOOK 03", character: "SATORU GOJO", series: "JUJUTSU KAISEN" },
-  { id: "anime-look-04", name: "LOOK 04", character: "TANJIRO KAMADO", series: "DEMON SLAYER" },
-  { id: "anime-look-05", name: "LOOK 05", character: "NARUTO UZUMAKI", series: "NARUTO" },
+  {
+    id: "anime-look-01",
+    name: "LOOK 01",
+    character: "ZORO",
+    series: "ONE PIECE",
+    image: "/images/anime/looks/zoro.png",
+    card: "/images/anime/cards/zoro-card.jpg",
+  },
+  {
+    id: "anime-look-02",
+    name: "LOOK 02",
+    character: "LUFFY",
+    series: "ONE PIECE",
+    image: "/images/anime/looks/luffy.png",
+    card: "/images/anime/cards/luffy-card.jpg",
+  },
+  {
+    id: "anime-look-03",
+    name: "LOOK 03",
+    character: "ROBIN",
+    series: "ONE PIECE",
+    image: "/images/anime/looks/robin.png",
+    card: "/images/anime/cards/robin-card.jpg",
+  },
+  {
+    id: "anime-look-04",
+    name: "LOOK 04",
+    character: "GOJO",
+    series: "JUJUTSU KAISEN",
+    image: "/images/anime/looks/gojo.png",
+    card: "/images/anime/cards/gojo-card.jpg",
+  },
+  {
+    id: "anime-look-05",
+    name: "LOOK 05",
+    character: "DOFLAMINGO",
+    series: "ONE PIECE",
+    image: "/images/anime/looks/doflamingo.png",
+    card: "/images/anime/cards/doflamingo-card.jpg",
+  },
 ];
 
 export default function AnimeDropCarousel() {
@@ -20,8 +56,6 @@ export default function AnimeDropCarousel() {
 
   const relative = (index: number) =>
     ((index - active + Math.ceil(count / 2)) % count) - Math.ceil(count / 2);
-
-  const look = ANIME_LOOKS[active];
 
   return (
     <section
@@ -64,7 +98,7 @@ export default function AnimeDropCarousel() {
                 {/* ── Custom Two-Tier Stone Stage (Raised Center Pedestal, Glowing Rim, Fog, Wet Reflection & Edge Rocks) ── */}
                 <AnimeStage className="bottom-[4.75rem] sm:bottom-[5.25rem]" />
 
-                {/* Outfit cards — placeholder silhouettes */}
+                {/* Outfit cards — real look cutouts */}
                 {ANIME_LOOKS.map((item, index) => {
                   const position = relative(index);
                   const distance = Math.abs(position);
@@ -88,7 +122,7 @@ export default function AnimeDropCarousel() {
                       type="button"
                       key={item.id}
                       onClick={() => setActive(index)}
-                      aria-label={`Show ${item.name}`}
+                      aria-label={`Show ${item.series} / ${item.character}`}
                       aria-current={isActive ? "true" : undefined}
                       className="absolute inset-0 flex flex-col items-center text-center transition-[transform,opacity,filter] duration-500 ease-out"
                       style={{
@@ -101,47 +135,38 @@ export default function AnimeDropCarousel() {
                           : `blur(${Math.min(distance, 2) * 0.35}px)`,
                       }}
                     >
-                      {/* Look card standing on stage */}
+                      {/* Look image standing on stage — backdrop card + garment cutout */}
                       <div className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]">
-                        {/* Dark stone garment silhouette plaque */}
-                        <div
-                          className="relative bottom-0 h-full w-[64%] rounded-sm overflow-hidden border border-white/10 flex flex-col justify-between p-4 transition-all duration-300"
-                          style={{
-                            background:
-                              "linear-gradient(180deg, rgba(26,26,30,0.85) 0%, rgba(13,13,16,0.92) 55%, rgba(6,6,8,0.98) 100%)",
-                            boxShadow: isActive
-                              ? "0 0 36px 4px rgba(255,77,30,0.2), inset 0 0 1px 1px rgba(255,77,30,0.3)"
-                              : "inset 0 0 1px 1px rgba(255,255,255,0.04)",
-                          }}
-                        >
-                          {/* Top badge with look number */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-accent uppercase">
-                              {item.id.replace("anime-look-", "0")}
-                            </span>
-                            <span className="text-[8px] font-mono tracking-widest text-text-secondary/60">
-                              FLIPMEET
-                            </span>
-                          </div>
+                        {/* Backdrop card — character art, sits behind the garment */}
+                        <div className="absolute inset-0">
+                          <Image
+                            src={item.card}
+                            alt=""
+                            aria-hidden="true"
+                            fill
+                            sizes="(min-width: 768px) 28rem, 75vw"
+                            className={`object-contain object-bottom transition-all duration-500 ${
+                              isActive
+                                ? "opacity-100 brightness-100"
+                                : "opacity-100 brightness-50 contrast-90"
+                            }`}
+                          />
+                        </div>
 
-                          {/* Center emblem */}
-                          <div className="my-auto flex flex-col items-center justify-center gap-2.5">
-                            <div className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center bg-black/40">
-                              <span className="text-xs tracking-widest text-white/75 font-display">
-                                {item.name}
-                              </span>
-                            </div>
-                            <span className="text-[9px] tracking-[0.22em] text-text-secondary uppercase text-center">
-                              {item.character}
-                            </span>
-                          </div>
-
-                          {/* Bottom meta tag */}
-                          <div className="border-t border-white/10 pt-2 flex items-center justify-between text-[8px] tracking-[0.16em] text-text-secondary/70">
-                            <span>SAMPLE</span>
-                            <span className="text-accent">•</span>
-                            <span>STUDIO</span>
-                          </div>
+                        {/* Garment cutout — sits in front of card */}
+                        <div className="relative h-full w-full p-2 sm:p-3">
+                          <Image
+                            src={item.image}
+                            alt={`${item.series} / ${item.character} — ${item.name}`}
+                            fill
+                            sizes="(min-width: 768px) 28rem, 75vw"
+                            priority={isActive}
+                            className={`object-contain object-bottom transition-all duration-500 ${
+                              isActive
+                                ? "drop-shadow-[0_0_26px_rgba(255,77,30,0.45)] brightness-105"
+                                : "brightness-75 contrast-90"
+                            }`}
+                          />
                         </div>
                       </div>
 
@@ -152,11 +177,11 @@ export default function AnimeDropCarousel() {
                         }`}
                         aria-hidden={!isActive}
                       >
-                        <p className="text-[10px] tracking-[0.28em] text-accent uppercase font-bold">
-                          {item.series}
+                        <p className="text-[11px] font-bold tracking-[0.28em] text-accent uppercase">
+                          {item.series} / {item.character}
                         </p>
-                        <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-text-primary">
-                          {item.character}
+                        <p className="mt-1 text-[12px] font-bold uppercase tracking-widest text-text-primary">
+                          {item.name}
                         </p>
                         <span className="mx-auto mt-3 block h-0.5 w-7 bg-accent" />
                       </div>

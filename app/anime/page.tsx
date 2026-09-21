@@ -1,7 +1,7 @@
 import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import AnimeDropCarousel from "@/components/AnimeDropCarousel";
+import AnimeDropReveal from "@/components/AnimeDropReveal";
 
 const FEATURED_JERSEY_IMAGE = "/images/anime/featured-jersey-placeholder.png";
 
@@ -200,8 +200,8 @@ export default function AnimePage() {
           </div>
         </section>
 
-        {/* Anime Drop 001 — 05 Looks Carousel */}
-        <AnimeDropCarousel />
+        {/* Anime Drop 001 — 05 Looks Reveal */}
+        <AnimeDropReveal />
       </main>
       <Footer />
     </>
