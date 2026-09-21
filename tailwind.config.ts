@@ -15,8 +15,8 @@ const config: Config = {
           border: "#242424",
         },
         accent: {
-          DEFAULT: "#FF4D1E",
-          dim: "#B33A16",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          dim:     "rgb(var(--accent-dim) / <alpha-value>)",
         },
         text: {
           primary: "#FFFFFF",

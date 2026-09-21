@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useCartStore } from "@/lib/cart-store";
 
 const LINKS = [
@@ -69,7 +70,8 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
   }, [mobileMenuOpen]);
 
   return (
-    <header
+    <>
+      <header
       className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
         scrolled
           ? "bg-base-bg/90 backdrop-blur border-b border-base-border"
@@ -127,8 +129,12 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
         </div>
       </nav>
 
-      {/* Mobile slide-out drawer menu */}
-      {mobileMenuOpen && (
+    </header>
+
+    {/* Render outside the backdrop-filtered header so fixed positioning stays viewport-relative. */}
+    {mobileMenuOpen &&
+      typeof document !== "undefined" &&
+      createPortal(
         <div
           id="mobile-navigation-drawer"
           role="dialog"
@@ -160,8 +166,9 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
               </p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
-    </header>
+    </>
   );
 }

@@ -131,9 +131,10 @@ export default function ProductDetailClient({ product }: { product: Product }) {
                       onClick={() => setSelectedSize(sz)}
                       className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-sm border transition-all duration-200 ${
                         selectedSize === sz
-                          ? "border-accent bg-accent text-text-primary shadow-[0_0_12px_rgba(255,77,30,0.4)]"
+                          ? "border-accent bg-accent text-text-primary"
                           : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
                       }`}
+                      style={selectedSize === sz ? { boxShadow: "0 0 12px rgb(var(--accent) / 0.4)" } : undefined}
                     >
                       {sz}
                     </button>

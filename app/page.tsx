@@ -13,7 +13,8 @@ export default async function Home() {
   const drop = await getSupabaseDrop();
 
   return (
-    <GenderGate>
+    <>
+      <GenderGate />
       <NavBar />
       <main className="bg-base-bg">
         <Hero drop={drop} />
