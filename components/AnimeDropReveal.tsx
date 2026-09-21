@@ -94,7 +94,7 @@ export default function AnimeDropReveal() {
           <div className="flex gap-3 md:gap-4 min-w-max lg:min-w-0 lg:grid lg:grid-cols-5">
             {LOOKS.map((look, i) => {
               const isFocused = focusedIndex === i;
-              const isRingActive = isFocused || hoveredIndex === i;
+              const isActive = isFocused || hoveredIndex === i;
 
               return (
                 <Link
@@ -115,10 +115,10 @@ export default function AnimeDropReveal() {
                   >
                   {/* ── Portrait card: backdrop (always color) + garment (silhouette → revealed) ── */}
                   <div
-                    className={`relative aspect-[9/16] overflow-hidden rounded-sm border transition-all duration-700 group-hover:brightness-100 group-focus-visible:brightness-100 ${isFocused ? "brightness-100" : "brightness-[0.65]"}`}
+                    className={`relative aspect-[9/16] overflow-hidden rounded-sm border transition-all duration-700 group-hover:brightness-100 group-focus-visible:brightness-100 ${isActive ? "brightness-100" : "brightness-[0.65]"}`}
                     style={{
-                      borderColor: isFocused ? `${look.color}55` : "rgba(255,255,255,0.06)",
-                      boxShadow: isFocused ? `0 0 28px 3px ${look.glow}, inset 0 0 0 1px ${look.color}25` : "none",
+                      borderColor: isActive ? `${look.color}55` : "rgba(255,255,255,0.06)",
+                      boxShadow: isActive ? `0 0 28px 3px ${look.glow}, inset 0 0 0 1px ${look.color}25` : "none",
                     }}
                   >
                     {/* Backdrop card — ALWAYS full color, regardless of reveal state */}
@@ -129,7 +129,7 @@ export default function AnimeDropReveal() {
                       fill
                       sizes="(max-width: 640px) 162px, (max-width: 1024px) 185px, 20vw"
                       className="object-cover object-center transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
-                      style={{ filter: isFocused ? "brightness(1)" : "brightness(0.65)" }}
+                      style={{ filter: isActive ? "brightness(1)" : "brightness(0.65)" }}
                       priority={i === 0}
                     />
 
@@ -142,7 +142,7 @@ export default function AnimeDropReveal() {
                         sizes="(max-width: 640px) 162px, (max-width: 1024px) 185px, 20vw"
                         className="object-contain object-bottom transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
                         style={{
-                          filter: isFocused ? "brightness(1)" : "brightness(0.65)",
+                          filter: isActive ? "brightness(1)" : "brightness(0.65)",
                           padding: "4%",
                         }}
                       />
@@ -153,7 +153,7 @@ export default function AnimeDropReveal() {
                       className="absolute inset-x-0 bottom-0 h-[30%] pointer-events-none transition-opacity duration-700"
                       style={{
                         background: `linear-gradient(to top, ${look.glow} 0%, transparent 100%)`,
-                        opacity: isFocused ? 1 : 0,
+                        opacity: isActive ? 1 : 0,
                       }}
                     />
                   </div>
@@ -188,10 +188,10 @@ export default function AnimeDropReveal() {
                         rx="95"
                         ry="11"
                         fill="none"
-                        stroke={isRingActive ? look.color : look.dimRing}
-                        strokeWidth={isRingActive ? 2.8 : 1}
-                        opacity={isRingActive ? 0.9 : 0.35}
-                        filter={isRingActive ? `url(#rg-${look.id})` : undefined}
+                        stroke={isActive ? look.color : look.dimRing}
+                        strokeWidth={isActive ? 2.8 : 1}
+                        opacity={isActive ? 0.9 : 0.35}
+                        filter={isActive ? `url(#rg-${look.id})` : undefined}
                         style={{ transition: "stroke 0.7s ease, stroke-width 0.7s ease, opacity 0.7s ease" }}
                       />
                       {/* Inner specular ring */}
@@ -201,9 +201,9 @@ export default function AnimeDropReveal() {
                         rx="70"
                         ry="7.5"
                         fill="none"
-                        stroke={isRingActive ? look.color : look.dimRing}
+                        stroke={isActive ? look.color : look.dimRing}
                         strokeWidth="1"
-                        opacity={isRingActive ? 0.4 : 0.18}
+                        opacity={isActive ? 0.4 : 0.18}
                         style={{ transition: "stroke 0.7s ease, opacity 0.7s ease" }}
                       />
                     </svg>
@@ -214,7 +214,7 @@ export default function AnimeDropReveal() {
                       style={{
                         background: `radial-gradient(ellipse at 50% 80%, ${look.glow} 0%, transparent 70%)`,
                         filter: "blur(5px)",
-                        opacity: isRingActive ? 1 : 0,
+                        opacity: isActive ? 1 : 0,
                       }}
                     />
                   </div>
@@ -223,19 +223,19 @@ export default function AnimeDropReveal() {
                   <div className="mt-2.5 text-center space-y-0.5">
                     <p
                       className="text-[9px] font-bold uppercase tracking-[0.22em] transition-colors duration-700"
-                      style={{ color: isFocused ? look.color : "#252525" }}
+                      style={{ color: isActive ? look.color : "#252525" }}
                     >
                       {look.series}
                     </p>
                     <p
                       className="text-[11px] font-bold uppercase tracking-widest transition-colors duration-700"
-                      style={{ color: isFocused ? "#ffffff" : "#252525" }}
+                      style={{ color: isActive ? "#ffffff" : "#252525" }}
                     >
                       {look.character}
                     </p>
                     <p
                       className="text-[8px] tracking-[0.14em] transition-colors duration-700"
-                      style={{ color: isFocused ? "#6b6b6b" : "#1a1a1a" }}
+                      style={{ color: isActive ? "#6b6b6b" : "#1a1a1a" }}
                     >
                       {look.name}
                     </p>
