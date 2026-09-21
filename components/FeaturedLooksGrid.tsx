@@ -11,9 +11,9 @@ const featuredLookIds = ["look-01", "look-04", "look-05", "look-06"];
 
 function FeaturedLook({ look, active, onSelect }: { look: Look; active: boolean; onSelect: () => void }) {
   return (
-    <button
-      type="button"
-      aria-pressed={active}
+    <Link
+      href={`/product/${look.id}`}
+      aria-label={`View ${look.name}`}
       onClick={onSelect}
       className={`relative flex min-w-0 flex-1 cursor-pointer flex-col items-center text-center transition-opacity duration-200 ${
         active ? "z-10 opacity-100" : "opacity-55 hover:opacity-85"
@@ -46,7 +46,7 @@ function FeaturedLook({ look, active, onSelect }: { look: Look; active: boolean;
           }`}
         />
       </div>
-    </button>
+    </Link>
   );
 }
 
