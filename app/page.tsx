@@ -25,6 +25,6 @@ export default async function Home() {
         <VideoCarousel />
       </main>
       <Footer />
-    </>
+    </GenderGate>
   );
 }
