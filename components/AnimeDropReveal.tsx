@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 // Each look: backdrop card (always full color) + garment PNG (silhouette → revealed)
@@ -24,7 +25,7 @@ const LOOKS = [
     series: "ONE PIECE",
     image: "/images/anime/looks/luffy.png",
     card: "/images/anime/cards/luffy-card.jpg",
-    color: "#EF4444",                      // Luffy – red
+    color: "#3B82F6",                      // Luffy – red
     glow: "rgba(239, 68, 68, 0.4)",
     dimRing: "rgba(239, 68, 68, 0.1)",
   },
@@ -99,10 +100,20 @@ export default function AnimeDropReveal() {
               const isRevealed = i < revealedCount;
 
               return (
-                <div
+                <Link
                   key={look.id}
-                  className="flex w-[162px] flex-col sm:w-[185px] lg:w-auto"
+                  href={isRevealed ? `/product/${look.id}` : "#reveal"}
+                  onClick={(event) => {
+                    if (!isRevealed) {
+                      event.preventDefault();
+                      reveal();
+                    }
+                  }}
+                  className="contents"
                 >
+                  <div
+                    className="flex w-[162px] flex-col sm:w-[185px] lg:w-auto"
+                  >
                   {/* ── Portrait card: backdrop (always color) + garment (silhouette → revealed) ── */}
                   <div
                     className="relative aspect-[9/16] overflow-hidden rounded-sm transition-all duration-700"
@@ -246,7 +257,8 @@ export default function AnimeDropReveal() {
                       {look.name}
                     </p>
                   </div>
-                </div>
+                  </div>
+                </Link>
               );
             })}
           </div>
