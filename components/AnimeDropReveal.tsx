@@ -66,6 +66,7 @@ const LOOKS = [
 
 export default function AnimeDropReveal() {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <section
@@ -93,11 +94,14 @@ export default function AnimeDropReveal() {
           <div className="flex gap-3 md:gap-4 min-w-max lg:min-w-0 lg:grid lg:grid-cols-5">
             {LOOKS.map((look, i) => {
               const isFocused = focusedIndex === i;
+              const isRingActive = isFocused || hoveredIndex === i;
 
               return (
                 <Link
                   key={look.id}
                   href={`/product/${look.id}`}
+                  onPointerEnter={() => setHoveredIndex(i)}
+                  onPointerLeave={() => setHoveredIndex(null)}
                   onPointerDown={(event) => {
                     if (event.pointerType === "touch") {
                       event.preventDefault();
@@ -184,10 +188,10 @@ export default function AnimeDropReveal() {
                         rx="95"
                         ry="11"
                         fill="none"
-                        stroke={isFocused ? look.color : "#1e1e1e"}
-                        strokeWidth={isFocused ? 2.8 : 1}
-                        opacity={isFocused ? 0.9 : 0.35}
-                        filter={isFocused ? `url(#rg-${look.id})` : undefined}
+                        stroke={isRingActive ? look.color : look.dimRing}
+                        strokeWidth={isRingActive ? 2.8 : 1}
+                        opacity={isRingActive ? 0.9 : 0.35}
+                        filter={isRingActive ? `url(#rg-${look.id})` : undefined}
                         style={{ transition: "stroke 0.7s ease, stroke-width 0.7s ease, opacity 0.7s ease" }}
                       />
                       {/* Inner specular ring */}
@@ -197,9 +201,9 @@ export default function AnimeDropReveal() {
                         rx="70"
                         ry="7.5"
                         fill="none"
-                        stroke={isFocused ? look.color : "#141414"}
+                        stroke={isRingActive ? look.color : look.dimRing}
                         strokeWidth="1"
-                        opacity={isFocused ? 0.4 : 0.18}
+                        opacity={isRingActive ? 0.4 : 0.18}
                         style={{ transition: "stroke 0.7s ease, opacity 0.7s ease" }}
                       />
                     </svg>
@@ -210,7 +214,7 @@ export default function AnimeDropReveal() {
                       style={{
                         background: `radial-gradient(ellipse at 50% 80%, ${look.glow} 0%, transparent 70%)`,
                         filter: "blur(5px)",
-                        opacity: isFocused ? 1 : 0,
+                        opacity: isRingActive ? 1 : 0,
                       }}
                     />
                   </div>
