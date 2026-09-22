@@ -88,11 +88,10 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                     : Math.max(0.18, 0.34 - (distance - 2) * 0.05);
 
                   return (
-                    <button
-                      type="button"
+                    <Link
+                      href={`/product/${look.id}`}
                       key={look.id}
-                      onClick={() => setActive(index)}
-                      aria-label={`Show ${look.name}`}
+                      aria-label={`View ${look.name}`}
                       aria-current={activeLook ? "true" : undefined}
                       className="absolute inset-0 flex flex-col items-center text-center transition-[transform,opacity,filter] duration-500 ease-out"
                       style={{
@@ -141,7 +140,7 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
                         {/* Active indicator bar — matches FeaturedLooksGrid */}
                         <span className="mx-auto mt-3 block h-0.5 w-7 bg-accent" />
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>

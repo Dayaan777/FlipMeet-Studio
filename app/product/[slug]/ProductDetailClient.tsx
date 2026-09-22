@@ -13,6 +13,7 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     product.sizes && product.sizes.length > 0 ? product.sizes[0] : "M"
   );
   const [added, setAdded] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
   const items = useCartStore((s) => s.items);
   const addItem = useCartStore((s) => s.addItem);
 
@@ -191,6 +192,80 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             </div>
           </div>
         </div>
+
+        {/* AI Try-On */}
+        <section className="mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
+            AI TRY-ON // SEE IT ON YOU
+          </p>
+          <div className="rounded-sm border border-base-border bg-base-surface p-6 sm:p-8">
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+              <div>
+                <h2 id="ai-try-on-heading" className="font-display text-2xl font-bold uppercase tracking-tight text-text-primary">
+                  Preview your look
+                </h2>
+                <p className="mt-2 text-sm tracking-wide text-text-secondary">
+                  Upload a photo to see {product.name} styled on you.
+                </p>
+
+                <div className="mt-6 rounded-sm border border-base-border bg-base-bg/50 p-4 text-xs">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="uppercase tracking-widest text-text-secondary">Selected look</span>
+                    <span className="font-bold uppercase tracking-widest text-text-primary">{product.name}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-4">
+                    <span className="uppercase tracking-widest text-text-secondary">Selected size</span>
+                    <span className="font-bold uppercase tracking-widest text-accent">{selectedSize}</span>
+                  </div>
+                </div>
+
+                <label className="mt-6 block text-[10px] font-bold uppercase tracking-[0.2em] text-text-secondary">
+                  UPLOAD YOUR PHOTO
+                  <span className="mt-2 block cursor-pointer rounded-sm border border-dashed border-base-border px-6 py-10 text-center normal-case tracking-normal transition-colors hover:border-text-secondary">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 10 * 1024 * 1024) {
+                          event.target.value = "";
+                          setFileName("File exceeds 10MB");
+                          return;
+                        }
+                        setFileName(file.name);
+                      }}
+                    />
+                    <span className="text-sm font-medium text-text-primary">
+                      {fileName ?? "Click to upload"}
+                    </span>
+                    <span className="mt-1 block text-xs font-normal text-text-secondary">
+                      JPG, PNG, WEBP (Max 10MB)
+                    </span>
+                  </span>
+                </label>
+
+                <button
+                  type="button"
+                  disabled={!fileName || fileName === "File exceeds 10MB"}
+                  className="mt-6 flex w-full items-center justify-center rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-[0.2em] text-text-primary shadow-lg shadow-accent/20 transition-colors hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  GENERATE TRY-ON
+                </button>
+              </div>
+
+              <div className="flex min-h-[320px] items-center justify-center rounded-sm border border-base-border bg-base-bg p-8 text-center lg:min-h-0">
+                <div>
+                  <p className="text-sm text-text-secondary">Try-on result preview</p>
+                  <p className="mt-3 text-xs text-text-secondary">
+                    AI results may vary, for reference only
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
