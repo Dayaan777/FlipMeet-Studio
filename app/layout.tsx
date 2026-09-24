@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
+import GenderGate from "@/components/GenderGate";
 
 const display = Bebas_Neue({
   subsets: ["latin"],
@@ -29,14 +31,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`bg-base-bg ${display.variable} ${body.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`bg-base-bg ${display.variable} ${body.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 var g = localStorage.getItem('fm_gender');
-                if (g) document.documentElement.dataset.theme = g;
+                if (g) {
+                  document.documentElement.dataset.theme = g;
+                } else {
+                  var style = document.createElement('style');
+                  style.id = 'fm-lock-style';
+                  style.innerHTML = '#fm-gender-gate { display: flex !important; } .fm-protected-content { display: none !important; }';
+                  document.head.appendChild(style);
+                }
               } catch (e) {}
             `,
           }}
@@ -44,7 +53,11 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider />
-        {children}
+        <GlobalAudioPlayer />
+        <GenderGate />
+        <div className="fm-protected-content">
+          {children}
+        </div>
       </body>
     </html>
   );

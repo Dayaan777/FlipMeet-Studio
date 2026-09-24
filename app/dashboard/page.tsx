@@ -75,7 +75,7 @@ function normalizeSupabaseOrder(dbOrder: any): Order {
     deliveryWindow: { start: "2026-10-20", end: "2026-10-30" },
     notes: dbOrder.notes || "",
     items: itemsList.map((item: any) => {
-      const productId = item.product_id || item.productId || item.lookId || "look-01";
+      const productId = item.product_id || item.productId || item.lookId || "product";
       const matchedLook = drop?.looks.find((l) => l.id === productId);
       return {
         lookId: productId,
@@ -83,7 +83,7 @@ function normalizeSupabaseOrder(dbOrder: any): Order {
         size: item.size || "M",
         price: Number(item.price_at_purchase || item.price) || 18500,
         quantity: Number(item.quantity) || 1,
-        image: matchedLook?.images[0] || `/images/looks/${productId}.jpg`,
+        image: matchedLook?.images[0] || (item.image || "/images/products/stwd-shirt.png"),
       };
     }),
   };

@@ -66,7 +66,7 @@ export default function CheckoutPage() {
         price: item.price || 18500,
         price_at_purchase: item.price || 18500,
         quantity: item.quantity,
-        image: look?.images[0] || "/images/looks/look-01.jpg",
+        image: look?.images[0] || "/images/products/stwd-shirt.png",
       };
     });
 
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
 
             <div className="space-y-3">
               <Link
-                href="/drop/drop-001"
+                href="/shop"
                 className="block w-full rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors text-center"
               >
                 RETURN TO DROP 001 →
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
               Add garments from Drop 001 to your bag before checking out.
             </p>
             <Link
-              href="/drop/drop-001"
+              href="/shop"
               className="inline-block rounded-sm bg-accent px-6 py-3 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors"
             >
               EXPLORE DROP 001
@@ -360,7 +360,7 @@ export default function CheckoutPage() {
                 <div className="divide-y divide-base-border/50 max-h-72 overflow-y-auto">
                   {items.map((item, idx) => {
                     const look = drop.looks.find((l) => l.id === item.lookId);
-                    const img = look?.images[0] || "/images/looks/look-01.jpg";
+                    const img = look?.images[0] || "/images/products/stwd-shirt.png";
                     const price = item.price || 18500;
 
                     return (

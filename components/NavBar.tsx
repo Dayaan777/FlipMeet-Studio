@@ -7,11 +7,10 @@ import { createPortal } from "react-dom";
 import { useCartStore } from "@/lib/cart-store";
 
 const LINKS = [
-  { label: "DROP 001", href: "/drop/drop-001" },
-  { label: "ANIME", href: "/anime" },
-  { label: "ABOUT", href: "/about" },
+  { label: "SHOP",    href: "/shop" },
+  { label: "ANIME",   href: "/anime" },
+  { label: "MAKE YOUR OUTFIT", href: "/make-your-own" },
   { label: "PROCESS", href: "/process" },
-  { label: "STUDIO", href: "/studio" },
 ];
 
 export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean }) {
@@ -25,6 +24,26 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
   const [cartBump, setCartBump] = useState(false);
   const prevCountRef = useRef(itemCount);
 
+  // Gender toggle state
+  const [gender, setGender] = useState<"male" | "female">("male");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("fm_gender") as "male" | "female";
+      if (stored) setGender(stored);
+    } catch {}
+  }, []);
+
+  const toggleGender = () => {
+    const newGender = gender === "male" ? "female" : "male";
+    setGender(newGender);
+    try {
+      localStorage.setItem("fm_gender", newGender);
+      document.documentElement.dataset.theme = newGender;
+      window.dispatchEvent(new Event("themechange"));
+    } catch {}
+  };
+
   useEffect(() => {
     if (itemCount > prevCountRef.current) {
       setCartBump(true);
@@ -36,10 +55,20 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
   }, [itemCount]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      // If on homepage, wait until 600vh (the entire VideoHero) is scrolled past before showing navbar bg.
+      // 600vh = 6 * window.innerHeight. We subtract a bit (100px) so it triggers right as the next section comes under.
+      if (pathname === "/") {
+        setScrolled(window.scrollY > (window.innerHeight * 6) - 100);
+      } else {
+        setScrolled(window.scrollY > 8);
+      }
+    };
     window.addEventListener("scroll", onScroll);
+    // Call once on mount to set initial state
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [pathname]);
 
   // Close account dropdown when clicking outside
   useEffect(() => {
@@ -69,17 +98,22 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
     };
   }, [mobileMenuOpen]);
 
+  const isProcess = pathname === "/process";
+  const isHome    = pathname === "/";
+
   return (
     <>
       <header
-      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${
-        scrolled
-          ? "bg-base-bg/90 backdrop-blur border-b border-base-border"
-          : mobileSolid
-            ? "max-md:bg-base-bg/95 max-md:backdrop-blur-md max-md:border-b max-md:border-base-border bg-transparent"
-            : "bg-transparent"
-      }`}
-    >
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+          isHome && !scrolled ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+        } ${
+          scrolled && !isProcess
+            ? "bg-base-bg/90 backdrop-blur border-b border-base-border"
+            : mobileSolid
+              ? "max-md:bg-base-bg/95 max-md:backdrop-blur-md max-md:border-b max-md:border-base-border bg-transparent"
+              : "bg-transparent"
+        }`}
+      >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">
         <Link href="/" className="font-display text-2xl font-bold tracking-tight text-text-primary">
           FLIPMEET STUDIO
@@ -98,6 +132,29 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
 
         {/* Right actions: Account + Cart + Mobile Hamburger */}
         <div className="flex items-center gap-3">
+          {/* Gender Toggle */}
+          <button 
+            onClick={toggleGender}
+            className="relative hidden sm:flex items-center h-[34px] w-[112px] rounded-full border border-base-border bg-base-surface p-1 backdrop-blur-sm transition-colors hover:border-text-secondary overflow-hidden"
+            aria-label="Toggle Gender Theme"
+          >
+            {/* Slider Pill */}
+            <div 
+              className={`absolute top-1 bottom-1 w-[50px] rounded-full bg-accent transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                gender === 'female' ? 'translate-x-[54px]' : 'translate-x-0'
+              }`}
+            />
+            
+            <div className="relative z-10 flex w-full justify-between pointer-events-none">
+              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'male' ? 'text-black' : 'text-white/60'}`}>
+                MEN
+              </span>
+              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'female' ? 'text-black' : 'text-white/60'}`}>
+                WOMEN
+              </span>
+            </div>
+          </button>
+
           {/* Cart link */}
           <a
             href="/cart"

@@ -1,12 +1,12 @@
 import NavBar from "@/components/NavBar";
-import Hero from "@/components/Hero";
+import VideoHero from "@/components/VideoHero";
 import LookCarousel from "@/components/LookCarousel";
-import FeaturedLooksGrid from "@/components/FeaturedLooksGrid";
+import AnimeTeaser from "@/components/AnimeTeaser";
+// import FeaturedLooksGrid from "@/components/FeaturedLooksGrid";
 import TryOnPanel from "@/components/TryOnPanel";
 import TrustBadges from "@/components/TrustBadges";
 import VideoCarousel from "@/components/VideoCarousel";
 import Footer from "@/components/Footer";
-import GenderGate from "@/components/GenderGate";
 import { getSupabaseDrop } from "@/lib/products";
 
 export default async function Home() {
@@ -14,15 +14,16 @@ export default async function Home() {
 
   return (
     <>
-      <GenderGate />
       <NavBar />
       <main className="bg-base-bg">
-        <Hero drop={drop} />
+        <VideoHero />
+
         <LookCarousel drop={drop} />
-        <FeaturedLooksGrid drop={drop} />
-        <TryOnPanel drop={drop} />
-        <TrustBadges />
+        {/* <FeaturedLooksGrid drop={drop} /> */}
+        <AnimeTeaser drop={drop} />
+        {/* <TryOnPanel drop={drop} /> */}
         <VideoCarousel />
+        <TrustBadges />
       </main>
      <Footer />
     </>

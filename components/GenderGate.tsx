@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 const STORAGE_KEY = "fm_gender";
 
 export default function GenderGate() {
-  // null = unknown (not yet checked), false = gate dismissed, true = gate showing
-  const [visible, setVisible] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      setVisible(stored ? false : true);
+      if (stored) setVisible(false);
     } catch {
       setVisible(false);
     }
@@ -21,17 +22,24 @@ export default function GenderGate() {
     try {
       localStorage.setItem(STORAGE_KEY, gender);
       document.documentElement.dataset.theme = gender;
+      
+      // Instantly remove the CSS lock before React even re-renders
+      const lockStyle = document.getElementById('fm-lock-style');
+      if (lockStyle) lockStyle.remove();
+      
+      window.dispatchEvent(new Event("themechange"));
     } catch { /* ignore */ }
     setVisible(false);
   }
 
-  // Don't render anything until localStorage check completes
-  if (visible === null || visible === false) return null;
+  // Once hydrated, if the user has a gender, unmount entirely to clean DOM
+  if (mounted && !visible) return null;
 
   return (
-    /* Full-screen backdrop — blurs the page behind, blocks interaction */
+    /* Full-screen backdrop — hidden by default, shown via injected CSS lock */
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center"
+      id="fm-gender-gate"
+      className="fixed inset-0 z-[200] items-center justify-center hidden"
       style={{ backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", background: "rgba(0,0,0,0.72)" }}
       aria-modal="true"
       role="dialog"

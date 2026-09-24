@@ -49,10 +49,10 @@ export default function CartPage() {
                 Explore the six limited chapters of Drop 001 and select your size before the window closes.
               </p>
               <Link
-                href="/drop/drop-001"
+                href="/shop"
                 className="mt-6 inline-block rounded-sm bg-accent px-6 py-3 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors"
               >
-                EXPLORE DROP 001
+                EXPLORE SHOP
               </Link>
             </div>
           ) : (
@@ -61,7 +61,7 @@ export default function CartPage() {
               <div className="md:col-span-2 space-y-4">
                 {items.map((item, idx) => {
                   const look = drop.looks.find((l) => l.id === item.lookId);
-                  const img = look?.images[0] || "/images/looks/look-01.jpg";
+                  const img = look?.images[0] || "/images/products/stwd-shirt.png";
                   const price = item.price || 18500;
 
                   return (

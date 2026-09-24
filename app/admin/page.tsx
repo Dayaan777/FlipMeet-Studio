@@ -20,11 +20,11 @@ type ProductForm = {
 const DEFAULT_FORM: ProductForm = {
   id: "",
   name: "",
-  category: "DROP 001",
-  price: "18500",
+  category: "Outfits",
+  price: "23500",
   stock: "100",
   sizes: "S, M, L, XL",
-  images: "/images/looks/look-01.jpg",
+  images: "",
   description: "",
 };
 
@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [activeModal, setActiveModal] = useState<"add" | Product | null>(null);
   const [formData, setFormData] = useState<ProductForm>(DEFAULT_FORM);
   const [formSaving, setFormSaving] = useState(false);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
   // Delete confirmation modal state
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -89,13 +90,14 @@ export default function AdminPage() {
   // Open modal in Add mode
   const handleOpenAdd = () => {
     const nextNum = products.length + 1;
-    const generatedId = `look-0${nextNum}`;
+    const generatedId = `product-${String(nextNum).padStart(2, "0")}`;
     setFormData({
       ...DEFAULT_FORM,
       id: generatedId,
-      name: `Look 0${nextNum}`,
-      images: `/images/looks/look-0${Math.min(nextNum, 6)}.jpg`,
+      name: `Product ${String(nextNum).padStart(2, "0")}`,
+      images: "",
     });
+    setUploadFiles([]);
     setActiveModal("add");
   };
 
@@ -111,37 +113,64 @@ export default function AdminPage() {
       images: (product.images || []).join(", "),
       description: product.description || "",
     });
+    setUploadFiles([]);
     setActiveModal(product);
   };
 
   // Save (Create or Update) product to Supabase
-  const handleSaveProduct = async (e: React.FormEvent) => {
+    const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSaving(true);
     setStatusMessage(null);
 
-    const parsedSizes = formData.sizes
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const parsedImages = formData.images
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    const payload = {
-      id: formData.id.trim(),
-      name: formData.name.trim(),
-      category: formData.category.trim(),
-      price: Number(formData.price) || 0,
-      stock: Number(formData.stock) || 0,
-      sizes: parsedSizes.length > 0 ? parsedSizes : ["S", "M", "L", "XL"],
-      images: parsedImages.length > 0 ? parsedImages : [`/images/looks/${formData.id.trim()}.jpg`],
-      description: formData.description.trim(),
-    };
-
     try {
+      let uploadedUrls: string[] = [];
+      
+      // Upload files to Supabase
+      if (uploadFiles.length > 0) {
+        for (const file of uploadFiles) {
+          const fileExt = file.name.split(".").pop();
+          const fileName = `${formData.id.trim()}-${Date.now()}-${Math.random().toString(36).substring(2,7)}.${fileExt}`;
+          
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("products")
+            .upload(fileName, file, {
+              cacheControl: "3600",
+              upsert: true
+            });
+            
+          if (uploadError) {
+            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+          }
+          
+          const { data: { publicUrl } } = supabase.storage.from("products").getPublicUrl(fileName);
+          uploadedUrls.push(publicUrl);
+        }
+      }
+
+      const parsedSizes = formData.sizes
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const parsedImages = formData.images
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const finalImages = [...parsedImages, ...uploadedUrls];
+
+      const payload = {
+        id: formData.id.trim(),
+        name: formData.name.trim(),
+        category: formData.category.trim(),
+        price: Number(formData.price) || 0,
+        stock: Number(formData.stock) || 0,
+        sizes: parsedSizes.length > 0 ? parsedSizes : ["S", "M", "L", "XL"],
+        images: finalImages.length > 0 ? finalImages : [`/images/looks/${formData.id.trim()}.jpg`],
+        description: formData.description.trim(),
+      };
+
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: {
@@ -157,14 +186,15 @@ export default function AdminPage() {
 
       setStatusMessage({
         type: "success",
-        text: `Product "${payload.name}" ${activeModal === "add" ? "created" : "updated"} successfully.`,
+        text: `Product successfully ${activeModal === "add" ? "created" : "updated"} in Supabase!`,
       });
 
       setActiveModal(null);
-      await fetchProducts();
+      setUploadFiles([]);
+      fetchProducts();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save product.";
-      setStatusMessage({ type: "error", text: message });
+      setStatusMessage({ type: "error", text: `Error: ${message}` });
     } finally {
       setFormSaving(false);
     }
@@ -507,7 +537,7 @@ export default function AdminPage() {
                     type="text"
                     value={formData.id}
                     onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                    placeholder="e.g. look-07"
+                    placeholder="e.g. product-07"
                     disabled={activeModal !== "add"}
                     className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors disabled:opacity-50 font-mono"
                     required
@@ -595,19 +625,62 @@ export default function AdminPage() {
               </div>
 
               {/* Images */}
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                  Image Paths / URLs (Comma Separated) *
-                </label>
-                <input
-                  type="text"
-                  value={formData.images}
-                  onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                  placeholder="/images/looks/look-01.jpg"
-                  className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors font-mono"
-                  required
-                />
-              </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
+                    Images (Upload from device or enter URLs)
+                  </label>
+                  
+                  {/* Existing URL Input */}
+                  <input
+                    type="text"
+                    value={formData.images}
+                    onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+                    placeholder="/images/products/stwd-shirt.png, https://..."
+                    className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors font-mono mb-2"
+                  />
+
+                  {/* File Upload Input */}
+                  <label className="mt-2 flex items-center justify-center w-full cursor-pointer rounded-sm border border-dashed border-base-border px-4 py-3 hover:border-text-secondary transition-colors text-center bg-base-bg/50 hover:bg-base-bg">
+                      <span className="text-xs font-bold uppercase tracking-widest text-accent">
+                        + Choose Images to Upload
+                      </span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/jpeg, image/png, image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            const newFiles = Array.from(e.target.files);
+                            setUploadFiles((prev) => [...prev, ...newFiles]);
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                    </label>
+
+                    {uploadFiles.length > 0 && (
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Pending Uploads ({uploadFiles.length})</p>
+                          <button 
+                            type="button" 
+                            onClick={() => setUploadFiles([])} 
+                            className="text-[10px] font-bold tracking-widest uppercase text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {uploadFiles.map((f, i) => (
+                            <div key={i} className="relative size-12 rounded-sm border border-base-border overflow-hidden shrink-0 bg-base-bg">
+                              <img src={URL.createObjectURL(f)} alt="preview" className="object-cover w-full h-full" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                </div>
 
               {/* Description */}
               <div>

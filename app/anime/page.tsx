@@ -2,19 +2,21 @@ import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import AnimeDropReveal from "@/components/AnimeDropReveal";
+import VideoCarousel from "@/components/VideoCarousel";
+import TrustBadges from "@/components/TrustBadges";
 
 const ANIME_SERIES = [
   {
     name: "ONE PIECE",
     slug: "one-piece",
     image: "/images/anime/series/one-piece.jpg",
-    href: "#one-piece",
+    href: "/shop?filter=one-piece",
   },
   {
     name: "JUJUTSU KAISEN",
     slug: "jujutsu-kaisen",
     image: "/images/anime/series/jujutsu-kaisen.jpg",
-    href: "#jujutsu-kaisen",
+    href: "/product/anime-gojo-jersey",
   },
   {
     name: "NARUTO",
@@ -132,6 +134,10 @@ export default function AnimePage() {
 
         {/* Anime Drop 001 — 05 Looks Reveal */}
         <AnimeDropReveal />
+        {/* Video Carousel - same as homepage */}
+        <VideoCarousel />
+
+        <TrustBadges />
       </main>
       <Footer />
     </>
