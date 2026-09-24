@@ -60,8 +60,7 @@ export default function CartPage() {
               {/* Item List */}
               <div className="md:col-span-2 space-y-4">
                 {items.map((item, idx) => {
-                  const look = drop.looks.find((l) => l.id === item.lookId);
-                  const img = look?.images[0] || "/images/products/stwd-shirt.png";
+                  const img = item.image || "/images/products/stwd-shirt.png";
                   const price = item.price || 18500;
 
                   return (

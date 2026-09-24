@@ -22,19 +22,19 @@ const ANIME_SERIES = [
     name: "NARUTO",
     slug: "naruto",
     image: "/images/anime/series/naruto.jpg",
-    href: "#naruto",
+    href: "/shop",
   },
   {
     name: "DEMON SLAYER",
     slug: "demon-slayer",
     image: "/images/anime/series/demon-slayer.jpg",
-    href: "#demon-slayer",
+    href: "/shop",
   },
   {
     name: "ATTACK ON TITAN",
     slug: "attack-on-titan",
     image: "/images/anime/series/attack-on-titan.jpg",
-    href: "#attack-on-titan",
+    href: "/shop",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function AnimePage() {
           </div>
 
           {/* Real Solid Orange CTA button */}
-          <div className="absolute left-[5.2%] top-[65%] z-10">
+          <div className="absolute left-[5.2%] top-[78%] md:top-[75%] z-10">
             <a
               href="#collection"
               className="inline-flex w-auto items-center justify-center gap-2 rounded-sm bg-accent px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40 md:gap-3 md:px-8 md:py-3.5 md:text-xs md:tracking-[0.2em]"

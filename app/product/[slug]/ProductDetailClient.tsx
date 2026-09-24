@@ -32,6 +32,7 @@ export default function ProductDetailClient({
    size: selectedSize,
    price: product.price || 18500,
    quantity: 1,
+   image: product.images?.[0] || "/images/products/stwd-shirt.png",
   });
   setAdded(true);
   setTimeout(() => setAdded(false), 2500);
@@ -48,6 +49,7 @@ export default function ProductDetailClient({
     size: selectedSize,
     price: product.price || 18500,
     quantity: 1,
+    image: product.images?.[0] || "/images/products/stwd-shirt.png",
    });
   }
   router.push("/checkout");

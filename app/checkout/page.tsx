@@ -57,7 +57,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     const orderItems = items.map((item) => {
-      const look = drop.looks.find((l) => l.id === item.lookId);
       return {
         lookId: item.lookId,
         product_id: item.lookId,
@@ -66,7 +65,7 @@ export default function CheckoutPage() {
         price: item.price || 18500,
         price_at_purchase: item.price || 18500,
         quantity: item.quantity,
-        image: look?.images[0] || "/images/products/stwd-shirt.png",
+        image: item.image || "/images/products/stwd-shirt.png",
       };
     });
 
@@ -135,7 +134,7 @@ export default function CheckoutPage() {
             </h1>
 
             <p className="text-xs text-text-secondary mt-3">
-              Your order has been placed and a confirmation email is on its way to <span className="text-text-primary font-bold">{completedOrder.customerEmail}</span>. We&apos;ll be in touch before dispatch.
+              Your order has been placed and an order receipt is on its way to <span className="text-text-primary font-bold">{completedOrder.customerEmail}</span>. We&apos;ll be in touch before dispatch.
             </p>
 
             <div className="my-6 rounded-sm border border-base-border bg-base-bg p-4 text-left text-xs space-y-2">
@@ -359,8 +358,7 @@ export default function CheckoutPage() {
 
                 <div className="divide-y divide-base-border/50 max-h-72 overflow-y-auto">
                   {items.map((item, idx) => {
-                    const look = drop.looks.find((l) => l.id === item.lookId);
-                    const img = look?.images[0] || "/images/products/stwd-shirt.png";
+                    const img = item.image || "/images/products/stwd-shirt.png";
                     const price = item.price || 18500;
 
                     return (

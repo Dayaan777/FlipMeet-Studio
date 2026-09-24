@@ -9,73 +9,99 @@ const PLAYLIST = [
 
 export default function GlobalAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  // States
   const [currentTrack, setCurrentTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isMuted, setIsMuted] = useState(false); // Explicit user mute state
+  const [isReady, setIsReady] = useState(false);
+
+  // Initialize from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedTrack = localStorage.getItem("fm-music-track");
+      const savedTime = localStorage.getItem("fm-music-time");
+      const savedMuted = localStorage.getItem("fm-music-muted");
+
+      if (savedTrack !== null) setCurrentTrack(Number(savedTrack));
+      if (savedMuted === "true") setIsMuted(true);
+
+      if (audioRef.current && savedTime !== null) {
+        audioRef.current.currentTime = Number(savedTime);
+      }
+    } catch (e) {
+      console.error("Failed to read music state", e);
+    }
+    setIsReady(true);
+  }, []);
+
+  // Save playback progress every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (audioRef.current && isPlaying) {
+        localStorage.setItem("fm-music-track", currentTrack.toString());
+        localStorage.setItem("fm-music-time", audioRef.current.currentTime.toString());
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPlaying, currentTrack]);
 
   // Handle track ending -> play next track
   const handleEnded = () => {
-    setCurrentTrack((prev) => (prev + 1) % PLAYLIST.length);
+    const nextTrack = (currentTrack + 1) % PLAYLIST.length;
+    setCurrentTrack(nextTrack);
+    localStorage.setItem("fm-music-track", nextTrack.toString());
+    localStorage.setItem("fm-music-time", "0");
   };
 
-  // Play whenever the track changes, if we have interacted
-  useEffect(() => {
-    if (hasInteracted && audioRef.current) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((err) => {
-        console.warn("Audio playback blocked:", err);
-        setIsPlaying(false);
-      });
+  // Centralized play function that aggressively tries to play
+  const attemptPlay = async () => {
+    if (!audioRef.current || isMuted) return;
+    try {
+      await audioRef.current.play();
+      setIsPlaying(true);
+    } catch (err) {
+      console.warn("Autoplay blocked, waiting for interaction.");
+      setIsPlaying(false);
     }
-  }, [currentTrack, hasInteracted]);
+  };
 
-  // Attempt to play immediately on mount
+  // Attempt to play on mount (or when ready / track changes)
   useEffect(() => {
-    if (audioRef.current && !hasInteracted) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-        setHasInteracted(true);
-      }).catch((err) => {
-        console.warn("Autoplay blocked, waiting for user interaction:", err);
-      });
+    if (isReady && !isMuted) {
+      attemptPlay();
     }
-  }, [hasInteracted]);
+  }, [isReady, currentTrack, isMuted]);
 
-  // Attempt to play on first interaction anywhere on the document
+  // Aggressive event listeners to bypass autoplay restrictions on first interaction
   useEffect(() => {
     const handleInteraction = () => {
-      if (!hasInteracted) {
-        setHasInteracted(true);
-        if (audioRef.current && !isPlaying) {
-          audioRef.current.play().then(() => {
-            setIsPlaying(true);
-          }).catch(console.error);
-        }
+      if (!isPlaying && !isMuted && audioRef.current) {
+        attemptPlay();
       }
     };
 
-    // Listeners for any initial user interaction
-    document.addEventListener("click", handleInteraction, { once: true });
-    document.addEventListener("keydown", handleInteraction, { once: true });
-    document.addEventListener("touchstart", handleInteraction, { once: true });
+    // Any physical interaction with the page will trigger audio if blocked
+    const events = ["mousedown", "keydown", "touchstart", "pointerdown"];
+    events.forEach(e => document.addEventListener(e, handleInteraction, { passive: true }));
 
     return () => {
-      document.removeEventListener("click", handleInteraction);
-      document.removeEventListener("keydown", handleInteraction);
-      document.removeEventListener("touchstart", handleInteraction);
+      events.forEach(e => document.removeEventListener(e, handleInteraction));
     };
-  }, [hasInteracted, isPlaying]);
+  }, [isPlaying, isMuted]);
 
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
         setIsPlaying(false);
+        setIsMuted(true);
+        localStorage.setItem("fm-music-muted", "true");
       } else {
+        setIsMuted(false);
+        localStorage.setItem("fm-music-muted", "false");
         audioRef.current.play().then(() => {
           setIsPlaying(true);
-          setHasInteracted(true);
         }).catch(console.error);
       }
     }

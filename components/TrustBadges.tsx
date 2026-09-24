@@ -28,36 +28,45 @@ const ROW_TWO = [
 
 function Dot() {
   return (
-    <span className="mx-6 inline-block h-1 w-1 shrink-0 rounded-full bg-accent/60 align-middle" />
+    <span className="mx-6 inline-block h-[3px] w-[3px] shrink-0 rounded-full bg-accent/50 align-middle" />
   );
 }
 
 function MarqueeRow({
   items,
   reverse = false,
-  speed = 40,
+  duration = "38s",
 }: {
   items: { label: string; accent: boolean }[];
   reverse?: boolean;
-  speed?: number;
+  duration?: string;
 }) {
-  const doubled = [...items, ...items, ...items, ...items];
+  // Two copies for a seamless -50% loop
+  const doubled = [...items, ...items];
+
   return (
-    <div className="overflow-hidden flex items-center group">
+    <div
+      className="overflow-hidden"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent, black 6%, black 94%, transparent)",
+      }}
+    >
       <div
-        className="flex w-max items-center"
+        className="flex w-max items-center animate-marquee group-hover:[animation-play-state:paused]"
         style={{
-          animation: `marquee ${speed}s linear infinite${reverse ? " reverse" : ""}`,
-          animationPlayState: "running",
+          animationDuration: duration,
+          animationDirection: reverse ? "reverse" : "normal",
+          willChange: "transform",
         }}
       >
         {doubled.map((item, i) => (
           <span key={i} className="flex items-center shrink-0">
             <span
-              className={`text-[10px] font-black uppercase tracking-[0.22em] whitespace-nowrap transition-colors ${
-                item.accent
-                  ? "text-accent"
-                  : "text-text-primary/80"
+              className={`text-[10px] font-black uppercase tracking-[0.24em] whitespace-nowrap ${
+                item.accent ? "text-accent" : "text-text-primary/70"
               }`}
             >
               {item.label}
@@ -72,11 +81,12 @@ function MarqueeRow({
 
 export default function TrustBadges() {
   return (
-    <section className="border-y border-base-border bg-base-surface/50 py-5 space-y-4 overflow-hidden">
+    // "group" here — hovering the section pauses both rows via group-hover
+    <section className="group border-y border-base-border bg-base-surface/40 py-6 space-y-5 overflow-hidden cursor-default">
       {/* Row 1 — scrolls left */}
-      <MarqueeRow items={ROW_ONE} speed={35} />
+      <MarqueeRow items={ROW_ONE} duration="38s" />
       {/* Row 2 — scrolls right (reverse) */}
-      <MarqueeRow items={ROW_TWO} reverse speed={45} />
+      <MarqueeRow items={ROW_TWO} reverse duration="44s" />
     </section>
   );
 }
