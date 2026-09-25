@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 
@@ -36,7 +36,7 @@ export default function GenderGate() {
   if (mounted && !visible) return null;
 
   return (
-    /* Full-screen backdrop — hidden by default, shown via injected CSS lock */
+    /* Full-screen backdrop â€” hidden by default, shown via injected CSS lock */
     <div
       id="fm-gender-gate"
       className="fixed inset-0 z-[200] items-center justify-center hidden"
@@ -101,7 +101,7 @@ export default function GenderGate() {
 
         {/* Fine print */}
         <p className="mt-8 text-[9px] tracking-[0.08em] text-text-secondary/50">
-          You can change this at any time in your settings.
+          You can change this at any time using the toggle in the navigation menu.
         </p>
       </div>
     </div>

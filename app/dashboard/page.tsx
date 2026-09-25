@@ -7,6 +7,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import type { Order, OrderStatus } from "@/lib/order-store";
 import { drops } from "@/data/drops";
+import { supabase } from "@/lib/supabase";
 
 const STATUS_LABELS: Record<OrderStatus, { label: string; bg: string; text: string; border: string }> = {
   pending: {
@@ -57,7 +58,7 @@ const ALL_STATUSES: OrderStatus[] = [
 ];
 
 // Helper to normalize Supabase records into the client Order structure
-function normalizeSupabaseOrder(dbOrder: any): Order {
+function normalizeSupabaseOrder(dbOrder: any, allProducts: any[] = []): Order {
   const drop = drops[0];
   const itemsList = Array.isArray(dbOrder.items) ? dbOrder.items : [];
 
@@ -76,14 +77,28 @@ function normalizeSupabaseOrder(dbOrder: any): Order {
     notes: dbOrder.notes || "",
     items: itemsList.map((item: any) => {
       const productId = item.product_id || item.productId || item.lookId || "product";
+      
+      const dbProduct = allProducts.find((p) => p.id === productId);
       const matchedLook = drop?.looks.find((l) => l.id === productId);
+      
+      const itemName = dbProduct?.name || matchedLook?.name || productId.toUpperCase();
+      let itemImage = "/images/products/stwd-shirt.png";
+      
+      if (dbProduct?.images && dbProduct.images.length > 0) {
+        itemImage = dbProduct.images[0];
+      } else if (matchedLook?.images && matchedLook.images.length > 0) {
+        itemImage = matchedLook.images[0];
+      } else if (item.image) {
+        itemImage = item.image;
+      }
+
       return {
         lookId: productId,
-        name: matchedLook?.name || productId.toUpperCase(),
+        name: itemName,
         size: item.size || "M",
         price: Number(item.price_at_purchase || item.price) || 18500,
         quantity: Number(item.quantity) || 1,
-        image: matchedLook?.images[0] || (item.image || "/images/products/stwd-shirt.png"),
+        image: itemImage,
       };
     }),
   };
@@ -105,13 +120,19 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/admin/orders");
+      const [{ data: productsData }, res] = await Promise.all([
+        supabase.from("products").select("*"),
+        fetch("/api/admin/orders")
+      ]);
+      
+      const allProducts = productsData || [];
+
       if (!res.ok) {
         throw new Error(`Server returned status ${res.status}`);
       }
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
-        setOrders(data.orders.map(normalizeSupabaseOrder));
+        setOrders(data.orders.map((o: any) => normalizeSupabaseOrder(o, allProducts)));
       } else {
         throw new Error(data.error || "Failed to load orders");
       }
@@ -150,6 +171,29 @@ export default function DashboardPage() {
     } catch (err) {
       console.error("Failed to update status in Supabase:", err);
       fetchOrders(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!window.confirm("Are you sure you want to delete this order? This action cannot be undone.")) return;
+
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    if (selectedOrder && selectedOrder.id === orderId) {
+      setSelectedOrder(null);
+    }
+
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete order from database.");
+      }
+    } catch (err) {
+      console.error("Failed to delete order in Supabase:", err);
+      fetchOrders(false); // Refetch to revert optimistic update
     }
   };
 
@@ -720,6 +764,13 @@ export default function DashboardPage() {
                     className="rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500 hover:text-black transition-colors"
                   >
                     Notify WhatsApp 💬
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOrder(selectedOrder.id)}
+                    className="rounded-sm border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                  >
+                    Delete
                   </button>
                   <button
                     type="button"

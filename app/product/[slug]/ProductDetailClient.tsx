@@ -135,7 +135,7 @@ export default function ProductDetailClient({
        <div>
         <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-accent">
          <span>FLIPMEET STUDIO</span>
-         <span>//</span>
+         <span>{"//"}</span>
          <span>{product.category || "DROP 001"}</span>
         </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-text-primary">
@@ -303,7 +303,7 @@ export default function ProductDetailClient({
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
        <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
-         COMPLETE THE LOOK // PIECES
+         COMPLETE THE LOOK {"//"} PIECES
         </p>
         <h2 id="shop-pieces-heading" className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-text-primary mt-1">
          Shop the pieces
@@ -358,7 +358,7 @@ export default function ProductDetailClient({
            <div className="mt-3 flex items-center justify-between text-[10px] tracking-widest text-text-secondary uppercase">
             <span>Sizes: {piece.sizes.join(" · ")}</span>
             <span className="font-bold text-text-primary group-hover:text-accent transition-colors">
-             VIEW PIECE →
+             VIEW PIECE &rarr;
             </span>
            </div>
           </div>
@@ -370,9 +370,9 @@ export default function ProductDetailClient({
     )}
 
     {/* AI Try-On */}
-    <section className="mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
+    <section className="hidden mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
      <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
-      AI TRY-ON // SEE IT ON YOU
+      AI TRY-ON {"//"} SEE IT ON YOU
      </p>
      <div className="rounded-sm border border-base-border bg-base-surface p-6 sm:p-8">
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const PLAYLIST = [
-  "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/music/king-von---took-her-to-the-o.mp3",
-  "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/music/pop-smoke---dior.mp3",
+  "/music/king-von.mp3",
+  "/music/pop-smoke.mp3",
 ];
 
 export default function GlobalAudioPlayer() {
@@ -55,7 +55,7 @@ export default function GlobalAudioPlayer() {
   };
 
   // Centralized play function that aggressively tries to play
-  const attemptPlay = async () => {
+  const attemptPlay = useCallback(async () => {
     if (!audioRef.current || isMuted) return;
     try {
       await audioRef.current.play();
@@ -64,14 +64,19 @@ export default function GlobalAudioPlayer() {
       console.warn("Autoplay blocked, waiting for interaction.");
       setIsPlaying(false);
     }
-  };
+  }, [isMuted]);
 
-  // Attempt to play on mount (or when ready / track changes)
+  // Attempt to play or pause on mount (or when ready / track changes / mute changes)
   useEffect(() => {
-    if (isReady && !isMuted) {
+    if (!isReady || !audioRef.current) return;
+    
+    if (isMuted) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
       attemptPlay();
     }
-  }, [isReady, currentTrack, isMuted]);
+  }, [isReady, currentTrack, isMuted, attemptPlay]);
 
   // Aggressive event listeners to bypass autoplay restrictions on first interaction
   useEffect(() => {
@@ -88,7 +93,7 @@ export default function GlobalAudioPlayer() {
     return () => {
       events.forEach(e => document.removeEventListener(e, handleInteraction));
     };
-  }, [isPlaying, isMuted]);
+  }, [isPlaying, isMuted, attemptPlay]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -116,7 +121,6 @@ export default function GlobalAudioPlayer() {
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         preload="auto"
-        autoPlay
       />
 
       {/* Floating control button */}
@@ -126,9 +130,17 @@ export default function GlobalAudioPlayer() {
         aria-label="Toggle Music"
       >
         {isPlaying ? (
-          <span className="text-sm">🔊</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
         ) : (
-          <span className="text-sm">🔇</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
         )}
       </button>
     </>

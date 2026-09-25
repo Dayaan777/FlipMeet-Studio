@@ -1,3 +1,4 @@
+﻿import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -58,21 +59,21 @@ export default function AnimePage() {
             />
           </div>
           <div className="absolute inset-0 md:hidden aspect-square">
-            <img
+            <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
               alt="FlipMeet Studio Anime Collection"
-              className="size-full object-cover object-center"
+              fill className="size-full object-cover object-center"
             />
           </div>
 
           {/* Real Solid Orange CTA button */}
           <div className="absolute left-[5.2%] top-[78%] md:top-[75%] z-10">
-            <a
+            <Link
               href="#collection"
               className="inline-flex w-auto items-center justify-center gap-2 rounded-sm bg-accent px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-text-primary hover:bg-accent-dim transition-all duration-200 shadow-lg shadow-accent/20 hover:shadow-accent/40 md:gap-3 md:px-8 md:py-3.5 md:text-xs md:tracking-[0.2em]"
             >
-              SHOP ANIME →
-            </a>
+              SHOP ANIME
+            </Link>
           </div>
 
           {/* Real Scroll Indicator */}
@@ -93,14 +94,14 @@ export default function AnimePage() {
         <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-16 sm:py-24 border-b border-base-border">
           {/* Label */}
           <div className="flex items-center gap-3 text-xs tracking-[0.25em] text-text-secondary uppercase mb-8">
-            <span className="w-5 h-[1px] bg-accent" />
+            
             <span className="font-semibold text-text-secondary">ANIME SERIES</span>
           </div>
 
           {/* 5 Portrait Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 lg:gap-5">
             {ANIME_SERIES.map((series) => (
-              <a
+              <Link
                 key={series.slug}
                 href={series.href}
                 className="group relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-sm border border-base-border bg-base-card hover:border-accent/60 transition-all duration-300 block shadow-md hover:shadow-accent/10"
@@ -123,16 +124,14 @@ export default function AnimePage() {
                   <span className="text-xs sm:text-sm font-display tracking-widest text-text-primary uppercase font-bold group-hover:text-accent transition-colors">
                     {series.name}
                   </span>
-                  <span className="text-xs text-text-secondary group-hover:text-accent group-hover:translate-x-1.5 transition-all mt-1 inline-block">
-                    →
-                  </span>
+                  
                 </div>
-              </a>
+              </Link>
             ))}
           </div>
         </section>
 
-        {/* Anime Drop 001 — 05 Looks Reveal */}
+        {/* Anime Drop 001 â€” 05 Looks Reveal */}
         <AnimeDropReveal />
         {/* Video Carousel - same as homepage */}
         <VideoCarousel />

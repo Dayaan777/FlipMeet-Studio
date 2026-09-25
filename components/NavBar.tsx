@@ -28,10 +28,21 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
   const [gender, setGender] = useState<"male" | "female">("male");
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("fm_gender") as "male" | "female";
-      if (stored) setGender(stored);
-    } catch {}
+    const syncGender = () => {
+      try {
+        const stored = localStorage.getItem("fm_gender") as "male" | "female";
+        if (stored) setGender(stored);
+      } catch {}
+    };
+
+    syncGender();
+    window.addEventListener("themechange", syncGender);
+    window.addEventListener("storage", syncGender);
+
+    return () => {
+      window.removeEventListener("themechange", syncGender);
+      window.removeEventListener("storage", syncGender);
+    };
   }, []);
 
   const toggleGender = () => {

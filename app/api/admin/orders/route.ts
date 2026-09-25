@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 
@@ -134,6 +134,63 @@ export async function PATCH(request: Request) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to update order status.";
     console.error("Admin orders PATCH error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+// DELETE: Delete an order and its items (authenticated admin only)
+export async function DELETE(request: Request) {
+  const isAuthenticated = await verifyAdminAuth();
+  if (!isAuthenticated) {
+    return NextResponse.json(
+      { error: "Unauthorized: Admin session cookie required." },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { orderId, id } = body;
+    const targetId = (orderId || id || "").trim();
+
+    if (!targetId) {
+      return NextResponse.json(
+        { error: "orderId is required." },
+        { status: 400 }
+      );
+    }
+
+    const supabaseAdmin = getAdminClient();
+
+    // order_items typically has ON DELETE CASCADE on order_id. 
+    // If not, we should delete items first. Since we are using Supabase, we can just try to delete the order directly.
+    if (serviceRoleKey) {
+      const { error: itemsError } = await supabaseAdmin
+        .from("order_items")
+        .delete()
+        .eq("order_id", targetId);
+
+      if (itemsError) throw itemsError;
+
+      const { data, error } = await supabaseAdmin
+        .from("orders")
+        .delete()
+        .eq("id", targetId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, order: data });
+    }
+
+    const { data: rpcData, error: rpcError } = await supabaseAdmin.rpc("admin_delete_order", {
+      p_order_id: targetId
+    });
+
+    if (rpcError) throw rpcError;
+    return NextResponse.json({ success: true, order: rpcData });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete order.";
+    console.error("Admin orders DELETE error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

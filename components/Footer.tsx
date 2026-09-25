@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import Image from "next/image";
@@ -56,6 +56,20 @@ function PackagingFlyer() {
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus("loading");
+    // Simulate network request
+    setTimeout(() => {
+      setStatus("success");
+      setEmail("");
+      // Reset success message after 3 seconds
+      setTimeout(() => setStatus("idle"), 3000);
+    }, 800);
+  };
 
   return (
     <footer className="px-6 py-16 md:py-24 border-t border-base-border bg-base-bg">
@@ -75,7 +89,7 @@ export default function Footer() {
             </p>
           </div>
           <p className="text-text-secondary/50 text-[10px] uppercase tracking-widest mt-12 md:mt-auto">
-            © {new Date().getFullYear()} FlipMeet Studio. All rights reserved.
+            &copy; {new Date().getFullYear()} FlipMeet Studio. All rights reserved.
           </p>
         </div>
 
@@ -94,7 +108,7 @@ export default function Footer() {
         <div className="md:col-span-3">
           <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-6">Stay Updated</p>
           <form
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmit}
             className="flex flex-col gap-3"
           >
             <p className="text-xs text-text-secondary mb-2 leading-relaxed">
@@ -107,16 +121,23 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="bg-base-surface border border-base-border rounded-sm px-4 py-3 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50"
+                disabled={status === "loading" || status === "success"}
+                className="bg-base-surface border border-base-border rounded-sm px-4 py-3 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50 disabled:opacity-50"
               />
               <button
                 type="submit"
+                disabled={status === "loading" || status === "success"}
                 aria-label="Join waitlist"
-                className="bg-accent hover:bg-accent-dim transition-colors px-5 py-3 rounded-sm ml-2 text-text-primary font-bold shadow-[0_0_15px_rgba(255,168,56,0.15)] hover:shadow-[0_0_20px_rgba(255,168,56,0.3)]"
+                className="bg-accent hover:bg-accent-dim transition-colors px-5 py-3 rounded-sm ml-2 text-text-primary font-bold shadow-[0_0_15px_rgba(255,168,56,0.15)] hover:shadow-[0_0_20px_rgba(255,168,56,0.3)] disabled:opacity-50 flex items-center justify-center min-w-[50px]"
               >
-                →
+                {status === "loading" ? "..." : "→"}
               </button>
             </div>
+            {status === "success" && (
+              <p className="text-emerald-400 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 duration-300">
+                ✓ Thanks for joining! We&apos;ll be in touch.
+              </p>
+            )}
           </form>
         </div>
 

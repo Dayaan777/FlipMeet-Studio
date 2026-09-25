@@ -62,11 +62,11 @@ function ShopContent({ products }: { products: Product[] }) {
   });
 
   return list;
- }, [products, activeCategory, query]);
+ }, [products, activeCategory, query, hiddenFilter]);
 
  return (
   <>
-   {/* ── Controls row: category filters + search ── */}
+   {/* â”€â”€ Controls row: category filters + search â”€â”€ */}
    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     {/* Category pills */}
     <div className="flex flex-wrap gap-2">
@@ -107,7 +107,7 @@ function ShopContent({ products }: { products: Product[] }) {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search products…"
+        placeholder="Search products..."
         className="w-48 bg-transparent text-xs text-text-primary placeholder-text-secondary outline-none"
        />
        {query && (
@@ -116,7 +116,7 @@ function ShopContent({ products }: { products: Product[] }) {
          className="text-text-secondary hover:text-text-primary"
          aria-label="Clear search"
         >
-         ×
+         Ã—
         </button>
        )}
        <button
@@ -151,14 +151,14 @@ function ShopContent({ products }: { products: Product[] }) {
     </div>
    </div>
 
-   {/* ── Result count ── */}
+   {/* â”€â”€ Result count â”€â”€ */}
    <p className="mb-6 text-[10px] uppercase tracking-widest text-text-secondary">
     {filtered.length} {filtered.length === 1 ? "product" : "products"}
     {activeCategory !== "All" && ` in ${activeCategory}`}
     {query.trim() && ` matching "${query.trim()}"`}
    </p>
 
-   {/* ── Product grid ── */}
+   {/* â”€â”€ Product grid â”€â”€ */}
    {filtered.length === 0 ? (
     <div className="flex flex-col items-center justify-center py-24 text-center">
      <p className="text-text-secondary text-sm">No products found.</p>
@@ -215,7 +215,7 @@ function ShopContent({ products }: { products: Product[] }) {
          <div className="mt-4 flex items-center justify-between text-[10px] uppercase tracking-widest text-text-secondary">
           <span>Sizes: {product.sizes.join(" · ")}</span>
           <span className="font-bold text-text-primary transition-colors group-hover:text-accent">
-           ORDER NOW →
+           ORDER NOW &rarr;
           </span>
          </div>
         </div>
