@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef } from "react";
 
@@ -21,34 +21,36 @@ export default function VideoHero() {
     let hasPendingSeek = false;
     let rafId: number;
 
-    // ─── Resize canvas to exact device pixel ratio ───────────────────────────
+    // â”€â”€â”€ Match canvas buffer to exact video dimensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const syncSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!video || video.videoWidth === 0) return;
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
       }
     };
 
-    // ─── Blit the current video frame onto the canvas ────────────────────────
+    // â”€â”€â”€ Blit the current video frame onto the canvas 1:1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const drawFrame = () => {
       if (video.readyState < 2) return;
       syncSize();
-      ctx.drawImage(video, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
     };
 
-    // ─── Seek pipeline: queue at most ONE pending seek ────────────────────────
+    // â”€â”€â”€ Seek pipeline: queue at most ONE pending seek â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const commitSeek = (t: number) => {
       if (isSeeking) {
-        // Don't pile up seeks — just remember the latest target
+        // Don't pile up seeks â€” just remember the latest target
         hasPendingSeek = true;
         return;
       }
       isSeeking = true;
-      video.currentTime = t;
+      // Use fastSeek on mobile browsers for massively improved FPS/lag reduction
+      if (typeof video.fastSeek === 'function') {
+        video.fastSeek(t);
+      } else {
+        video.currentTime = t;
+      }
     };
 
     // When the browser finishes decoding a frame, draw it immediately
@@ -61,7 +63,7 @@ export default function VideoHero() {
       }
     });
 
-    // ─── Scroll handler (runs on scroll, passive) ────────────────────────────
+    // â”€â”€â”€ Scroll handler (runs on scroll, passive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const handleScroll = () => {
       if (!containerRef.current || !video.duration) return;
       const { top, height } = containerRef.current.getBoundingClientRect();
@@ -71,13 +73,13 @@ export default function VideoHero() {
       const newTarget = progress * video.duration;
 
       // Only seek if the target moved more than one video frame (~16ms worth)
-      if (Math.abs(newTarget - targetTime) > 0.01) {
+      if (Math.abs(newTarget - targetTime) > 0.033) { // Reduced seek frequency to boost FPS on mobile
         targetTime = newTarget;
         commitSeek(targetTime);
       }
     };
 
-    // ─── RAF loop — keeps canvas visually in sync at full display refresh rate ─
+    // â”€â”€â”€ RAF loop â€” keeps canvas visually in sync at full display refresh rate â”€
     const tick = () => {
       // While not seeking, continuously blit so the canvas never goes stale
       if (!isSeeking && video.readyState >= 2) {
@@ -86,9 +88,9 @@ export default function VideoHero() {
       rafId = requestAnimationFrame(tick);
     };
 
-    // ─── Warm up the decoder so the first scroll is instant ──────────────────
+    // â”€â”€â”€ Warm up the decoder so the first scroll is instant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const warmUp = () => {
-      // Play a few milliseconds then pause — loads decoder state into memory
+      // Play a few milliseconds then pause â€” loads decoder state into memory
       video.play()
         .then(() => {
           setTimeout(() => {
@@ -110,6 +112,10 @@ export default function VideoHero() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", () => { syncSize(); drawFrame(); });
 
+    // Determine mobile vs desktop video
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    video.src = isMobile ? "/videos/mobile-homepage-hero-section.mp4" : "/videos/homepage-hero-section.mp4";
+
     // Kick off metadata load
     video.load();
 
@@ -122,25 +128,23 @@ export default function VideoHero() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full bg-black"
-      style={{ height: "600vh" }}
+      className="relative w-full bg-black h-[350vh] md:h-[500vh]"
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
-        {/* Hidden video — decode-only, never rendered directly */}
+        {/* Hidden video â€” decode-only, never rendered directly */}
         <video
           ref={videoRef}
           muted
           playsInline
           preload="auto"
           className="hidden"
-          src="/videos/homepage-hero-section.mp4"
         />
 
-        {/* Canvas — the only visible surface; frames are blitted here */}
+        {/* Canvas â€” the only visible surface; frames are blitted here */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ display: "block" }}
         />
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -33,6 +33,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`bg-base-bg ${display.variable} ${body.variable}`}>
       <head>
+        <link rel="preload" as="video" href="/videos/mobile-homepage-hero-section.mp4" type="video/mp4" media="(max-width: 768px)" />
+        <link rel="preload" as="video" href="/videos/homepage-hero-section.mp4" type="video/mp4" media="(min-width: 769px)" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -43,7 +45,7 @@ export default function RootLayout({
                 } else {
                   var style = document.createElement('style');
                   style.id = 'fm-lock-style';
-                  style.innerHTML = '#fm-gender-gate { display: flex !important; } .fm-protected-content { display: none !important; }';
+                  style.innerHTML = '#fm-gender-gate { display: flex !important; } body { overflow: hidden !important; }';
                   document.head.appendChild(style);
                 }
               } catch (e) {}
