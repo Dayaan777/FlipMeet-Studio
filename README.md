@@ -127,19 +127,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## License & Credits
 
 Created for the FlipMeet ecosystem. All rights reserved.
----
-
-## Automated Testing
-
-FlipMeet Studio includes a comprehensive, 4-tier End-to-End (E2E) testing suite that automatically verifies UI performance, image optimization, responsive mobile styling, and mathematical boundaries for scroll/swipe gestures.
-
-**Run the complete verification suite:**
-`ash
-node scripts/verify-storefront.mjs
-`
-
-**Run individual feature tests:**
-`ash
-node --test tests/e2e/r1-video-performance.test.mjs
-node --test tests/e2e/r3-mobile-polish.test.mjs
-`
