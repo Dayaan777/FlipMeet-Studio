@@ -365,7 +365,7 @@ export default function CheckoutPage() {
                       <div key={idx} className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative size-12 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
-                            <Image src={img} alt={item.name} fill className="object-contain" />
+                            <Image src={img} alt={item.name} fill sizes="48px" className="object-contain" />
                           </div>
                           <div>
                             <p className="text-xs font-bold uppercase tracking-wider text-text-primary">

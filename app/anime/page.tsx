@@ -1,10 +1,11 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import AnimeDropReveal from "@/components/AnimeDropReveal";
 import VideoCarousel from "@/components/VideoCarousel";
 import TrustBadges from "@/components/TrustBadges";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 
 const ANIME_SERIES = [
   {
@@ -62,7 +63,12 @@ export default function AnimePage() {
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
               alt="FlipMeet Studio Anime Collection"
-              fill className="size-full object-cover object-center"
+              fill
+              priority
+              sizes="100vw"
+              placeholder="blur"
+              blurDataURL={DARK_BLUR_DATA_URL}
+              className="size-full object-cover object-center"
             />
           </div>
 
@@ -112,6 +118,8 @@ export default function AnimePage() {
                   alt={series.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  placeholder="blur"
+                  blurDataURL={DARK_BLUR_DATA_URL}
                   className="object-cover object-center brightness-90 contrast-105 group-hover:scale-105 group-hover:brightness-100 transition-all duration-500"
                 />
 

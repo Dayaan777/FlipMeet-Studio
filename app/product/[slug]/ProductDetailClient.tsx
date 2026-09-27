@@ -370,7 +370,7 @@ export default function ProductDetailClient({
     )}
 
     {/* AI Try-On */}
-    <section className="hidden mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
+    <section className="hidden md:block mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
      <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
       AI TRY-ON {"//"} SEE IT ON YOU
      </p>

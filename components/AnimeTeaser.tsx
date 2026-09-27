@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Drop } from "@/data/drops";
 import PlatformRing from "@/components/PlatformRing";
 
@@ -43,11 +44,56 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
   const [active, setActive] = useState(0);
   const count = OUTFITS.length;
 
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const isSwiping = useRef(false);
+
   // Per-look vertical offset corrections
   const imageOffsets: Record<string, number> = {};
 
   const shift = (direction: number) =>
     setActive((index) => (index + direction + count) % count);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isSwiping.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const diffX = e.touches[0].clientX - touchStartX.current;
+    const diffY = e.touches[0].clientY - touchStartY.current;
+    if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+      isSwiping.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const diffX = e.changedTouches[0].clientX - touchStartX.current;
+    const diffY = e.changedTouches[0].clientY - touchStartY.current;
+    const threshold = 40;
+
+    if (Math.abs(diffX) > threshold && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX < 0) {
+        shift(1);
+      } else {
+        shift(-1);
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  const handleTouchCancel = () => {
+    touchStartX.current = null;
+    touchStartY.current = null;
+    setTimeout(() => {
+      isSwiping.current = false;
+    }, 120);
+  };
 
   // Signed relative position: 0 = active, ±1 = adjacent, ±2+ = background
   const relative = (index: number) =>
@@ -87,8 +133,12 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                * all outfit cards are positioned absolutely within it.
                */}
               <div
-                className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem]"
+                className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem] touch-pan-y"
                 aria-live="polite"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchCancel}
               >
                 {/* ── Platform ring — centred bloom (active is always position 0) ── */}
                 <PlatformRing
@@ -145,7 +195,11 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                           src={look.images[0]}
                           alt={`${look.name} — ${look.description}`}
                           fill
-                          sizes="(min-width: 768px) 28rem, 75vw"
+                          priority={activeLook}
+                          loading={distance <= 1 ? "eager" : "lazy"}
+                          placeholder="blur"
+                          blurDataURL={DARK_BLUR_DATA_URL}
+                          sizes="(min-width: 640px) 336px, 85vw"
                           className="object-contain object-bottom transition-all duration-500"
                           style={activeLook ? { filter: "drop-shadow(0 0 24px rgb(var(--accent) / 0.45))" } : undefined}
                         />
@@ -201,3 +255,6 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
     </section>
   );
 }
+
+
+

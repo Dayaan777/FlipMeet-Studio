@@ -8,7 +8,7 @@ export default function TryOnPanel({ drop }: { drop: Drop }) {
   const [fileName, setFileName] = useState<string | null>(null);
 
   return (
-    <section className="py-24 px-6 border-b border-base-border">
+    <section className="hidden md:block py-24 px-6 border-b border-base-border">
       <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-12">
         <div>
           <p className="text-accent text-xs tracking-widest mb-2">AI TRY-ON</p>

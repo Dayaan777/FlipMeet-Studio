@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 import Link from "next/link";
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -171,7 +172,7 @@ function ShopContent({ products }: { products: Product[] }) {
     </div>
    ) : (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-     {filtered.map((product) => {
+     {filtered.map((product, idx) => {
       const img =
        product.images && product.images.length > 0
         ? product.images[0]
@@ -194,6 +195,9 @@ function ShopContent({ products }: { products: Product[] }) {
            src={img}
            alt={`${product.name} ${product.description}`}
            fill
+           priority={idx < 4}
+           placeholder="blur"
+           blurDataURL={DARK_BLUR_DATA_URL}
            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
            className="object-contain object-bottom transition-all duration-500 group-hover:scale-105 group-hover:[filter:drop-shadow(0_0_24px_rgb(var(--accent)/0.4))]"
           />

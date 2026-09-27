@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -131,6 +132,8 @@ export default function AnimeDropReveal() {
            className="object-cover object-center transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
            style={{ filter: isActive ? "brightness(1)" : "brightness(0.65)" }}
            priority={i === 0}
+           placeholder="blur"
+           blurDataURL={DARK_BLUR_DATA_URL}
           />
 
           {/* Garment cutout */}
@@ -139,6 +142,9 @@ export default function AnimeDropReveal() {
             src={look.image}
             alt={`${look.series} ${look.character} jersey`}
             fill
+            priority={i === 0}
+            placeholder="blur"
+            blurDataURL={DARK_BLUR_DATA_URL}
             sizes="(max-width: 640px) 162px, (max-width: 1024px) 185px, 20vw"
             className="object-contain object-bottom transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
             style={{

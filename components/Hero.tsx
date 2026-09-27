@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 import CountdownTimer from "./CountdownTimer";
 import type { Drop } from "@/data/drops";
 
@@ -15,6 +16,8 @@ export default function Hero({ drop }: { drop: Drop }) {
      fill
      priority
      sizes="58vw"
+     placeholder="blur"
+     blurDataURL={DARK_BLUR_DATA_URL}
      className="object-cover object-top brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_10%,black_88%,transparent_100%)]"
     />
     <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-base-bg to-transparent" />
@@ -80,7 +83,10 @@ export default function Hero({ drop }: { drop: Drop }) {
       src="/images/hero-drop-001.jpg"
       alt="FlipMeet Studio Drop 001 campaign two models wearing Look 01"
       fill
+      priority
       sizes="100vw"
+      placeholder="blur"
+      blurDataURL={DARK_BLUR_DATA_URL}
       className="object-cover object-top brightness-110 contrast-125 [mask-image:linear-gradient(to_right,transparent_0%,black_8%,black_86%,transparent_100%)]"
      />
      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-base-bg to-transparent" />

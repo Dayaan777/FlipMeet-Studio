@@ -570,6 +570,7 @@ export default function DashboardPage() {
                                       src={item.image}
                                       alt={item.name}
                                       fill
+                                      sizes="32px"
                                       className="object-contain"
                                     />
                                   </div>
@@ -732,7 +733,7 @@ export default function DashboardPage() {
                   <div key={idx} className="flex items-center justify-between py-2.5 text-xs">
                     <div className="flex items-center gap-3">
                       <div className="relative size-12 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
-                        <Image src={item.image} alt={item.name} fill className="object-contain" />
+                        <Image src={item.image} alt={item.name} fill sizes="48px" className="object-contain" />
                       </div>
                       <div>
                         <p className="font-bold text-text-primary">{item.name}</p>

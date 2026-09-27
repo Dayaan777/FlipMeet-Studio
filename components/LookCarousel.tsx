@@ -2,19 +2,69 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Drop } from "@/data/drops";
 import PlatformRing from "@/components/PlatformRing";
+import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 
 export default function LookCarousel({ drop }: { drop: Drop }) {
  const [active, setActive] = useState(0);
  const count = drop.looks.length;
+
+ const touchStartX = useRef<number | null>(null);
+ const touchStartY = useRef<number | null>(null);
+ const isSwiping = useRef(false);
 
  // Per-look vertical offset corrections
  const imageOffsets: Record<string, number> = {};
 
  const shift = (direction: number) =>
   setActive((index) => (index + direction + count) % count);
+
+ const handleTouchStart = (e: React.TouchEvent) => {
+  touchStartX.current = e.touches[0].clientX;
+  touchStartY.current = e.touches[0].clientY;
+  isSwiping.current = false;
+ };
+
+ const handleTouchMove = (e: React.TouchEvent) => {
+  if (touchStartX.current === null || touchStartY.current === null) return;
+  const diffX = e.touches[0].clientX - touchStartX.current;
+  const diffY = e.touches[0].clientY - touchStartY.current;
+  // If moving horizontally more than vertically, mark as swiping
+  if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(diffY)) {
+   isSwiping.current = true;
+  }
+ };
+
+ const handleTouchEnd = (e: React.TouchEvent) => {
+  if (touchStartX.current === null || touchStartY.current === null) return;
+  const diffX = e.changedTouches[0].clientX - touchStartX.current;
+  const diffY = e.changedTouches[0].clientY - touchStartY.current;
+  const threshold = 40; // minimum swipe distance in px
+
+  if (Math.abs(diffX) > threshold && Math.abs(diffX) > Math.abs(diffY)) {
+   if (diffX < 0) {
+    shift(1); // Swipe Left -> Next
+   } else {
+    shift(-1); // Swipe Right -> Prev
+   }
+  }
+
+  touchStartX.current = null;
+  touchStartY.current = null;
+  setTimeout(() => {
+   isSwiping.current = false;
+  }, 120);
+ };
+
+ const handleTouchCancel = () => {
+  touchStartX.current = null;
+  touchStartY.current = null;
+  setTimeout(() => {
+   isSwiping.current = false;
+  }, 120);
+ };
 
  // Signed relative position: 0 = active, ±1 = adjacent, ±2+ = background
  const relative = (index: number) =>
@@ -54,8 +104,12 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
         * all outfit cards are positioned absolutely within it.
         */}
        <div
-        className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem]"
+        className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem] touch-pan-y"
         aria-live="polite"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchCancel}
        >
         {/* ── Platform ring centred bloom (active is always position 0) ── */}
         <PlatformRing
@@ -90,6 +144,12 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
            key={look.id}
            aria-label={`View ${look.name}`}
            aria-current={activeLook ? "true" : undefined}
+           onClick={(e) => {
+            if (isSwiping.current) {
+             e.preventDefault();
+             e.stopPropagation();
+            }
+           }}
            className="absolute inset-0 flex flex-col items-center text-center transition-[transform,opacity,filter] duration-500 ease-out"
            style={{
             transform,
@@ -112,7 +172,11 @@ export default function LookCarousel({ drop }: { drop: Drop }) {
              src={look.images[0]}
              alt={`${look.name} ${look.description}`}
              fill
-             sizes="(min-width: 768px) 28rem, 75vw"
+             sizes="(min-width: 640px) 336px, 85vw"
+             priority={activeLook}
+             loading={activeLook ? undefined : distance <= 1 ? "eager" : "lazy"}
+             placeholder="blur"
+             blurDataURL={DARK_BLUR_DATA_URL}
              className="object-contain object-bottom transition-all duration-500"
              style={activeLook ? { filter: "drop-shadow(0 0 24px rgb(var(--accent) / 0.45))" } : undefined}
             />

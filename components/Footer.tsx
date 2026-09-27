@@ -1,18 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 function PackagingFlyer() {
-  const [shocking, setShocking] = useState(false);
+  const [shockKey, setShockKey] = useState(0);
 
   const trigger = useCallback(() => {
-    setShocking(false);
-    // tiny timeout so React re-renders before adding class back
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setShocking(true));
-    });
+    setShockKey((k) => k + 1);
   }, []);
 
   return (
@@ -36,17 +32,20 @@ function PackagingFlyer() {
         }
       `}</style>
       <div
-        className="relative w-44 md:w-52 aspect-[2/3] cursor-pointer"
+        className="relative w-44 md:w-52 aspect-[2/3] cursor-pointer select-none"
+        onClick={trigger}
         onMouseEnter={trigger}
         onFocus={trigger}
         tabIndex={0}
+        role="button"
+        aria-label="FlipMeet Studio Packaging Flyer"
       >
         <Image
+          key={shockKey}
           src="/images/packaging-flyer.png"
           alt="FlipMeet Studio Packaging"
           fill
-          onAnimationEnd={() => setShocking(false)}
-          className={`object-contain drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]${shocking ? " flyer-shock" : ""}`}
+          className={`object-contain drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]${shockKey > 0 ? " flyer-shock" : ""}`}
           sizes="(max-width: 768px) 176px, 208px"
         />
       </div>
@@ -142,7 +141,7 @@ export default function Footer() {
         </div>
 
         {/* Col 4: Packaging Flyer with Electric Shock Animation */}
-        <div className="md:col-span-3 flex justify-start md:justify-end items-center mt-8 md:mt-0">
+        <div className="md:col-span-3 flex justify-center md:justify-end items-center mt-8 md:mt-0">
           <PackagingFlyer />
         </div>
 

@@ -70,7 +70,7 @@ export default function CartPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="relative size-16 sm:size-20 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
-                          <Image src={img} alt={item.name} fill className="object-contain" />
+                          <Image src={img} alt={item.name} fill sizes="(max-width: 640px) 64px, 80px" className="object-contain" />
                         </div>
                         <div>
                           <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-text-primary">

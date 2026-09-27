@@ -413,6 +413,7 @@ export default function AdminPage() {
                               src={img}
                               alt={product.name}
                               fill
+                              sizes="48px"
                               className="object-contain object-bottom"
                             />
                           </div>
@@ -674,6 +675,7 @@ export default function AdminPage() {
                         <div className="flex flex-wrap gap-2">
                           {uploadFiles.map((f, i) => (
                             <div key={i} className="relative size-12 rounded-sm border border-base-border overflow-hidden shrink-0 bg-base-bg">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src={URL.createObjectURL(f)} alt="preview" className="object-cover w-full h-full" />
                             </div>
                           ))}
