@@ -101,37 +101,113 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
 
   return (
     <section
-      className="overflow-hidden border-b border-base-border px-6 py-24"
-      aria-labelledby="look-carousel-heading"
+      className="relative overflow-hidden border-b border-base-border bg-black"
+      aria-labelledby="anime-carousel-heading"
     >
-      <div className="mx-auto max-w-7xl">
-        {/* ── Section header — matches FeaturedLooksGrid typography ── */}
+      {/* ── Cinematic Background Layer ── */}
+      {/* Left side anime artwork */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] select-none">
+        <Image
+          src="/images/anime-hero.png"
+          alt=""
+          fill
+          aria-hidden="true"
+          sizes="45vw"
+          className="object-cover object-right opacity-20"
+          style={{ maskImage: "linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 100%)" }}
+        />
+        {/* Red ink slash overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-red-900/10 via-transparent to-transparent" />
+      </div>
+
+      {/* Right side torii/atmosphere */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-[40%] select-none">
+        <div className="absolute inset-0 bg-gradient-to-l from-red-950/15 via-transparent to-transparent" />
+        {/* Subtle right vignette */}
+        <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent" />
+      </div>
+
+      {/* Full background dark vignette to keep center readable */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,transparent_40%,rgba(0,0,0,0.7)_100%)]" />
+
+      {/* Dramatic red/orange floor glow beneath the stage */}
+      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 h-72 w-[60%]">
+        <div className="h-full w-full rounded-[50%] bg-[radial-gradient(ellipse_at_50%_100%,rgba(220,38,38,0.25)_0%,rgba(255,80,0,0.12)_40%,transparent_70%)] blur-[1px]" />
+      </div>
+
+      {/* ── Decorative Japanese Typography ── */}
+      {/* Left vertical kanji */}
+      <div className="pointer-events-none absolute left-6 top-1/2 -translate-y-1/2 select-none hidden md:block" aria-hidden="true">
+        <p
+          className="text-[11px] font-light tracking-[0.4em] text-white/15 uppercase"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed", letterSpacing: "0.5em" }}
+        >
+          ア&nbsp;ニ&nbsp;メ
+        </p>
+        <div className="mt-4 h-16 w-[1px] bg-gradient-to-b from-white/10 to-transparent mx-auto" />
+      </div>
+
+      {/* Right vertical Japanese text — "夢は終わらない" (Dreams never end) */}
+      <div className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 select-none hidden md:block" aria-hidden="true">
+        <p
+          className="text-[11px] font-light text-white/12"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed", letterSpacing: "0.4em" }}
+        >
+          夢は終わらない
+        </p>
+        <div className="mt-4 h-16 w-[1px] bg-gradient-to-b from-white/10 to-transparent mx-auto" />
+      </div>
+
+      {/* Bottom-left FLIPMEET STUDIO editorial label */}
+      <div className="pointer-events-none absolute bottom-10 left-6 select-none hidden md:block" aria-hidden="true">
+        <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-white/15 leading-5">
+          FLIPMEET<br />STUDIO
+        </p>
+        <div className="mt-2 h-[1px] w-8 bg-white/10" />
+      </div>
+
+      {/* Bottom-right cross-hair grid mark */}
+      <div className="pointer-events-none absolute bottom-10 right-6 select-none hidden md:block" aria-hidden="true">
+        <div className="flex items-center gap-1">
+          <span className="text-[8px] font-mono tracking-widest text-white/15">+</span>
+          <div className="flex gap-[3px]">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-[8px] w-[1px] bg-white/10" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Content ── */}
+      <div className="relative mx-auto max-w-7xl px-6 py-20">
+
+        {/* Section header */}
         <p className="mb-2 text-center text-xs tracking-[0.28em] text-accent">THE COLLECTION</p>
         <h2
           id="anime-carousel-heading"
-          className="mb-14 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
+          className="mb-2 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
         >
           ANIME
         </h2>
+        {/* Accent underline bar */}
+        <div className="mx-auto mb-14 h-[2px] w-10 bg-accent" />
 
+        {/* ── 3D Carousel Stage ── */}
         <div className="relative">
           <div className="relative flex items-center gap-4 pb-14 md:gap-8 md:pb-0">
-            {/* Prev arrow */}
+
+            {/* Prev arrow — desktop: extreme left edge; mobile: bottom-left */}
             <button
               type="button"
               aria-label="Previous look"
               onClick={() => shift(-1)}
-              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
+              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-white/20 bg-black/40 text-lg text-white/60 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:text-accent hover:shadow-[0_0_12px_rgba(255,80,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
             >
               ←
             </button>
 
             <div className="min-w-0 flex-1">
-              {/*
-               * Stage container — perspective 3-D depth stack.
-               * The platform ring sits at the very bottom of this container;
-               * all outfit cards are positioned absolutely within it.
-               */}
+              {/* Stage container — perspective 3-D depth stack */}
               <div
                 className="relative mx-auto h-[30rem] w-full max-w-4xl [perspective:1200px] sm:h-[34rem] touch-pan-y"
                 aria-live="polite"
@@ -140,27 +216,25 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                 onTouchEnd={handleTouchEnd}
                 onTouchCancel={handleTouchCancel}
               >
-                {/* ── Platform ring — centred bloom (active is always position 0) ── */}
+                {/* Platform ring — now with dramatic accent-colored bloom */}
                 <PlatformRing
                   bloomX={50}
                   className="bottom-[6.75rem] sm:bottom-[7.25rem]"
                 />
 
-                {/* ── Outfit cards ── */}
+                {/* Outfit cards */}
                 {OUTFITS.map((look, index) => {
                   const position = relative(index);
                   const distance = Math.abs(position);
                   const activeLook = position === 0;
                   const side = position < 0 ? -1 : 1;
 
-                  // 3-D transform — unchanged depth-stack logic, refined scale values
                   const transform = activeLook
                     ? "translate3d(0, 18px, 80px) rotateY(0deg) scale(1)"
                     : distance === 1
                     ? `translate3d(${side * 30}%, 18px, -50px) rotateY(${side * -16}deg) scale(0.78)`
                     : `translate3d(${side * (42 + Math.min(distance - 2, 2) * 5)}%, 18px, -${130 + distance * 25}px) rotateY(${side * -24}deg) scale(${Math.max(0.54, 0.66 - (distance - 2) * 0.05)})`;
 
-                  // Opacity falloff — slightly crisper than before
                   const opacity = activeLook
                     ? 1
                     : distance === 1
@@ -184,7 +258,7 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                           : `blur(${Math.min(distance, 2) * 0.35}px)`,
                       }}
                     >
-                      {/* Outfit image — object-bottom grounds feet on ring */}
+                      {/* Outfit image */}
                       <div
                         className="relative mb-5 flex h-80 w-full max-w-[18rem] items-end justify-center sm:h-96 sm:max-w-[21rem]"
                         style={{
@@ -193,7 +267,7 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                       >
                         <Image
                           src={look.images[0]}
-                          alt={`${look.name} — ${look.description}`}
+                          alt={`${look.name} – ${look.description}`}
                           fill
                           priority={activeLook}
                           loading={distance <= 1 ? "eager" : "lazy"}
@@ -201,11 +275,18 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                           blurDataURL={DARK_BLUR_DATA_URL}
                           sizes="(min-width: 640px) 336px, 85vw"
                           className="object-contain object-bottom transition-all duration-500"
-                          style={activeLook ? { filter: "drop-shadow(0 0 24px rgb(var(--accent) / 0.45))" } : undefined}
+                          style={
+                            activeLook
+                              ? {
+                                  filter:
+                                    "drop-shadow(0 0 32px rgb(var(--accent) / 0.55)) drop-shadow(0 0 8px rgba(220,38,38,0.4))",
+                                }
+                              : undefined
+                          }
                         />
                       </div>
 
-                      {/* Label — visible only for the active look (unchanged behaviour) */}
+                      {/* Label — visible only for the active look */}
                       <div
                         className={`transition-opacity duration-300 ${
                           activeLook
@@ -214,14 +295,18 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                         }`}
                         aria-hidden={!activeLook}
                       >
-                        {/* Look name — matches FeaturedLooksGrid typography */}
+                        {/* Japanese "アニメ" accent label */}
+                        <p className="mb-1 text-[9px] tracking-[0.5em] text-accent/60 font-light">
+                          ア&nbsp;ニ&nbsp;メ
+                        </p>
+                        {/* Outfit name */}
                         <p className="text-[11px] font-bold uppercase tracking-widest text-text-primary">
                           {look.name}
                         </p>
-                        <p className="mt-1 text-[10px] text-text-secondary">
+                        <p className="mt-1 text-[10px] text-text-secondary max-w-xs mx-auto">
                           {look.description}
                         </p>
-                        {/* Active indicator bar — matches FeaturedLooksGrid */}
+                        {/* Active indicator bar */}
                         <span className="mx-auto mt-3 block h-0.5 w-7 bg-accent" />
                       </div>
                     </Link>
@@ -235,17 +320,17 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
               type="button"
               aria-label="Next look"
               onClick={() => shift(1)}
-              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
+              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 translate-x-3/4 items-center justify-center rounded-full border border-white/20 bg-black/40 text-lg text-white/60 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:text-accent hover:shadow-[0_0_12px_rgba(255,80,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
             >
               →
             </button>
           </div>
 
-          {/* CTA to view anime page */}
-          <div className="mt-8 text-center">
+          {/* CTA Button */}
+          <div className="mt-10 text-center">
             <Link
               href="/anime"
-              className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent/10 px-8 py-4 text-sm font-bold uppercase tracking-[0.2em] text-accent hover:bg-accent hover:text-text-primary transition-all duration-200 shadow-[0_0_20px_rgba(255,168,56,0.2)] hover:shadow-[0_0_30px_rgba(255,168,56,0.4)]"
+              className="inline-flex items-center gap-2 rounded-sm border border-accent bg-transparent px-8 py-4 text-sm font-bold uppercase tracking-[0.2em] text-accent transition-all duration-300 hover:bg-accent hover:text-black hover:shadow-[0_0_30px_rgba(255,80,0,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               EXPLORE ANIME COLLECTION →
             </Link>
@@ -255,6 +340,3 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
     </section>
   );
 }
-
-
-
