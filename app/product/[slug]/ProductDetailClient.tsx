@@ -7,6 +7,35 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@/lib/products";
 
+const SizeChartTable = () => (
+  <div className="w-full text-[10px] sm:text-xs">
+    <div className="bg-accent text-black font-bold uppercase tracking-widest grid grid-cols-5 rounded-t-sm">
+      <div className="p-2 text-center">Size</div>
+      <div className="p-2 text-center">Chest</div>
+      <div className="p-2 text-center">Length</div>
+      <div className="p-2 text-center">Sleeve</div>
+      <div className="p-2 text-center">Armhole</div>
+    </div>
+    <div className="border border-base-border border-t-0 rounded-b-sm bg-base-surface divide-y divide-base-border/50">
+      {[
+        { size: "S", chest: '19"', length: '24"', sleeve: '10"', armhole: '9"' },
+        { size: "M", chest: '20"', length: '25.5"', sleeve: '11"', armhole: '10"' },
+        { size: "L", chest: '21"', length: '26.5"', sleeve: '12"', armhole: '10.5"' },
+        { size: "XL", chest: '22"', length: '27.5"', sleeve: '13"', armhole: '11"' },
+        { size: "2XL", chest: '24.5"', length: '29"', sleeve: '14"', armhole: '12"' },
+      ].map((row) => (
+        <div key={row.size} className="grid grid-cols-5 text-text-primary text-center font-medium">
+          <div className="p-2 font-bold text-accent border-r border-base-border/50">{row.size}</div>
+          <div className="p-2 border-r border-base-border/50">{row.chest}</div>
+          <div className="p-2 border-r border-base-border/50">{row.length}</div>
+          <div className="p-2 border-r border-base-border/50">{row.sleeve}</div>
+          <div className="p-2">{row.armhole}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function ProductDetailClient({
  product,
  pieces = [],
@@ -20,16 +49,29 @@ export default function ProductDetailClient({
  const [selectedSize, setSelectedSize] = useState(
   product.sizes && product.sizes.length > 0 ? product.sizes[0] : "M"
  );
+ const [selectedWaist, setSelectedWaist] = useState("30");
  const [added, setAdded] = useState(false);
+ const [showMobileSizeGuide, setShowMobileSizeGuide] = useState(false);
+ const [showDesktopSizeGuide, setShowDesktopSizeGuide] = useState(false);
  const [fileName, setFileName] = useState<string | null>(null);
  const items = useCartStore((s) => s.items);
  const addItem = useCartStore((s) => s.addItem);
+
+ const isPants = product.category?.toLowerCase().includes("pant") || product.category?.toLowerCase().includes("trouser") || product.category?.toLowerCase().includes("outfit");
+ const finalSize = isPants ? `${selectedSize} / ${selectedWaist}` : selectedSize;
+
+ const sizeLabel = (() => {
+  const cat = product.category?.toLowerCase() || "";
+  if (cat.includes("jersey")) return "Jersey Size";
+  if (cat.includes("shirt")) return "Shirt Size";
+  return "Select Size";
+ })();
 
  const handleAddToCart = () => {
   addItem({
    lookId: product.id,
    name: product.name,
-   size: selectedSize,
+   size: finalSize,
    price: product.price || 18500,
    quantity: 1,
    image: product.images?.[0] || "/images/products/stwd-shirt.png",
@@ -40,13 +82,13 @@ export default function ProductDetailClient({
 
  const handleProceedToCheckout = () => {
   const alreadyInCart = items.some(
-   (item) => item.lookId === product.id && item.size === selectedSize
+   (item) => item.lookId === product.id && item.size === finalSize
   );
   if (!alreadyInCart) {
    addItem({
     lookId: product.id,
     name: product.name,
-    size: selectedSize,
+    size: finalSize,
     price: product.price || 18500,
     quantity: 1,
     image: product.images?.[0] || "/images/products/stwd-shirt.png",
@@ -119,7 +161,7 @@ export default function ProductDetailClient({
        {/* Status pill overlay */}
        <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full border border-base-border bg-base-bg/80 px-3 py-1 text-[10px] tracking-widest text-text-secondary uppercase backdrop-blur-sm">
         <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        PRE-ORDER OPEN
+        
        </div>
 
        <div className="absolute top-4 right-4 rounded-full border border-base-border bg-base-bg/80 px-3 py-1 text-[10px] tracking-widest text-accent uppercase font-bold backdrop-blur-sm">
@@ -136,9 +178,9 @@ export default function ProductDetailClient({
         <div className="flex items-center gap-2 mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-accent">
          <span>FLIPMEET STUDIO</span>
          <span>{"//"}</span>
-         <span>{product.category || "DROP 001"}</span>
+         <span>{product.category }</span>
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-text-primary">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-widest text-text-primary">
          {product.name}
         </h1>
         <p className="font-display text-2xl font-bold text-accent mt-2">
@@ -150,21 +192,53 @@ export default function ProductDetailClient({
        </div>
 
        {/* Size Selector */}
-       <div className="space-y-3 pt-2 border-t border-base-border">
+       <div className="space-y-3 pt-2 mt-4">
+        
+        {/* Size Guide Trigger */}
+        <div className="mb-4">
+          {/* Mobile Button (opens modal) */}
+          <button 
+            type="button" 
+            onClick={() => setShowMobileSizeGuide(true)}
+            className="md:hidden flex items-center justify-center w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors gap-2"
+          >
+            <span>📏</span> SIZE GUIDE
+          </button>
+          
+          {/* Desktop Accordion Trigger */}
+          <button 
+            type="button" 
+            onClick={() => setShowDesktopSizeGuide(!showDesktopSizeGuide)}
+            className="hidden md:flex items-center justify-between w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span>📏</span> SIZE GUIDE
+            </div>
+            <span className="text-text-secondary font-mono">{showDesktopSizeGuide ? "−" : "+"}</span>
+          </button>
+
+          {/* Desktop Inline Chart */}
+          {showDesktopSizeGuide && (
+            <div className="hidden md:block mt-3 animate-in fade-in slide-in-from-top-2">
+              <SizeChartTable />
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center justify-between text-xs">
-         <span className="text-text-secondary uppercase tracking-wider">Select Size</span>
+         <span className="text-text-secondary uppercase tracking-widest">{sizeLabel}</span>
          <span className="text-[10px] text-accent font-bold uppercase tracking-widest">
-          Oversized Boxy Fit
+          {isPants ? "Relaxed Fit" : "Oversized Boxy Fit"}
          </span>
         </div>
 
-        <div className="grid grid-cols-4 gap-2.5">
-         {(product.sizes || ["S", "M", "L", "XL"]).map((sz) => (
+        <div className="grid grid-cols-5 gap-2.5">
+         {([...new Set([...(product.sizes || ["S", "M", "L", "XL"]), "2XL"])]).map((sz) => (
           <button
            key={sz}
            type="button"
            onClick={() => setSelectedSize(sz)}
-           className={`py-3 text-xs font-bold uppercase tracking-wider transition-all duration-200 rounded-sm border ${
+           className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border ${
             selectedSize === sz
              ? "border-accent bg-accent/15 text-accent shadow-sm"
              : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
@@ -179,19 +253,49 @@ export default function ProductDetailClient({
           </button>
          ))}
         </div>
+
+        {/* Waist Size Options for Pants/Trousers */}
+        {isPants && (
+         <div className="pt-3">
+          <div className="flex items-center justify-between text-xs mb-3">
+           <span className="text-text-secondary uppercase tracking-widest">Select Waist Size</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2.5">
+           {["28", "30", "32", "34", "36"].map((sz) => (
+            <button
+             key={sz}
+             type="button"
+             onClick={() => setSelectedWaist(sz)}
+             className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border ${
+              selectedWaist === sz
+               ? "border-accent bg-accent/15 text-accent shadow-sm"
+               : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
+             }`}
+             style={
+              selectedWaist === sz
+               ? { boxShadow: "0 0 12px rgb(var(--accent) / 0.4)" }
+               : undefined
+             }
+            >
+             {sz}
+            </button>
+           ))}
+          </div>
+         </div>
+        )}
        </div>
 
        {/* Stock status & Delivery window */}
        <div className="rounded-sm border border-base-border bg-base-surface/60 p-4 text-xs space-y-2">
         <div className="flex items-center justify-between">
-         <span className="text-text-secondary uppercase tracking-wider">Availability</span>
+         <span className="text-text-secondary uppercase tracking-widest">Availability</span>
          <span className="text-emerald-400 font-bold tracking-widest uppercase flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
           {product.stock > 0 ? `${product.stock} PIECES ALLOCATED` : "SOLD OUT"}
          </span>
         </div>
         <div className="flex items-center justify-between">
-         <span className="text-text-secondary uppercase tracking-wider">Delivery Window</span>
+         <span className="text-text-secondary uppercase tracking-widest">Delivery Window</span>
          <span className="text-text-primary font-bold">20-30 OCT 2026</span>
         </div>
        </div>
@@ -245,7 +349,7 @@ export default function ProductDetailClient({
         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
          AVAILABLE IN
         </p>
-        <h2 id="variants-heading" className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-text-primary mt-1">
+        <h2 id="variants-heading" className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-widest text-text-primary mt-1">
          Other Colors
         </h2>
        </div>
@@ -282,7 +386,7 @@ export default function ProductDetailClient({
 
           <div className="border-t border-base-border/70 pt-3 mt-2">
            <div className="flex items-center justify-between">
-            <h3 className="font-display text-sm font-bold uppercase tracking-wider text-text-primary group-hover:text-accent transition-colors line-clamp-1">
+            <h3 className="font-display text-sm font-bold uppercase tracking-widest text-text-primary group-hover:text-accent transition-colors line-clamp-1">
              {variant.name}
             </h3>
             <span className="font-display text-xs font-bold text-accent">
@@ -305,13 +409,10 @@ export default function ProductDetailClient({
         <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
          COMPLETE THE LOOK {"//"} PIECES
         </p>
-        <h2 id="shop-pieces-heading" className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight text-text-primary mt-1">
+        <h2 id="shop-pieces-heading" className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-widest text-text-primary mt-1">
          Shop the pieces
         </h2>
        </div>
-       <p className="text-xs text-text-secondary max-w-sm">
-        Each component of this look is crafted to stand alone. Available individually in limited quantities.
-       </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -345,7 +446,7 @@ export default function ProductDetailClient({
 
           <div className="border-t border-base-border/70 pt-3 mt-2">
            <div className="flex items-center justify-between">
-            <h3 className="font-display text-sm font-bold uppercase tracking-wider text-text-primary group-hover:text-accent transition-colors">
+            <h3 className="font-display text-sm font-bold uppercase tracking-widest text-text-primary group-hover:text-accent transition-colors">
              {piece.name}
             </h3>
             <span className="font-display text-xs font-bold text-accent">
@@ -369,80 +470,36 @@ export default function ProductDetailClient({
      </section>
     )}
 
-    {/* AI Try-On */}
-    <section className="hidden md:block mt-20 border-t border-base-border pt-10" aria-labelledby="ai-try-on-heading">
-     <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
-      AI TRY-ON {"//"} SEE IT ON YOU
-     </p>
-     <div className="rounded-sm border border-base-border bg-base-surface p-6 sm:p-8">
-      <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-       <div>
-        <h2 id="ai-try-on-heading" className="font-display text-2xl font-bold uppercase tracking-tight text-text-primary">
-         Preview your look
-        </h2>
-        <p className="mt-2 text-sm tracking-wide text-text-secondary">
-         Upload a photo to see {product.name} styled on you.
-        </p>
-
-        <div className="mt-6 rounded-sm border border-base-border bg-base-bg/50 p-4 text-xs">
-         <div className="flex items-center justify-between gap-4">
-          <span className="uppercase tracking-widest text-text-secondary">Selected look</span>
-          <span className="font-bold uppercase tracking-widest text-text-primary">{product.name}</span>
-         </div>
-         <div className="mt-3 flex items-center justify-between gap-4">
-          <span className="uppercase tracking-widest text-text-secondary">Selected size</span>
-          <span className="font-bold uppercase tracking-widest text-accent">{selectedSize}</span>
-         </div>
-        </div>
-
-        <label className="mt-6 block text-[10px] font-bold uppercase tracking-[0.2em] text-text-secondary">
-         UPLOAD YOUR PHOTO
-         <span className="mt-2 block cursor-pointer rounded-sm border border-dashed border-base-border px-6 py-10 text-center normal-case tracking-normal transition-colors hover:border-text-secondary">
-          <input
-           type="file"
-           accept="image/jpeg,image/png,image/webp"
-           className="sr-only"
-           onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-            if (file.size > 10 * 1024 * 1024) {
-             event.target.value = "";
-             setFileName("File exceeds 10MB");
-             return;
-            }
-            setFileName(file.name);
-           }}
-          />
-          <span className="text-sm font-medium text-text-primary">
-           {fileName ?? "Click to upload"}
-          </span>
-          <span className="mt-1 block text-xs font-normal text-text-secondary">
-           JPG, PNG, WEBP (Max 10MB)
-          </span>
-         </span>
-        </label>
-
-        <button
-         type="button"
-         disabled={!fileName || fileName === "File exceeds 10MB"}
-         className="mt-6 flex w-full items-center justify-center rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-[0.2em] text-text-primary shadow-lg shadow-accent/20 transition-colors hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-40"
-        >
-         GENERATE TRY-ON
-        </button>
-       </div>
-
-       <div className="flex min-h-[320px] items-center justify-center rounded-sm border border-base-border bg-base-bg p-8 text-center lg:min-h-0">
-        <div>
-         <p className="text-sm text-text-secondary">Try-on result preview</p>
-         <p className="mt-3 text-xs text-text-secondary">
-          AI results may vary, for reference only
-         </p>
-        </div>
-       </div>
-      </div>
-     </div>
-    </section>
+    {/* AI Try-On — HIDDEN. Uncomment section below to restore. */}
+    {null /* AI_TRYON_PLACEHOLDER */}
    </main>
+
+   {/* Mobile Size Guide Modal */}
+   {showMobileSizeGuide && (
+    <div className="md:hidden fixed inset-0 z-[100] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-in fade-in">
+     <div className="w-full bg-base-surface border-t border-base-border rounded-t-xl p-6 pb-10 animate-in slide-in-from-bottom-8">
+      <div className="flex items-center justify-between mb-6">
+       <div>
+        <h3 className="font-display text-xl font-bold uppercase tracking-wide text-text-primary">Size Guide</h3>
+        <p className="text-[10px] text-text-secondary uppercase tracking-widest mt-1">Find your perfect fit</p>
+       </div>
+       <button 
+        onClick={() => setShowMobileSizeGuide(false)}
+        className="text-text-secondary hover:text-text-primary text-xl p-2"
+       >
+        ✕
+       </button>
+      </div>
+      <SizeChartTable />
+      <button 
+       onClick={() => setShowMobileSizeGuide(false)}
+       className="w-full mt-6 rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-text-primary"
+      >
+       Close Guide
+      </button>
+     </div>
+    </div>
+   )}
   </div>
  );
 }

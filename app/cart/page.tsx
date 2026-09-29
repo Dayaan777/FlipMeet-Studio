@@ -22,7 +22,7 @@ export default function CartPage() {
           <div className="mb-8 border-b border-base-border pb-6 flex items-center justify-between">
             <div>
               <p className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
-                DROP 001 // SECURE YOUR CUT
+                SECURE YOUR CUT
               </p>
               <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
                 BAG ({items.length})
@@ -42,11 +42,11 @@ export default function CartPage() {
 
           {items.length === 0 ? (
             <div className="rounded-sm border border-base-border bg-base-surface/50 p-12 text-center">
-              <p className="text-sm font-bold uppercase tracking-wider text-text-primary">
+              <p className="text-sm font-bold uppercase tracking-widest text-text-primary">
                 Your bag is empty
               </p>
               <p className="text-xs text-text-secondary mt-1 max-w-sm mx-auto">
-                Explore the six limited chapters of Drop 001 and select your size before the window closes.
+                Explore the six limited chapters and select your size before the window closes.
               </p>
               <Link
                 href="/shop"
@@ -73,20 +73,20 @@ export default function CartPage() {
                           <Image src={img} alt={item.name} fill sizes="(max-width: 640px) 64px, 80px" className="object-contain" />
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-text-primary">
+                          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-text-primary">
                             {item.name}
                           </p>
                           <p className="text-xs text-text-secondary mt-0.5">
                             Size: <strong className="text-text-primary">{item.size}</strong> • Qty: {item.quantity}
                           </p>
                           <p className="text-[10px] text-accent tracking-widest uppercase mt-1">
-                            Limited Drop 001 Run (100 pieces)
+                            Limited Run (100 pieces)
                           </p>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <p className="font-display text-sm sm:text-base font-bold text-text-primary">
+                        <p className="font-display text-sm sm:text-base font-bold text-text-primary tracking-widest">
                           PKR {(price * item.quantity).toLocaleString()}
                         </p>
                         <button
@@ -111,14 +111,11 @@ export default function CartPage() {
                 <div className="space-y-3 text-xs border-b border-base-border pb-4">
                   <div className="flex justify-between text-text-secondary">
                     <span>Items Subtotal</span>
-                    <span className="font-display text-text-primary font-bold">
+                    <span className="font-display text-text-primary font-bold tracking-widest">
                       PKR {total.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between text-text-secondary">
-                    <span>Courier Delivery (Pakistan)</span>
-                    <span className="text-emerald-400 font-bold">FREE</span>
-                  </div>
+
                   <div className="flex justify-between text-text-secondary">
                     <span>Est. Delivery</span>
                     <span className="text-text-primary">20–30 Oct 2026</span>
@@ -129,7 +126,7 @@ export default function CartPage() {
                   <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
                     Total
                   </span>
-                  <span className="font-display text-xl font-bold text-accent">
+                  <span className="font-display text-xl font-bold text-accent tracking-widest">
                     PKR {total.toLocaleString()}
                   </span>
                 </div>

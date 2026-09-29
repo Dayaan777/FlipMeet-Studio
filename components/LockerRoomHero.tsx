@@ -433,7 +433,7 @@ function ProductOverlay({
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.38em] text-white/50">
             Look {p.look}
           </p>
-          <h2 className="font-display text-3xl font-bold uppercase text-white md:text-5xl">
+          <h2 className="font-display text-3xl font-bold uppercase text-white md:text-5xl tracking-widest">
             {p.name}
           </h2>
           <p className="mt-2 font-semibold text-accent" style={{ fontSize: "1.15rem" }}>
@@ -515,7 +515,7 @@ export default function LockerRoomHero({ drop }: { drop: Drop }) {
           <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-white/40">
             {drop?.name ?? "Drop 001"}
           </p>
-          <h1 className="mt-1 font-display text-3xl font-bold uppercase text-white/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)] md:text-4xl">
+          <h1 className="mt-1 font-display text-3xl font-bold uppercase text-white/90 drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)] md:text-4xl tracking-widest">
             The Locker Room
           </h1>
         </div>

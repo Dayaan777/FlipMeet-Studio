@@ -186,7 +186,7 @@ function ShopContent({ products }: { products: Product[] }) {
        >
         <div>
          <div className="mb-4 flex items-center justify-between text-[10px] uppercase tracking-widest text-text-secondary">
-          <span>{product.category || "DROP 001"}</span>
+          <span>{product.category || "COLLECTION"}</span>
           <span className="font-bold text-accent">1 OF 100</span>
          </div>
 
@@ -206,10 +206,10 @@ function ShopContent({ products }: { products: Product[] }) {
 
         <div className="mt-2 border-t border-base-border/70 pt-4">
          <div className="flex items-center justify-between">
-          <h2 className="font-display text-base font-bold uppercase tracking-wider text-text-primary transition-colors group-hover:text-accent">
+          <h2 className="font-display text-base font-bold uppercase tracking-widest text-text-primary transition-colors group-hover:text-accent">
            {product.name}
           </h2>
-          <span className="font-display text-sm font-bold text-accent">
+          <span className="font-display text-sm font-bold text-accent tracking-widest">
            PKR {Number(product.price).toLocaleString()}
           </span>
          </div>

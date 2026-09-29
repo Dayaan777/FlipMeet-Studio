@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import type { Order, OrderStatus } from "@/lib/order-store";
 import { drops } from "@/data/drops";
 import { supabase } from "@/lib/supabase";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 const STATUS_LABELS: Record<OrderStatus, { label: string; bg: string; text: string; border: string }> = {
   pending: {
@@ -84,8 +86,12 @@ function normalizeSupabaseOrder(dbOrder: any, allProducts: any[] = []): Order {
       const itemName = dbProduct?.name || matchedLook?.name || productId.toUpperCase();
       let itemImage = "/images/products/stwd-shirt.png";
       
-      if (dbProduct?.images && dbProduct.images.length > 0) {
-        itemImage = dbProduct.images[0];
+      if (dbProduct?.images) {
+        if (Array.isArray(dbProduct.images) && dbProduct.images.length > 0) {
+          itemImage = dbProduct.images[0];
+        } else if (typeof dbProduct.images === "string") {
+          itemImage = dbProduct.images.split(",")[0].trim();
+        }
       } else if (matchedLook?.images && matchedLook.images.length > 0) {
         itemImage = matchedLook.images[0];
       } else if (item.image) {
@@ -304,6 +310,36 @@ export default function DashboardPage() {
     window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
   };
 
+  const handleDownloadReceipt = async (type: "pdf" | "image") => {
+    if (!selectedOrder) return;
+    
+    const receiptElement = document.getElementById("receipt-capture-area");
+    if (!receiptElement) return;
+
+    try {
+      receiptElement.style.display = "block";
+      const canvas = await html2canvas(receiptElement, { scale: 2, useCORS: true });
+      receiptElement.style.display = "none";
+      
+      if (type === "image") {
+        const link = document.createElement("a");
+        link.download = `Receipt_${selectedOrder.id}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } else {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Receipt_${selectedOrder.id}.pdf`);
+      }
+    } catch (err) {
+      console.error("Failed to generate receipt:", err);
+      receiptElement.style.display = "none";
+    }
+  };
+
   return (
     <>
       <NavBar />
@@ -316,7 +352,7 @@ export default function DashboardPage() {
                 <span className="size-1.5 animate-pulse rounded-full bg-accent" />
                 STUDIO CONTROL // DROP 001
               </div>
-              <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary mt-1">
+              <h1 className="font-display tracking-widest text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary mt-1">
                 OPERATIONS DASHBOARD
               </h1>
               <p className="text-xs text-text-secondary mt-1">
@@ -391,7 +427,7 @@ export default function DashboardPage() {
               <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
                 Total Gross Revenue
               </p>
-              <p className="font-display text-2xl sm:text-3xl font-bold text-text-primary mt-2">
+              <p className="font-display tracking-widest text-2xl sm:text-3xl font-bold text-text-primary mt-2 tracking-widest">
                 PKR {metrics.totalRevenue.toLocaleString()}
               </p>
               <p className="text-[11px] text-emerald-400 mt-2 flex items-center gap-1">
@@ -404,7 +440,7 @@ export default function DashboardPage() {
               <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
                 Total Orders Placed
               </p>
-              <p className="font-display text-2xl sm:text-3xl font-bold text-text-primary mt-2">
+              <p className="font-display tracking-widest text-2xl sm:text-3xl font-bold text-text-primary mt-2 tracking-widest">
                 {metrics.totalOrders} <span className="text-sm font-normal text-text-secondary">orders</span>
               </p>
               <p className="text-[11px] text-accent mt-2">
@@ -417,7 +453,7 @@ export default function DashboardPage() {
               <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
                 Drop 001 Units Sold
               </p>
-              <p className="font-display text-2xl sm:text-3xl font-bold text-text-primary mt-2">
+              <p className="font-display tracking-widest text-2xl sm:text-3xl font-bold text-text-primary mt-2 tracking-widest">
                 {metrics.totalUnitsSold} <span className="text-sm font-normal text-text-secondary">/ 600 pieces</span>
               </p>
               <div className="mt-3 flex items-center gap-2">
@@ -436,7 +472,7 @@ export default function DashboardPage() {
               <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
                 In Production Queue
               </p>
-              <p className="font-display text-2xl sm:text-3xl font-bold text-accent mt-2">
+              <p className="font-display tracking-widest text-2xl sm:text-3xl font-bold text-accent mt-2 tracking-widest">
                 {metrics.inProductionCount} <span className="text-sm font-normal text-text-secondary">garments</span>
               </p>
               <p className="text-[11px] text-text-secondary mt-2">
@@ -450,7 +486,7 @@ export default function DashboardPage() {
             {/* Left 2 Cols: Order Management Table */}
             <div className="lg:col-span-2 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="font-display text-lg font-bold uppercase tracking-wide text-text-primary">
+                <h2 className="font-display tracking-widest text-lg font-bold uppercase tracking-wide text-text-primary">
                   Order Management ({filteredOrders.length})
                 </h2>
 
@@ -530,7 +566,7 @@ export default function DashboardPage() {
                             key={order.id}
                             className="hover:bg-white/[0.02] transition-colors"
                           >
-                            <td className="px-4 py-3.5 font-display font-bold text-text-primary whitespace-nowrap">
+                            <td className="px-4 py-3.5 font-display tracking-widest font-bold text-text-primary whitespace-nowrap tracking-widest">
                               <button
                                 type="button"
                                 onClick={() => setSelectedOrder(order)}
@@ -581,7 +617,7 @@ export default function DashboardPage() {
                               </span>
                             </td>
 
-                            <td className="px-4 py-3.5 font-display font-bold text-text-primary whitespace-nowrap">
+                            <td className="px-4 py-3.5 font-display tracking-widest font-bold text-text-primary whitespace-nowrap tracking-widest">
                               PKR {order.total.toLocaleString()}
                             </td>
 
@@ -630,7 +666,7 @@ export default function DashboardPage() {
 
             {/* Right 1 Col: Drop 001 Allocation & Limited 100 Tracker */}
             <div className="space-y-4">
-              <h2 className="font-display text-lg font-bold uppercase tracking-wide text-text-primary">
+              <h2 className="font-display tracking-widest text-lg font-bold uppercase tracking-wide text-text-primary">
                 Drop 001 Allocation (100 / Look)
               </h2>
 
@@ -681,12 +717,71 @@ export default function DashboardPage() {
 
         {/* ORDER DETAILS MODAL / DRAWER */}
         {selectedOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-150">
-            <div className="w-full max-w-xl rounded-sm border border-base-border bg-base-surface p-6 sm:p-8 shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 p-4 pt-10 backdrop-blur-md animate-in fade-in duration-150 overflow-y-auto">
+            
+            {/* HIDDEN RECEIPT TEMPLATE FOR PRINTING */}
+            <div 
+              id="receipt-capture-area" 
+              className="hidden absolute left-[-9999px] top-[-9999px] bg-white text-black p-8 w-[600px] font-sans"
+            >
+              <div className="flex justify-between items-center border-b border-gray-300 pb-4 mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold uppercase tracking-widest text-black">FLIPMEET STUDIO</h1>
+                  <p className="text-sm text-gray-500 font-bold uppercase mt-1">Order Receipt</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-lg text-black">{selectedOrder.id}</p>
+                  <p className="text-sm text-gray-500">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                  <p className="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-1">Customer</p>
+                  <p className="font-bold text-black">{selectedOrder.customerName}</p>
+                  <p className="text-gray-800">{selectedOrder.customerEmail}</p>
+                  <p className="text-gray-800">{selectedOrder.customerPhone}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-1">Shipping Address</p>
+                  <p className="whitespace-pre-line text-black font-medium">{selectedOrder.shippingAddress}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-b border-gray-300 py-4 mb-8">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-gray-400 uppercase tracking-widest text-[10px]">
+                      <th className="pb-3 font-bold">Item</th>
+                      <th className="pb-3 font-bold">Size</th>
+                      <th className="pb-3 text-center font-bold">Qty</th>
+                      <th className="pb-3 text-right font-bold">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.items.map((item, idx) => (
+                      <tr key={idx} className="border-b border-gray-100 last:border-0 text-black">
+                        <td className="py-3 font-bold">{item.name}</td>
+                        <td className="py-3 font-medium">{item.size}</td>
+                        <td className="py-3 text-center font-medium">{item.quantity}</td>
+                        <td className="py-3 text-right font-bold">PKR {(item.price * item.quantity).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex justify-between items-center text-lg mt-4">
+                <p className="font-bold text-gray-400 uppercase tracking-widest text-xs">Total Amount</p>
+                <p className="font-bold text-2xl text-black">PKR {selectedOrder.total.toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="w-full max-w-xl rounded-sm border border-base-border bg-base-surface p-6 sm:p-8 shadow-2xl relative">
               <div className="flex items-center justify-between border-b border-base-border pb-4 mb-5">
                 <div>
                   <div className="flex items-center gap-3">
-                    <span className="font-display text-xl font-bold text-text-primary">
+                    <span className="font-display tracking-widest text-xl font-bold text-text-primary tracking-widest">
                       {selectedOrder.id}
                     </span>
                     <span
@@ -736,13 +831,13 @@ export default function DashboardPage() {
                         <Image src={item.image} alt={item.name} fill sizes="48px" className="object-contain" />
                       </div>
                       <div>
-                        <p className="font-bold text-text-primary">{item.name}</p>
+                        <p className="font-bold text-text-primary tracking-widest uppercase">{item.name}</p>
                         <p className="text-[11px] text-text-secondary">
                           Size: <strong className="text-text-primary">{item.size}</strong> • Qty: {item.quantity}
                         </p>
                       </div>
                     </div>
-                    <p className="font-display font-bold text-text-primary">
+                    <p className="font-display tracking-widest font-bold text-text-primary tracking-widest">
                       PKR {(item.price * item.quantity).toLocaleString()}
                     </p>
                   </div>
@@ -750,35 +845,53 @@ export default function DashboardPage() {
               </div>
 
               {/* Total & Action */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-text-secondary">TOTAL AMOUNT</p>
-                  <p className="font-display text-xl font-bold text-accent">
+                  <p className="font-display tracking-widest text-xl font-bold text-accent tracking-widest">
                     PKR {selectedOrder.total.toLocaleString()}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  
+                  {/* Download Receipt Dropdown */}
+                  <div className="relative group">
+                    <button
+                      type="button"
+                      className="rounded-sm border border-base-border px-3 py-2.5 text-[11px] font-bold text-text-primary hover:bg-white/10 transition-colors flex items-center gap-1"
+                    >
+                      Download ▼
+                    </button>
+                    <div className="absolute bottom-full mb-1 right-0 hidden group-hover:flex flex-col bg-base-surface border border-base-border rounded-sm shadow-xl overflow-hidden w-36">
+                      <button 
+                        onClick={() => handleDownloadReceipt("pdf")}
+                        className="px-4 py-2 text-left text-[11px] font-bold text-text-primary hover:bg-white/10 transition-colors"
+                      >
+                        As PDF
+                      </button>
+                      <button 
+                        onClick={() => handleDownloadReceipt("image")}
+                        className="px-4 py-2 text-left text-[11px] font-bold text-text-primary hover:bg-white/10 transition-colors"
+                      >
+                        As Image
+                      </button>
+                    </div>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => handleSendWhatsAppUpdate(selectedOrder)}
-                    className="rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-4 py-2.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500 hover:text-black transition-colors"
+                    className="rounded-sm border border-emerald-500/50 bg-emerald-500/10 px-3 py-2.5 text-[11px] font-bold text-emerald-400 hover:bg-emerald-500 hover:text-black transition-colors"
                   >
-                    Notify WhatsApp 💬
+                    Notify WhatsApp
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteOrder(selectedOrder.id)}
-                    className="rounded-sm border border-red-500/50 bg-red-500/10 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                    className="rounded-sm border border-red-500/50 bg-red-500/10 px-3 py-2.5 text-[11px] font-bold text-red-400 hover:bg-red-500 hover:text-white transition-colors"
                   >
                     Delete
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedOrder(null)}
-                    className="rounded-sm bg-base-border px-4 py-2.5 text-xs font-bold text-text-primary hover:bg-white/20 transition-colors"
-                  >
-                    Close
                   </button>
                 </div>
               </div>

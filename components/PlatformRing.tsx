@@ -1,10 +1,10 @@
 ﻿/**
- * PlatformRing — shared SVG concentric-ring stage platform.
+ * PlatformRing - shared SVG concentric-ring stage platform.
  * Used by both LookCarousel and FeaturedLooksGrid.
  *
  * Props
- * bloomX   – horizontal % (0-100) for the orange floor bloom. 50 = centre.
- * className – extra classes on the root wrapper (use for positioning).
+ * bloomX   - horizontal % (0-100) for the orange floor bloom. 50 = centre.
+ * className - extra classes on the root wrapper (use for positioning).
  */
 
 interface PlatformRingProps {
@@ -69,7 +69,7 @@ export default function PlatformRing({ bloomX = 50, className = "" }: PlatformRi
         <ellipse cx="500" cy="80" rx="455" ry="28"
           fill="none" stroke="url(#prRingInner)" strokeWidth="3.5" />
 
-        {/* Specular arc highlight — top arc only */}
+        {/* Specular arc highlight - top arc only */}
         <ellipse cx="500" cy="80" rx="490" ry="38"
           fill="none" stroke="url(#prSpecular)" strokeWidth="5"
           clipPath="url(#prTopHalf)" />

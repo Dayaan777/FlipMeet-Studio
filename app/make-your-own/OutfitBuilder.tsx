@@ -141,7 +141,7 @@ function ProductCard({
       </div>
       {/* Info */}
       <div className="px-2 py-1.5 bg-base-surface flex-1 border-t border-base-border">
-        <p className="text-text-primary text-[10px] font-display leading-tight line-clamp-2">
+        <p className="text-text-primary text-[10px] font-display leading-tight line-clamp-2 tracking-widest">
           {product.name}
         </p>
         <p className="text-accent text-[9px] mt-0.5 font-bold tracking-wide">
@@ -247,7 +247,7 @@ function PreviewCard({
           className="object-cover"
         />
       </div>
-      <p className="text-text-primary text-xs font-display text-center leading-snug">
+      <p className="text-text-primary text-xs font-display text-center leading-snug tracking-widest">
         {product.name}
       </p>
     </div>
@@ -360,7 +360,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
           <p className="text-[10px] tracking-[0.2em] uppercase text-text-secondary/60 mb-1">
             Selected
           </p>
-          <p className="text-xs text-text-primary font-display leading-snug">
+          <p className="text-xs text-text-primary font-display leading-snug tracking-widest">
             <span className={selectedTop ? "text-accent" : "text-text-secondary/40"}>
               {selectedTop ? selectedTop.name : "— Top"}
             </span>

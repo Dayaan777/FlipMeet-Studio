@@ -35,6 +35,7 @@ export async function getProducts(): Promise<Product[]> {
     const { data, error } = await supabase
       .from("products")
       .select("*")
+      .neq("category", "SYSTEM")
       .order("id", { ascending: true });
 
     if (error || !data || data.length === 0) {

@@ -12,7 +12,7 @@ export default function TryOnPanel({ drop }: { drop: Drop }) {
       <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-12">
         <div>
           <p className="text-accent text-xs tracking-widest mb-2">AI TRY-ON</p>
-          <h2 className="font-display text-3xl md:text-4xl text-text-primary mb-8">
+          <h2 className="font-display text-3xl md:text-4xl text-text-primary mb-8 tracking-widest">
             SEE IT ON YOU.
           </h2>
 

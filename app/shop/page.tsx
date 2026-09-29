@@ -22,9 +22,9 @@ export default async function ShopPage() {
           <div className="mb-10 flex flex-col justify-between gap-4 border-b border-base-border pb-8 text-center sm:flex-row sm:items-end sm:text-left">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
-                COLLECTION CATALOG // DROP 001
+                COLLECTION CATALOG
               </p>
-              <h1 className="mt-2 font-display text-4xl font-bold uppercase tracking-tight text-text-primary sm:text-5xl">
+              <h1 className="mt-2 font-display text-4xl font-bold uppercase tracking-widest text-text-primary sm:text-5xl">
                 SHOP
               </h1>
               <p className="mt-2 max-w-md text-xs text-text-secondary">

@@ -74,7 +74,7 @@ export default function AnimeDropCarousel() {
      id="anime-drop-heading"
      className="mb-14 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
     >
-     ANIME DROP 001 05 LOOKS
+     ANIME 05 LOOKS
     </h2>
 
     <div className="relative">

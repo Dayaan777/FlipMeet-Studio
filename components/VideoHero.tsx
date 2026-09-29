@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef } from "react";
 
@@ -158,11 +158,11 @@ export default function VideoHero() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="pointer-events-none absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20">
-          <span className="text-[9px] uppercase tracking-[0.5em] text-white/70 font-semibold">
+        <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20">
+          <span className="text-[10px] uppercase tracking-[0.5em] text-white font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             Scroll to explore
           </span>
-          <div className="h-16 w-[2px] bg-gradient-to-b from-white/50 to-transparent animate-pulse rounded-full" />
+          <div className="h-16 w-[2px] bg-gradient-to-b from-white to-transparent animate-pulse rounded-full drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" />
         </div>
       </div>
     </div>

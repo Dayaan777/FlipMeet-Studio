@@ -14,7 +14,7 @@ export type VideoItem = {
 const realVideos: VideoItem[] = [
  {
   id: "reel-01",
-  title: "DROP 001 // THE SQUAD",
+  title: "THE SQUAD",
   subtitle: "Street Collective Oversized Mesh Jerseys & Baggy Denim",
   src: "/videos/WhatsApp%20Video%202026-09-09%20at%206.40.50%20PM.mp4",
   poster: "/images/reels/thumb-01.jpg",
@@ -164,7 +164,7 @@ export default function VideoCarousel() {
       id="in-motion-heading"
       className="font-display text-3xl tracking-wide text-text-primary md:text-4xl"
      >
-      DROP 001 EDITORIAL ARCHIVE
+      EDITORIAL ARCHIVE
      </h2>
      <p className="mt-2 text-xs tracking-wider text-text-secondary">
       CAMPAIGN FOOTAGE. STREET LEVEL. RAW CUTS.

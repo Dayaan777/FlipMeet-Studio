@@ -30,7 +30,7 @@ export default function Hero({ drop }: { drop: Drop }) {
    <div className="relative mx-auto max-w-7xl px-6 pt-32 pb-20">
     <div className="max-w-xl">
      <p className="text-accent text-xs tracking-widest mb-4">• {drop.name} •</p>
-     <h1 className="font-display text-5xl md:text-5xl font-bold uppercase leading-[0.95] text-text-primary">
+     <h1 className="font-display text-5xl md:text-5xl font-bold uppercase leading-[0.95] text-text-primary tracking-widest">
       {drop.tagline.split(". ").map((line, i) => (
        <span key={i} className={i === 1 ? "block text-text-secondary" : "block"}>
         {line}

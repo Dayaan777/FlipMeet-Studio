@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqazaajfycutqildyrqw.supabase.co";
@@ -67,6 +68,8 @@ export async function POST(request: Request) {
         .single();
 
       if (error) throw error;
+      
+      revalidatePath("/", "layout"); // Instant live sync
       return NextResponse.json({ success: true, product: data });
     }
 
@@ -83,6 +86,8 @@ export async function POST(request: Request) {
     });
 
     if (error) throw error;
+    
+    revalidatePath("/", "layout"); // Instant live sync
     return NextResponse.json({ success: true, product: data });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to save product.";
@@ -115,6 +120,7 @@ export async function DELETE(request: Request) {
     if (serviceRoleKey) {
       const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
       if (error) throw error;
+      revalidatePath("/", "layout"); // Instant live sync
       return NextResponse.json({ success: true, id });
     }
 
@@ -124,6 +130,7 @@ export async function DELETE(request: Request) {
     });
 
     if (error) throw error;
+    revalidatePath("/", "layout"); // Instant live sync
     return NextResponse.json({ success: true, deleted: data, id });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to delete product.";

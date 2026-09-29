@@ -71,7 +71,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="px-6 py-16 md:py-24 border-t border-base-border bg-base-bg">
+    <footer className="relative z-50 px-6 py-16 md:py-24 border-t border-base-border bg-base-bg">
       <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
         
         {/* Col 1: Brand & Mission */}
@@ -96,10 +96,10 @@ export default function Footer() {
         <div className="md:col-span-2">
           <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-6">Quick Links</p>
           <div className="flex flex-col gap-4 text-xs text-text-secondary">
-            <Link href="/terms" className="hover:text-accent transition-colors w-fit">Terms & Conditions</Link>
-            <Link href="/privacy" className="hover:text-accent transition-colors w-fit">Privacy Policy</Link>
-            <Link href="/shipping" className="hover:text-accent transition-colors w-fit">Shipping Policy</Link>
-            <Link href="/returns" className="hover:text-accent transition-colors w-fit">Returns & Exchange</Link>
+            <a href="/terms" className="hover:text-accent transition-colors w-fit">Terms & Conditions</a>
+            <a href="/privacy" className="hover:text-accent transition-colors w-fit">Privacy Policy</a>
+            <a href="/shipping" className="hover:text-accent transition-colors w-fit">Shipping Policy</a>
+            <a href="/returns" className="hover:text-accent transition-colors w-fit">Returns & Exchange</a>
           </div>
         </div>
 

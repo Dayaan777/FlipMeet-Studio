@@ -40,6 +40,11 @@ export default function AdminPage() {
   const [formSaving, setFormSaving] = useState(false);
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
+  // Shipping Modal State
+  const [showShippingModal, setShowShippingModal] = useState(false);
+  const [shippingForm, setShippingForm] = useState({ Sindh: "", Balochistan: "", Punjab: "", KPK: "" });
+  const [shippingSaving, setShippingSaving] = useState(false);
+
   // Delete confirmation modal state
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -76,9 +81,10 @@ export default function AdminPage() {
 
   // Filtered products list
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
+    const displayProducts = products.filter(p => p.category !== "SYSTEM");
+    if (!searchQuery.trim()) return displayProducts;
     const q = searchQuery.toLowerCase();
-    return products.filter(
+    return displayProducts.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.id.toLowerCase().includes(q) ||
@@ -86,6 +92,53 @@ export default function AdminPage() {
         p.description.toLowerCase().includes(q)
     );
   }, [products, searchQuery]);
+
+  // Shipping Handlers
+  const handleOpenShipping = () => {
+    const sys = products.find(p => p.id === "system-shipping-rates");
+    if (sys && sys.description) {
+      try {
+        setShippingForm(JSON.parse(sys.description));
+      } catch (e) {
+        // ignore
+      }
+    }
+    setShowShippingModal(true);
+  };
+
+  const handleSaveShipping = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShippingSaving(true);
+    try {
+      const payload = {
+        id: "system-shipping-rates",
+        name: "System: Shipping Rates",
+        category: "SYSTEM",
+        price: 0,
+        stock: 0,
+        sizes: ["SYSTEM"],
+        images: [],
+        description: JSON.stringify(shippingForm),
+      };
+
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error("Failed to save shipping rates");
+      
+      setStatusMessage({ type: "success", text: "Shipping rates updated live!" });
+      setShowShippingModal(false);
+      fetchProducts();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save shipping rates";
+      setStatusMessage({ type: "error", text: message });
+    } finally {
+      setShippingSaving(false);
+    }
+  };
 
   // Open modal in Add mode
   const handleOpenAdd = () => {
@@ -244,7 +297,7 @@ export default function AdminPage() {
               <span className="size-2 rounded-full bg-accent animate-pulse" />
               FLIPMEET STUDIO // DATABASE CONTROL
             </div>
-            <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary mt-1">
+            <h1 className="font-display tracking-widest text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary mt-1">
               ADMIN DASHBOARD
             </h1>
             <p className="text-xs text-text-secondary mt-1">
@@ -254,6 +307,14 @@ export default function AdminPage() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleOpenShipping}
+              className="rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-accent hover:border-accent/40 transition-colors"
+            >
+              🚚 SHIPPING RATES
+            </button>
+
             <button
               type="button"
               onClick={handleOpenAdd}
@@ -315,7 +376,7 @@ export default function AdminPage() {
             <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
               Total Products in Supabase
             </p>
-            <p className="font-display text-3xl font-bold text-text-primary mt-2">
+            <p className="font-display tracking-widest text-3xl font-bold text-text-primary mt-2 tracking-widest">
               {products.length} <span className="text-sm font-normal text-text-secondary">items</span>
             </p>
           </div>
@@ -324,7 +385,7 @@ export default function AdminPage() {
             <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
               Total Allocated Stock
             </p>
-            <p className="font-display text-3xl font-bold text-accent mt-2">
+            <p className="font-display tracking-widest text-3xl font-bold text-accent mt-2 tracking-widest">
               {products.reduce((sum, p) => sum + (Number(p.stock) || 0), 0)}{" "}
               <span className="text-sm font-normal text-text-secondary">pieces</span>
             </p>
@@ -334,7 +395,7 @@ export default function AdminPage() {
             <p className="text-[10px] font-medium uppercase tracking-widest text-text-secondary">
               Active Category
             </p>
-            <p className="font-display text-3xl font-bold text-text-primary mt-2">
+            <p className="font-display tracking-widest text-3xl font-bold text-text-primary mt-2 tracking-widest">
               DROP 001
             </p>
           </div>
@@ -406,7 +467,7 @@ export default function AdminPage() {
                   return (
                     <tr key={product.id} className="hover:bg-white/[0.02] transition-colors">
                       {/* Name & Thumbnail */}
-                      <td className="px-5 py-4 font-display text-text-primary whitespace-nowrap">
+                      <td className="px-5 py-4 font-display tracking-widest text-text-primary whitespace-nowrap tracking-widest">
                         <div className="flex items-center gap-3">
                           <div className="relative size-12 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0 flex items-end justify-center">
                             <Image
@@ -436,7 +497,7 @@ export default function AdminPage() {
                       </td>
 
                       {/* Price */}
-                      <td className="px-5 py-4 font-display font-bold text-text-primary whitespace-nowrap">
+                      <td className="px-5 py-4 font-display tracking-widest font-bold text-text-primary whitespace-nowrap tracking-widest">
                         PKR {Number(product.price).toLocaleString()}
                       </td>
 
@@ -507,14 +568,14 @@ export default function AdminPage() {
 
       {/* ADD / EDIT PRODUCT MODAL */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md overflow-y-auto">
-          <div className="w-full max-w-lg rounded-sm border border-base-border bg-base-surface p-6 sm:p-8 shadow-2xl my-8">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 p-4 pt-10 backdrop-blur-md overflow-y-auto">
+          <div className="w-full max-w-lg rounded-sm border border-base-border bg-base-surface p-6 sm:p-8 shadow-2xl relative mb-10">
             <div className="flex items-center justify-between border-b border-base-border pb-4 mb-6">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-[0.28em] text-accent">
                   SUPABASE DIRECT WRITE
                 </span>
-                <h2 className="font-display text-2xl font-bold uppercase tracking-wide text-text-primary mt-1">
+                <h2 className="font-display tracking-widest text-2xl font-bold uppercase tracking-wide text-text-primary mt-1">
                   {activeModal === "add" ? "Add New Product" : `Edit ${formData.name}`}
                 </h2>
               </div>
@@ -528,7 +589,7 @@ export default function AdminPage() {
             </div>
 
             <form onSubmit={handleSaveProduct} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Product ID */}
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
@@ -545,19 +606,38 @@ export default function AdminPage() {
                   />
                 </div>
 
-                {/* Category */}
-                <div>
+                {/* Category Multi-Select */}
+                <div className="md:col-span-2">
                   <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
                     Category *
                   </label>
-                  <input
-                    type="text"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="DROP 001"
-                    className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors"
-                    required
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    {["All", "Shirts", "Jerseys", "Pants", "Trousers", "Outfits"].map((cat) => {
+                      const selectedCats = formData.category.split(",").map(c => c.trim()).filter(Boolean);
+                      const isSelected = selectedCats.includes(cat);
+                      
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setFormData({ ...formData, category: selectedCats.filter(c => c !== cat).join(", ") });
+                            } else {
+                              setFormData({ ...formData, category: [...selectedCats, cat].join(", ") });
+                            }
+                          }}
+                          className={`rounded-sm border px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                            isSelected 
+                              ? "border-accent bg-accent/10 text-accent" 
+                              : "border-base-border bg-base-bg text-text-secondary hover:text-text-primary hover:border-text-secondary"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -726,7 +806,7 @@ export default function AdminPage() {
       {deletingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
           <div className="w-full max-w-md rounded-sm border border-red-500/40 bg-base-surface p-6 shadow-2xl">
-            <h3 className="font-display text-xl font-bold uppercase tracking-wide text-red-400">
+            <h3 className="font-display tracking-widest text-xl font-bold uppercase tracking-wide text-red-400">
               Confirm Product Deletion
             </h3>
             <p className="text-xs text-text-secondary mt-2">
@@ -752,6 +832,50 @@ export default function AdminPage() {
                 {deleteLoading ? "Deleting..." : "Confirm Delete"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* SHIPPING RATES MODAL */}
+      {showShippingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+          <div className="w-full max-w-sm rounded-sm border border-base-border bg-base-surface p-6 sm:p-8 shadow-2xl">
+            <h2 className="font-display tracking-widest text-xl font-bold uppercase tracking-wide text-text-primary mb-4">
+              Delivery Pricing
+            </h2>
+            <form onSubmit={handleSaveShipping} className="space-y-4">
+              {["Sindh", "Balochistan", "Punjab", "KPK"].map((prov) => (
+                <div key={prov}>
+                  <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
+                    {prov} (PKR)
+                  </label>
+                  <input
+                    type="number"
+                    value={shippingForm[prov as keyof typeof shippingForm] || ""}
+                    onChange={(e) => setShippingForm({ ...shippingForm, [prov]: e.target.value })}
+                    placeholder="e.g. 250"
+                    className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary focus:border-accent focus:outline-none transition-colors"
+                  />
+                </div>
+              ))}
+              <div className="border-t border-base-border pt-4 flex items-center justify-end gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowShippingModal(false)}
+                  disabled={shippingSaving}
+                  className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-text-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={shippingSaving}
+                  className="rounded-sm bg-accent px-4 py-2 text-xs font-bold uppercase tracking-widest text-text-primary"
+                >
+                  {shippingSaving ? "Saving..." : "Save Rates"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -67,10 +67,11 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
 
   useEffect(() => {
     const onScroll = () => {
-      // If on homepage, wait until 600vh (the entire VideoHero) is scrolled past before showing navbar bg.
-      // 600vh = 6 * window.innerHeight. We subtract a bit (100px) so it triggers right as the next section comes under.
+      // If on homepage, wait until the VideoHero is scrolled past before showing navbar bg.
+      // VideoHero is h-[350vh] on mobile and h-[500vh] on desktop.
       if (pathname === "/") {
-        setScrolled(window.scrollY > (window.innerHeight * 6) - 100);
+        const heroHeight = window.innerWidth >= 768 ? window.innerHeight * 5 : window.innerHeight * 3.5;
+        setScrolled(window.scrollY > heroHeight - 100);
       } else {
         setScrolled(window.scrollY > 8);
       }
@@ -126,7 +127,7 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
         }`}
       >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">
-        <Link href="/" className="font-display text-2xl font-bold tracking-tight text-text-primary">
+        <Link href="/" className="font-display text-2xl font-bold tracking-widest text-text-primary uppercase">
           FLIPMEET STUDIO
         </Link>
 

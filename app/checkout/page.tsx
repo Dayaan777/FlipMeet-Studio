@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { useCartStore } from "@/lib/cart-store";
 import { useOrderStore, Order } from "@/lib/order-store";
+import { supabase } from "@/lib/supabase";
 import { drops } from "@/data/drops";
 
 export default function CheckoutPage() {
@@ -26,7 +27,37 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
-  const total = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
+  const [province, setProvince] = useState("Sindh");
+  const [shippingRates, setShippingRates] = useState<Record<string, number> | null>(null);
+  const [shippingCost, setShippingCost] = useState(0);
+
+  useEffect(() => {
+    async function loadRates() {
+      try {
+        const { data } = await supabase.from('products').select('description').eq('id', 'system-shipping-rates').single();
+        if (data && data.description) {
+           const parsed = JSON.parse(data.description);
+           const rates: Record<string, number> = {};
+           for (const p in parsed) {
+             rates[p] = Number(parsed[p]) || 0;
+           }
+           setShippingRates(rates);
+        }
+      } catch (e) {}
+    }
+    loadRates();
+  }, []);
+
+  useEffect(() => {
+    if (shippingRates && typeof shippingRates[province] === 'number') {
+      setShippingCost(shippingRates[province]);
+    } else {
+      setShippingCost(0);
+    }
+  }, [province, shippingRates]);
+
+  const itemsTotal = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
+  const total = itemsTotal + shippingCost;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,7 +175,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-text-secondary">
                 <span>Total Amount</span>
-                <span className="text-accent font-bold font-display">
+                <span className="text-accent font-bold font-display tracking-widest">
                   PKR {completedOrder.total.toLocaleString()}
                 </span>
               </div>
@@ -159,7 +190,7 @@ export default function CheckoutPage() {
                 href="/shop"
                 className="block w-full rounded-sm bg-accent py-3.5 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors text-center"
               >
-                RETURN TO DROP 001 →
+                RETURN TO COLLECTION →
               </Link>
             </div>
           </div>
@@ -180,13 +211,13 @@ export default function CheckoutPage() {
               NO ITEMS IN BAG
             </h1>
             <p className="text-xs text-text-secondary mt-2 mb-6">
-              Add garments from Drop 001 to your bag before checking out.
+              Add garments to your bag before checking out.
             </p>
             <Link
               href="/shop"
               className="inline-block rounded-sm bg-accent px-6 py-3 text-xs font-bold uppercase tracking-widest text-text-primary hover:bg-accent-dim transition-colors"
             >
-              EXPLORE DROP 001
+              EXPLORE THE COLLECTION
             </Link>
           </div>
         </main>
@@ -202,7 +233,7 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-8 border-b border-base-border pb-6">
             <p className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
-              DROP 001 // FINAL STEP
+              FINAL STEP
             </p>
             <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
               CHECKOUT
@@ -315,6 +346,17 @@ export default function CheckoutPage() {
                     <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
                       Shipping Address (Pakistan Delivery) *
                     </label>
+                    <select
+                      value={province}
+                      onChange={(e) => setProvince(e.target.value)}
+                      className="w-full rounded-sm border border-base-border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors mb-3"
+                      required
+                    >
+                      <option value="Sindh">Sindh</option>
+                      <option value="Balochistan">Balochistan</option>
+                      <option value="Punjab">Punjab</option>
+                      <option value="KPK">KPK</option>
+                    </select>
                     <textarea
                       rows={3}
                       value={address}
@@ -368,7 +410,7 @@ export default function CheckoutPage() {
                             <Image src={img} alt={item.name} fill sizes="48px" className="object-contain" />
                           </div>
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-text-primary">
+                            <p className="text-xs font-bold uppercase tracking-widest text-text-primary">
                               {item.name}
                             </p>
                             <p className="text-[10px] text-text-secondary">
@@ -377,7 +419,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
 
-                        <p className="font-display text-xs font-bold text-text-primary">
+                        <p className="font-display text-xs font-bold text-text-primary tracking-widest">
                           PKR {(price * item.quantity).toLocaleString()}
                         </p>
                       </div>
@@ -387,8 +429,12 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-base-border pt-4 space-y-2 text-xs text-text-secondary">
                   <div className="flex justify-between">
-                    <span>Delivery</span>
-                    <span className="text-emerald-400 font-bold">COMPLIMENTARY</span>
+                    <span>Delivery ({province})</span>
+                    {shippingCost > 0 ? (
+                      <span className="text-text-primary font-bold">PKR {shippingCost.toLocaleString()}</span>
+                    ) : (
+                      <span className="text-emerald-400 font-bold">COMPLIMENTARY</span>
+                    )}
                   </div>
                   <div className="flex justify-between">
                     <span>Est. Window</span>
@@ -400,7 +446,7 @@ export default function CheckoutPage() {
                   <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
                     Total
                   </span>
-                  <span className="font-display text-xl font-bold text-accent">
+                  <span className="font-display text-xl font-bold text-accent tracking-widest">
                     PKR {total.toLocaleString()}
                   </span>
                 </div>

@@ -14,7 +14,7 @@ const ROW_ONE = [
 ];
 
 const ROW_TWO = [
-  { label: "DROP 001", accent: true },
+  // { label: "DROP 001", accent: true },
   { label: "FLIPMEET STUDIO", accent: false },
   { label: "STREET COLLECTIVE", accent: true },
   { label: "OVERSIZED FIT", accent: false },

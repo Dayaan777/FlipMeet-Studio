@@ -86,7 +86,7 @@ export default function AnimeDropReveal() {
      id="anime-drop-reveal-heading"
      className="mb-14 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
     >
-     ANIME DROP 001 05 LOOKS
+     ANIME 05 LOOKS
     </h2>
 
     {/* ── 5 looks in a straight horizontal row ── */}
