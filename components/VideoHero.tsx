@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef } from "react";
 
@@ -20,8 +20,9 @@ export default function VideoHero() {
     let isSeeking = false;
     let hasPendingSeek = false;
     let rafId: number;
+    let rafStarted = false;
 
-    // â”€â”€â”€ Match canvas buffer to exact video dimensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // --- Match canvas buffer to exact video dimensions
     const syncSize = () => {
       if (!video || video.videoWidth === 0) return;
       if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -30,30 +31,27 @@ export default function VideoHero() {
       }
     };
 
-    // â”€â”€â”€ Blit the current video frame onto the canvas 1:1 â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // --- Blit the current video frame onto the canvas 1:1
     const drawFrame = () => {
       if (video.readyState < 2) return;
       syncSize();
       ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
     };
 
-    // â”€â”€â”€ Seek pipeline: queue at most ONE pending seek â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // --- Seek pipeline: queue at most ONE pending seek
     const commitSeek = (t: number) => {
       if (isSeeking) {
-        // Don't pile up seeks â€” just remember the latest target
         hasPendingSeek = true;
         return;
       }
       isSeeking = true;
-      // Use fastSeek on mobile browsers for massively improved FPS/lag reduction
-      if (typeof video.fastSeek === 'function') {
+      if (typeof video.fastSeek === "function") {
         video.fastSeek(t);
       } else {
         video.currentTime = t;
       }
     };
 
-    // When the browser finishes decoding a frame, draw it immediately
     video.addEventListener("seeked", () => {
       drawFrame();
       isSeeking = false;
@@ -63,7 +61,7 @@ export default function VideoHero() {
       }
     });
 
-    // â”€â”€â”€ Scroll handler (runs on scroll, passive) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // --- Scroll handler
     const handleScroll = () => {
       if (!containerRef.current || !video.duration) return;
       const { top, height } = containerRef.current.getBoundingClientRect();
@@ -72,55 +70,84 @@ export default function VideoHero() {
       const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
       const newTarget = progress * video.duration;
 
-      // Only seek if the target moved more than one video frame (~16ms worth)
-      if (Math.abs(newTarget - targetTime) > 0.033) { // Reduced seek frequency to boost FPS on mobile
+      if (Math.abs(newTarget - targetTime) > 0.033) {
         targetTime = newTarget;
         commitSeek(targetTime);
       }
     };
 
-    // â”€â”€â”€ RAF loop â€” keeps canvas visually in sync at full display refresh rate â”€
-    const tick = () => {
-      // While not seeking, continuously blit so the canvas never goes stale
-      if (!isSeeking && video.readyState >= 2) {
-        drawFrame();
-      }
+    // --- RAF loop
+    const startRaf = () => {
+      if (rafStarted) return;
+      rafStarted = true;
+      const tick = () => {
+        if (!isSeeking && video.readyState >= 2) {
+          drawFrame();
+        }
+        rafId = requestAnimationFrame(tick);
+      };
       rafId = requestAnimationFrame(tick);
     };
 
-    // â”€â”€â”€ Warm up the decoder so the first scroll is instant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // --- Warm up decoder - MUST fire from a real user gesture.
+    // We piggyback on the first click anywhere (always the Gender Gate for new users).
+    let warmedUp = false;
     const warmUp = () => {
-      // Play a few milliseconds then pause â€” loads decoder state into memory
+      if (warmedUp || video.readyState < 1) return;
+      warmedUp = true;
       video.play()
         .then(() => {
           setTimeout(() => {
             video.pause();
             video.currentTime = 0;
+            drawFrame();
           }, 80);
         })
         .catch(() => {});
     };
 
-    video.addEventListener("loadeddata", () => {
+    const onFirstInteraction = () => {
+      warmUp();
+      window.removeEventListener("click", onFirstInteraction, true);
+      window.removeEventListener("touchend", onFirstInteraction, true);
+    };
+
+    // Capture phase catches Gender Gate click before propagation stops
+    window.addEventListener("click", onFirstInteraction, true);
+    window.addEventListener("touchend", onFirstInteraction, true);
+
+    // --- Video readiness: fire on whichever event arrives first.
+    // iOS Safari often skips loadeddata but fires canplay reliably.
+    let initialised = false;
+    const onReady = () => {
+      if (initialised) return;
+      initialised = true;
       syncSize();
       drawFrame();
       handleScroll();
-      warmUp();
-      rafId = requestAnimationFrame(tick);
-    });
+      startRaf();
+      // Attempt warm-up in case user has already interacted (returning users / fast loads)
+      if (!warmedUp) warmUp();
+    };
+
+    video.addEventListener("loadeddata",     onReady);
+    video.addEventListener("canplay",        onReady);
+    video.addEventListener("canplaythrough", onReady);
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", () => { syncSize(); drawFrame(); });
 
-    // Determine mobile vs desktop video
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    video.src = isMobile ? "/videos/mobile-homepage-hero-section.mp4" : "/videos/homepage-hero-section.mp4";
+    video.src = isMobile
+      ? "/videos/mobile-homepage-hero-section.mp4"
+      : "/videos/homepage-hero-section.mp4";
 
-    // Kick off metadata load
     video.load();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("click", onFirstInteraction, true);
+      window.removeEventListener("touchend", onFirstInteraction, true);
       cancelAnimationFrame(rafId);
     };
   }, []);
@@ -132,27 +159,31 @@ export default function VideoHero() {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
-        {/* Hidden video â€” decode-only, never rendered directly */}
+        {/*
+          Video is NOT hidden with display:none - that suppresses browser
+          preloading and decoding entirely on first visit.
+          We render it visually invisible but layout-present so the browser
+          keeps downloading and decoding frames while the Gender Gate is up.
+        */}
         <video
           ref={videoRef}
           muted
           playsInline
           preload="auto"
-          className="hidden"
+          aria-hidden="true"
+          className="absolute opacity-0 pointer-events-none w-px h-px top-0 left-0"
         />
 
-        {/* Canvas â€” the only visible surface; frames are blitted here */}
+        {/* Canvas - the only visible surface */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ display: "block" }}
         />
 
-        {/* Cinematic "STUDIO" Typography Overlay */}
+        {/* Cinematic STUDIO Typography Overlay */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center z-10">
-          <h1
-            className="font-display text-[28vw] md:text-[22vw] font-bold text-white uppercase leading-none select-none mix-blend-overlay opacity-90 tracking-widest"
-          >
+          <h1 className="font-display text-[28vw] md:text-[22vw] font-bold text-white uppercase leading-none select-none mix-blend-overlay opacity-90 tracking-widest">
             STUDIO
           </h1>
         </div>
