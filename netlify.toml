@@ -1,0 +1,6 @@
+[build]
+  # Runs the package.json "build" script (next build). Dependencies are still
+  # installed with pnpm from pnpm-lock.yaml; this just avoids requiring a
+  # global pnpm binary to launch the build step.
+  command = "npm run build"
+  publish = ".next"
