@@ -67,11 +67,15 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
 
   useEffect(() => {
     const onScroll = () => {
-      // If on homepage, wait until the VideoHero is scrolled past before showing navbar bg.
-      // VideoHero is h-[350vh] on mobile and h-[500vh] on desktop.
       if (pathname === "/") {
-        const heroHeight = window.innerWidth >= 768 ? window.innerHeight * 5 : window.innerHeight * 3.5;
-        setScrolled(window.scrollY > heroHeight - 100);
+        // On mobile, MobileStoryHero is only 88dvh — show navbar after 8px like all other pages.
+        // On desktop, wait until the scroll-animation VideoHero (h-[500vh]) is fully scrolled past.
+        if (window.innerWidth < 768) {
+          setScrolled(window.scrollY > 8);
+        } else {
+          const heroHeight = window.innerHeight * 5;
+          setScrolled(window.scrollY > heroHeight - 100);
+        }
       } else {
         setScrolled(window.scrollY > 8);
       }
