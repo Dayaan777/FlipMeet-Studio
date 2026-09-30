@@ -11,6 +11,7 @@ const LINKS = [
   { label: "ANIME",   href: "/anime" },
   { label: "MAKE YOUR OUTFIT", href: "/make-your-own" },
   { label: "PROCESS", href: "/process" },
+  { label: "TRACK ORDER", href: "/track" },
 ];
 
 export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean }) {
@@ -170,6 +171,19 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
               </span>
             </div>
           </button>
+
+          {/* Track Order Icon */}
+          <Link
+            href="/track"
+            title="Track Order"
+            className="flex items-center justify-center size-9 rounded-full border border-base-border hover:border-text-secondary transition-colors text-text-primary"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+          </Link>
 
           {/* Cart link */}
           <a

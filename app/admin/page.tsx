@@ -297,10 +297,15 @@ export default function AdminPage() {
               <span className="size-2 rounded-full bg-accent animate-pulse" />
               FLIPMEET STUDIO // DATABASE CONTROL
             </div>
-            <h1 className="font-display tracking-widest text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary mt-1">
-              ADMIN DASHBOARD
-            </h1>
-            <p className="text-xs text-text-secondary mt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-1 gap-4">
+              <h1 className="font-display tracking-widest text-3xl md:text-4xl font-bold uppercase tracking-wide text-text-primary">
+                ADMIN DASHBOARD
+              </h1>
+              <Link href="/admin/orders" className="text-xs bg-base-surface border border-base-border px-4 py-2 hover:border-accent transition-colors">
+                Manage Orders &rarr;
+              </Link>
+            </div>
+            <p className="text-xs text-text-secondary mt-2">
               Direct live sync with Supabase <code className="text-accent bg-accent/10 px-1.5 py-0.5 rounded">products</code> table.
             </p>
           </div>

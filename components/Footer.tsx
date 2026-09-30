@@ -96,6 +96,7 @@ export default function Footer() {
         <div className="md:col-span-2">
           <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-6">Quick Links</p>
           <div className="flex flex-col gap-4 text-xs text-text-secondary">
+            <Link href="/track" className="hover:text-accent transition-colors w-fit text-accent font-medium">Track Order</Link>
             <a href="/terms" className="hover:text-accent transition-colors w-fit">Terms & Conditions</a>
             <a href="/privacy" className="hover:text-accent transition-colors w-fit">Privacy Policy</a>
             <a href="/shipping" className="hover:text-accent transition-colors w-fit">Shipping Policy</a>

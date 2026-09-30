@@ -1,4 +1,4 @@
-﻿-- FlipMeet Studio Database Schema
+-- FlipMeet Studio Database Schema
 -- Run this in Supabase SQL Editor to set up tables and RLS policies.
 
 -- 1. Profiles Table (extends auth.users)
@@ -25,7 +25,9 @@ create table if not exists public.orders (
   drop_id text not null default 'drop-001',
   items jsonb not null default '[]'::jsonb,
   total numeric not null default 0,
-  status text not null default 'pending' check (status in ('pending', 'confirmed', 'in_production', 'shipped', 'delivered', 'cancelled')),
+  status text not null default 'ORDER_SECURED' check (status in ('pending', 'ORDER_SECURED', 'STUDIO_PROCESSING', 'DISPATCHED', 'DELIVERED', 'CANCELLED')),
+  tracking_number text,
+  courier_name text,
   delivery_window jsonb default '{"start": "2026-10-20", "end": "2026-10-30"}'::jsonb,
   notes text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null

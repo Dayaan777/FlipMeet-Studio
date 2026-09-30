@@ -116,7 +116,7 @@ export async function POST(request: Request) {
           email: resolvedEmail,
           phone: resolvedPhone,
           total: resolvedTotal,
-          status: "pending",
+          status: "ORDER_SECURED",
           shipping_address: resolvedAddress,
           notes: resolvedNotes,
         })
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
           p_email: resolvedEmail,
           p_phone: resolvedPhone,
           p_total: resolvedTotal,
-          p_status: "pending",
+          p_status: "ORDER_SECURED",
           p_shipping_address: resolvedAddress,
           p_notes: resolvedNotes,
           p_items: orderItemsPayload,
