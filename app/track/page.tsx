@@ -151,35 +151,43 @@ export default function TrackPage() {
                 </div>
 
                 {/* Vertical Stepper */}
-                <div className="relative pl-3 space-y-8">
-                  {/* Vertical Line */}
-                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-white/10" />
-                  
-                  {/* Filled Vertical Line */}
-                  <div 
-                    className="absolute left-[15px] top-2 w-px bg-accent transition-all duration-700 ease-out" 
-                    style={{ height: `${(activeIndex / (TRACKING_STEPS.length - 1)) * 100}%` }}
-                  />
-
+                <div className="pl-3 flex flex-col">
                   {TRACKING_STEPS.map((step, index) => {
                     const isCompleted = index <= activeIndex;
                     const isActive = index === activeIndex;
+                    const isDelivered = step.key === "DELIVERED";
                     
+                    let textColor = "text-white/30";
+                    if (isDelivered && isActive) {
+                      textColor = "text-green-500";
+                    } else if (isActive) {
+                      textColor = "text-white";
+                    } else if (isCompleted) {
+                      textColor = "text-white/70";
+                    }
+
                     return (
-                      <div key={step.key} className="relative flex items-center gap-6">
-                        {/* Dot */}
-                        <div className={`relative z-10 flex-shrink-0 w-2.5 h-2.5 rounded-full transition-colors duration-500 delay-[${index * 150}ms] ${
-                          isCompleted ? "bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.8)]" : "bg-base-bg border border-white/20"
-                        }`} />
-                        
-                        {/* Text */}
-                        <div>
-                          <p className={`text-xs tracking-[0.2em] font-bold transition-colors duration-300 ${
-                            isActive ? "text-white" : isCompleted ? "text-white/70" : "text-white/30"
-                          }`}>
+                      <div key={step.key} className="flex flex-col">
+                        {/* Step Row */}
+                        <div className="flex items-center gap-6">
+                          <div className={`flex-shrink-0 w-2.5 h-2.5 rounded-full transition-colors duration-500 ${
+                            isCompleted && !isDelivered ? "bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.8)]" :
+                            isCompleted && isDelivered ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]" :
+                            "bg-base-bg border border-white/20"
+                          }`} />
+                          <p className={`text-xs tracking-[0.2em] font-bold transition-colors duration-300 ${textColor}`}>
                             {step.label}
                           </p>
                         </div>
+
+                        {/* Connecting Line */}
+                        {index < TRACKING_STEPS.length - 1 && (
+                          <div className="ml-[4px] w-px h-10 flex flex-col">
+                            {index < activeIndex && (
+                              <div className="w-full h-full bg-accent" />
+                            )}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

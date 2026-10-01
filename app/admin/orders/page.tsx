@@ -1,9 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,10 +16,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const res = await fetch("/api/admin/orders"); if (!res.ok) throw new Error("Failed to fetch orders"); const data = await res.json(); const error = null;
 
       if (error) throw error;
       setOrders(data || []);
@@ -47,14 +42,7 @@ export default function AdminOrdersPage() {
     if (!editingId) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          status: editStatus,
-          courier_name: editCourier || null,
-          tracking_number: editTracking || null,
-        })
-        .eq("id", editingId);
+      const res = await fetch("/api/admin/orders", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingId, status: editStatus, courier_name: editCourier || null, tracking_number: editTracking || null }) }); const error = res.ok ? null : await res.text();
 
       if (error) throw error;
       
@@ -129,7 +117,7 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div>{order.customer_name}</div>
-                      <div className="text-xs text-text-secondary">{order.customer_email}</div>
+                      <div className="text-xs text-text-secondary">{order.email}</div>
                     </td>
                     
                     {/* Status Column */}

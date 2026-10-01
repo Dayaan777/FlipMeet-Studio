@@ -1,196 +1,63 @@
-﻿import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqazaajfycutqildyrqw.supabase.co";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqazaajfycutqildyrqw.supabase.co";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const anonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxYXphYWpmeWN1dHFpbGR5cnF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNTEzNzAsImV4cCI6MjEwNDcyNzM3MH0.9SnZ_D9L9duzG0bOUEPkKnWu065z4eWuUeK17i5eK5M";
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 function getAdminClient() {
+  // If serviceRoleKey is missing, we log a warning because RLS will likely block requests
+  if (!serviceRoleKey) {
+    console.warn("Missing SUPABASE_SERVICE_ROLE_KEY. Admin queries may fail due to RLS.");
+  }
   return createClient(supabaseUrl, serviceRoleKey || anonKey, {
-    auth: {
-      persistSession: false,
-    },
+    auth: { persistSession: false },
   });
 }
 
-// Server-side authentication check
-async function verifyAdminAuth() {
+export async function GET(request: Request) {
+  // Check custom cookie authentication
   const cookieStore = await cookies();
   const session = cookieStore.get("admin_session")?.value;
-  return session === "authenticated";
-}
-
-// GET: Fetch all orders with items from Supabase (authenticated admin only)
-export async function GET() {
-  const isAuthenticated = await verifyAdminAuth();
-  if (!isAuthenticated) {
-    return NextResponse.json(
-      { error: "Unauthorized: Admin session cookie required." },
-      { status: 401 }
-    );
+  if (session !== "authenticated") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const supabaseAdmin = getAdminClient();
+  const supabaseAdmin = getAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    // 1. Direct query if service role key is present
-    if (serviceRoleKey) {
-      const { data: orders, error: ordersError } = await supabaseAdmin
-        .from("orders")
-        .select(`
-          id,
-          customer_name,
-          email,
-          phone,
-          total,
-          status,
-          shipping_address,
-          notes,
-          created_at,
-          items:order_items (
-            id,
-            order_id,
-            product_id,
-            quantity,
-            price_at_purchase,
-            size,
-            created_at
-          )
-        `)
-        .order("created_at", { ascending: false });
-
-      if (!ordersError && orders) {
-        return NextResponse.json({ success: true, orders });
-      }
-    }
-
-    // 2. Fallback: Call database SECURITY DEFINER function
-    const { data: rpcOrders, error: rpcError } = await supabaseAdmin.rpc("admin_get_orders");
-    if (rpcError) throw rpcError;
-
-    return NextResponse.json({ success: true, orders: rpcOrders || [] });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to fetch orders.";
-    console.error("Admin orders GET error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  return NextResponse.json(data);
 }
 
-// PATCH: Update order status (authenticated admin only)
 export async function PATCH(request: Request) {
-  const isAuthenticated = await verifyAdminAuth();
-  if (!isAuthenticated) {
-    return NextResponse.json(
-      { error: "Unauthorized: Admin session cookie required." },
-      { status: 401 }
-    );
+  const cookieStore = await cookies();
+  const session = cookieStore.get("admin_session")?.value;
+  if (session !== "authenticated") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  try {
-    const body = await request.json();
-    const { orderId, id, status } = body;
-    const targetId = (orderId || id || "").trim();
-    const targetStatus = (status || "").trim().toLowerCase();
+  const body = await request.json();
+  const { id, status, tracking_number, courier_name } = body;
+  
+  if (!id) return NextResponse.json({ error: "Missing order id" }, { status: 400 });
 
-    if (!targetId || !targetStatus) {
-      return NextResponse.json(
-        { error: "orderId and status are required." },
-        { status: 400 }
-      );
-    }
+  const supabaseAdmin = getAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .update({ status, tracking_number, courier_name })
+    .eq("id", id)
+    .select()
+    .single();
 
-    const supabaseAdmin = getAdminClient();
-
-    // 1. Direct update if service role key is present
-    if (serviceRoleKey) {
-      const { data, error } = await supabaseAdmin
-        .from("orders")
-        .update({ status: targetStatus })
-        .eq("id", targetId)
-        .select()
-        .single();
-
-      if (!error && data) {
-        return NextResponse.json({ success: true, order: data });
-      }
-    }
-
-    // 2. Fallback: Call database SECURITY DEFINER function
-    const { data: rpcData, error: rpcError } = await supabaseAdmin.rpc(
-      "admin_update_order_status",
-      {
-        p_order_id: targetId,
-        p_status: targetStatus,
-      }
-    );
-
-    if (rpcError) throw rpcError;
-
-    return NextResponse.json({ success: true, order: rpcData });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to update order status.";
-    console.error("Admin orders PATCH error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
-// DELETE: Delete an order and its items (authenticated admin only)
-export async function DELETE(request: Request) {
-  const isAuthenticated = await verifyAdminAuth();
-  if (!isAuthenticated) {
-    return NextResponse.json(
-      { error: "Unauthorized: Admin session cookie required." },
-      { status: 401 }
-    );
-  }
-
-  try {
-    const body = await request.json();
-    const { orderId, id } = body;
-    const targetId = (orderId || id || "").trim();
-
-    if (!targetId) {
-      return NextResponse.json(
-        { error: "orderId is required." },
-        { status: 400 }
-      );
-    }
-
-    const supabaseAdmin = getAdminClient();
-
-    // order_items typically has ON DELETE CASCADE on order_id. 
-    // If not, we should delete items first. Since we are using Supabase, we can just try to delete the order directly.
-    if (serviceRoleKey) {
-      const { error: itemsError } = await supabaseAdmin
-        .from("order_items")
-        .delete()
-        .eq("order_id", targetId);
-
-      if (itemsError) throw itemsError;
-
-      const { data, error } = await supabaseAdmin
-        .from("orders")
-        .delete()
-        .eq("id", targetId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return NextResponse.json({ success: true, order: data });
-    }
-
-    const { data: rpcData, error: rpcError } = await supabaseAdmin.rpc("admin_delete_order", {
-      p_order_id: targetId
-    });
-
-    if (rpcError) throw rpcError;
-    return NextResponse.json({ success: true, order: rpcData });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to delete order.";
-    console.error("Admin orders DELETE error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  return NextResponse.json(data);
 }

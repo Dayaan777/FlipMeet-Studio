@@ -68,3 +68,7 @@ create policy "Admins can update orders"
       where profiles.id = auth.uid() and profiles.role = 'admin'
     )
   );
+
+create policy "Anyone can insert orders"
+  on public.orders for insert
+  with check (true);

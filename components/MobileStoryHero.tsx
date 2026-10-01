@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 interface Hotspot {
   id: string;
   name: string;
@@ -13,6 +14,7 @@ interface Hotspot {
   image: string;
   x: number; // % from left (0-100)
   y: number; // % from top  (0-100)
+  timeRange?: [number, number]; // [startSeconds, endSeconds]
 }
 
 interface Slide {
@@ -22,9 +24,7 @@ interface Slide {
   hotspots: Hotspot[];
 }
 
-// ─── Slide data ───────────────────────────────────────────────────────────────
-// Adjust x/y values to land dots precisely on each garment after testing on device.
-// x = % from left edge, y = % from top edge.
+// ─── Slide data ──────────────────────────────────────────────────────────────
 const SLIDES: Slide[] = [
   {
     type: "image",
@@ -32,12 +32,12 @@ const SLIDES: Slide[] = [
     duration: 5500,
     hotspots: [
       {
-        id: "dreamer-jersey",
-        name: "Dreamer 84 Mesh Football Jersey",
-        price: 23500,
-        slug: "dreamer-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/dreamer-jersey.png",
-        x: 20, y: 42,
+        id: "saint-culture-jersey",
+        name: "Saint Culture Jersey",
+        price: 19500,
+        slug: "saint-culture-jersey",
+        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
+        x: 12, y: 53,
       },
       {
         id: "anime-op-flame-jersey",
@@ -45,15 +45,15 @@ const SLIDES: Slide[] = [
         price: 16500,
         slug: "anime-op-flame-jersey",
         image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/anime-op-flame-jersey.png",
-        x: 50, y: 40,
+        x: 33, y: 52,
       },
       {
-        id: "saint-culture-jersey",
-        name: "Saint Culture Jersey",
-        price: 19500,
-        slug: "saint-culture-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
-        x: 80, y: 42,
+        id: "dreamer-jersey",
+        name: "Dreamer 84 Mesh Football Jersey",
+        price: 23500,
+        slug: "dreamer-jersey",
+        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/dreamer-jersey.png",
+        x: 78, y: 55,
       },
     ],
   },
@@ -62,28 +62,12 @@ const SLIDES: Slide[] = [
     src: "/videos/mobile-ui/2nd-slide.mp4",
     hotspots: [
       {
-        id: "anime-zoro-green-jersey",
-        name: "One Piece Zoro Green Jersey",
-        price: 16500,
-        slug: "anime-zoro-green-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/anime-zoro-green-jersey.png",
-        x: 10, y: 42,
-      },
-      {
-        id: "saint-culture-jersey-s2",
-        name: "Saint Culture Jersey",
-        price: 19500,
-        slug: "saint-culture-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
-        x: 29, y: 40,
-      },
-      {
-        id: "dreamer-jersey-s2",
-        name: "Dreamer 84 Mesh Football Jersey",
+        id: "limited-edition-1996-red-shirt",
+        name: "1996 Vintage Red Quarter-Zip Polo",
         price: 23500,
-        slug: "dreamer-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/dreamer-jersey.png",
-        x: 50, y: 42,
+        slug: "limited-edition-1996-red-shirt",
+        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/limited-edition-1996-red-shirt.png",
+        x: 12, y: 53,
       },
       {
         id: "anime-op-flame-jersey-s2",
@@ -91,15 +75,23 @@ const SLIDES: Slide[] = [
         price: 16500,
         slug: "anime-op-flame-jersey",
         image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/anime-op-flame-jersey.png",
-        x: 70, y: 40,
+        x: 27, y: 55,
       },
       {
-        id: "limited-edition-1996-red-shirt",
-        name: "1996 Vintage Red Quarter-Zip Polo",
+        id: "dreamer-jersey-s2",
+        name: "Dreamer 84 Mesh Football Jersey",
         price: 23500,
-        slug: "limited-edition-1996-red-shirt",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/limited-edition-1996-red-shirt.png",
-        x: 89, y: 42,
+        slug: "dreamer-jersey",
+        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/dreamer-jersey.png",
+        x: 77, y: 54,
+      },
+      {
+        id: "saint-culture-jersey-s2",
+        name: "Saint Culture Jersey",
+        price: 19500,
+        slug: "saint-culture-jersey",
+        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
+        x: 90, y: 54,
       },
     ],
   },
@@ -113,7 +105,8 @@ const SLIDES: Slide[] = [
         price: 23500,
         slug: "limited-edition-1996-red-shirt",
         image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/limited-edition-1996-red-shirt.png",
-        x: 30, y: 42,
+        x: 50, y: 55,
+        timeRange: [0, 3.99],
       },
       {
         id: "saint-culture-jersey-s3",
@@ -121,96 +114,120 @@ const SLIDES: Slide[] = [
         price: 19500,
         slug: "saint-culture-jersey",
         image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
-        x: 70, y: 42,
+        x: 50, y: 60,
+        timeRange: [4.0, 999], // Until video ends
       },
     ],
   },
 ];
 
 function formatPrice(price: number) {
-  return `PKR ${price.toLocaleString()}`;
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    maximumFractionDigits: 0,
+  }).format(price);
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function MobileStoryHero() {
-  const [activeIndex, setActiveIndex]           = useState(0);
-  const [progress, setProgress]                 = useState(0);
-  const [isPaused, setIsPaused]                 = useState(false);
-  const [isDiscoveryMode, setIsDiscoveryMode]   = useState(false);
-  const [activeHotspot, setActiveHotspot]       = useState<Hotspot | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDiscoveryMode, setIsDiscoveryMode] = useState(false);
+  const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [liveProducts, setLiveProducts] = useState<Record<string, { price: number, name: string }>>({});
 
-  const videoRef       = useRef<HTMLVideoElement>(null);
-  const rafRef         = useRef<number>(0);
-  const startTimeRef   = useRef<number>(0);
-  const accumulatedRef = useRef<number>(0);
-  // Touch tracking — all stored in refs so handlers always read fresh values
-  const touchStartX    = useRef<number>(0);
-  const touchStartY    = useRef<number>(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const lastTouchTime = useRef<number>(0);
 
   const currentSlide = SLIDES[activeIndex];
 
-  // ─── Navigation ───────────────────────────────────────────────────────────
-  const goToSlide = useCallback((index: number) => {
-    cancelAnimationFrame(rafRef.current);
-    accumulatedRef.current = 0;
-    setActiveIndex(index);
-    setProgress(0);
-    setIsDiscoveryMode(false);
-    setActiveHotspot(null);
-    setIsPaused(false);
+  // Fetch live prices and names from Supabase
+  useEffect(() => {
+    async function fetchLiveProducts() {
+      const { data } = await supabase.from("products").select("id, price, name");
+      if (data) {
+        const productMap: Record<string, { price: number, name: string }> = {};
+        data.forEach(p => {
+          productMap[p.id] = { price: p.price, name: p.name };
+        });
+        setLiveProducts(productMap);
+      }
+    }
+    fetchLiveProducts();
   }, []);
 
+  // ─── Playback control ────────────────────────────────────────────────────────
   const advanceSlide = useCallback(() => {
-    cancelAnimationFrame(rafRef.current);
-    accumulatedRef.current = 0;
     setActiveIndex((prev) => (prev + 1) % SLIDES.length);
     setProgress(0);
     setIsDiscoveryMode(false);
     setActiveHotspot(null);
-    // NOTE: do not reset isPaused here — if user paused, stay paused on next slide
+    setCurrentTime(0);
+    setIsPaused(false); // Fix: Ensure video unpauses when advancing!
   }, []);
 
-  // ─── Image slide timer ────────────────────────────────────────────────────
+  const goToSlide = (idx: number) => {
+    setActiveIndex(idx);
+    setProgress(0);
+    setIsPaused(false);
+    setIsDiscoveryMode(false);
+    setActiveHotspot(null);
+    setCurrentTime(0);
+  };
+
+  // Image slide timer
   useEffect(() => {
     if (currentSlide.type !== "image") return;
-    const DURATION = currentSlide.duration ?? 5500;
-    cancelAnimationFrame(rafRef.current);
+    if (isPaused) {
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      return;
+    }
+    const updateFreq = 50;
+    const duration = currentSlide.duration || 5000;
+    const step = (updateFreq / duration) * 100;
 
-    if (isPaused || isDiscoveryMode) return;
-
-    startTimeRef.current = performance.now() - accumulatedRef.current;
-
-    const tick = (now: number) => {
-      const pct = Math.min(((now - startTimeRef.current) / DURATION) * 100, 100);
-      setProgress(pct);
-      if (pct >= 100) { advanceSlide(); return; }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
+    progressIntervalRef.current = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          advanceSlide();
+          return 0;
+        }
+        return prev + step;
+      });
+    }, updateFreq);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
-      accumulatedRef.current = performance.now() - startTimeRef.current;
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     };
-  }, [currentSlide, isPaused, isDiscoveryMode, advanceSlide]);
+  }, [activeIndex, currentSlide, isPaused, advanceSlide]);
 
-  // ─── Video: LOAD only when the slide index changes ────────────────────────
-  // CRITICAL: isPaused and isDiscoveryMode are NOT in the dep array.
-  // This guarantees video.load() is NEVER called when toggling discovery mode.
+  // Video slide handling - Setup & Track Time
   useEffect(() => {
     if (currentSlide.type !== "video") return;
     const video = videoRef.current;
     if (!video) return;
 
-    video.src = currentSlide.src;
+    // Reset video on slide change
+    video.currentTime = 0;
     video.load();
     setProgress(0);
+    setCurrentTime(0);
 
     const onTimeUpdate = () => {
-      if (video.duration) setProgress((video.currentTime / video.duration) * 100);
+      if (video.duration) {
+        setProgress((video.currentTime / video.duration) * 100);
+      }
+      setCurrentTime(video.currentTime);
     };
     const onEnded = () => advanceSlide();
-    const onCanPlay = () => video.play().catch(() => {});
+    const onCanPlay = () => {
+      // Don't play if we're paused
+      if (!isPaused) video.play().catch(() => {});
+    };
 
     video.addEventListener("timeupdate", onTimeUpdate);
     video.addEventListener("ended",      onEnded);
@@ -222,137 +239,120 @@ export default function MobileStoryHero() {
       video.removeEventListener("canplay",    onCanPlay);
       video.pause();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]); // Only run on slide change!
 
-  // ─── Video: PLAY/PAUSE only when paused state changes ────────────────────
-  // Separated from load effect so browser preserves currentTime on toggle.
+  // Video slide handling - Play/Pause toggle
   useEffect(() => {
     if (currentSlide.type !== "video") return;
     const video = videoRef.current;
     if (!video) return;
-    if (isPaused || isDiscoveryMode) {
+
+    if (isPaused) {
       video.pause();
     } else {
       video.play().catch(() => {});
     }
-  }, [isPaused, isDiscoveryMode, currentSlide.type]);
+  }, [isPaused, currentSlide.type]);
 
-  // ─── Discovery mode toggle (called once per tap) ──────────────────────────
-  const toggleDiscovery = useCallback(() => {
-    setIsDiscoveryMode((prev) => {
-      const entering = !prev;
-      if (entering) {
-        // Entering discovery → pause
-        setIsPaused(true);
+  // ─── Interaction Handlers ──────────────────────────────────────────────────
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    lastTouchTime.current = Date.now();
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX.current - touchEndX;
+
+    if (Math.abs(deltaX) > 40) {
+      // Swipe left or right -> switch slide, exit discovery
+      if (deltaX > 0) {
+        advanceSlide();
       } else {
-        // Exiting discovery → snapshot image progress, resume
-        if (currentSlide.type === "image") {
-          // accumulatedRef is already set by the RAF cleanup; no extra work needed
-        }
+        setActiveIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+        setProgress(0);
+        setIsDiscoveryMode(false);
         setActiveHotspot(null);
-        setIsPaused(false);
+        setIsPaused(false); // Fix: unpause on back swipe too!
       }
-      return entering;
-    });
-  }, [currentSlide.type]);
-
-  // ─── Touch handlers ───────────────────────────────────────────────────────
-  // All touch logic lives here. The interaction overlay (z-10) sits above the
-  // media and video element so touch events are always reliably captured.
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    // Always preventDefault to stop mobile from also firing a click event.
-    // Without this, every tap fires BOTH onTouchEnd AND onClick, calling the
-    // handler twice which immediately toggles back to the previous state.
-    e.preventDefault();
-
-    const dx    = e.changedTouches[0].clientX - touchStartX.current;
-    const dy    = e.changedTouches[0].clientY - touchStartY.current;
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
-
-    // Horizontal swipe (dominant direction, > 50px)
-    if (absDx > 50 && absDx > absDy * 1.5) {
-      if (dx < 0) goToSlide((activeIndex + 1) % SLIDES.length);
-      else        goToSlide((activeIndex - 1 + SLIDES.length) % SLIDES.length);
-      return;
+    } else {
+      // Tap (background)
+      handleBackgroundTap();
     }
-
-    // Short movement = tap → toggle discovery mode
-    if (absDx < 12 && absDy < 12) {
-      toggleDiscovery();
-    }
-  }, [activeIndex, goToSlide, toggleDiscovery]);
-
-  // Desktop mouse click fallback (touch devices won't reach here due to preventDefault above)
-  const handleMouseClick = useCallback(() => {
-    toggleDiscovery();
-  }, [toggleDiscovery]);
-
-  const handleHotspotTap = (e: React.MouseEvent | React.TouchEvent, hotspot: Hotspot) => {
-    e.stopPropagation();
-    if ("preventDefault" in e) (e as React.TouchEvent).preventDefault?.();
-    setActiveHotspot((prev) => (prev?.id === hotspot.id ? null : hotspot));
+    touchStartX.current = null;
   };
 
-  const handlePauseToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleMouseClick = () => {
+    if (Date.now() - lastTouchTime.current < 500) return; // Prevent double-fire from touch devices
+    handleBackgroundTap();
+  };
+
+  const handleBackgroundTap = () => {
     if (isDiscoveryMode) {
+      // Close UI and resume
       setIsDiscoveryMode(false);
       setActiveHotspot(null);
       setIsPaused(false);
     } else {
-      if (currentSlide.type === "image" && !isPaused) {
-        accumulatedRef.current = (progress / 100) * (currentSlide.duration ?? 5500);
-      }
-      setIsPaused((prev) => !prev);
+      // Pause and enter discovery mode
+      setIsPaused(true);
+      setIsDiscoveryMode(true);
     }
   };
 
-  // ─── Render ───────────────────────────────────────────────────────────────
-  return (
-    <div className="relative w-full h-[88dvh] bg-black overflow-hidden select-none">
+  const handlePauseToggle = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    if (isPaused) {
+      setIsPaused(false);
+      setIsDiscoveryMode(false);
+      setActiveHotspot(null);
+    } else {
+      setIsPaused(true);
+      setIsDiscoveryMode(true);
+    }
+  };
 
-      {/* ── Media (no event handlers — interaction handled by overlay below) ── */}
-      <div className="absolute inset-0">
-        {currentSlide.type === "image" && (
+  const handleHotspotTap = (e: React.MouseEvent | React.TouchEvent, hotspot: Hotspot) => {
+    e.stopPropagation();
+    setActiveHotspot(hotspot);
+  };
+
+  // ─── Filtering Hotspots ──────────────────────────────────────────────────
+  const visibleHotspots = currentSlide.hotspots.filter(h => {
+    if (!h.timeRange) return true;
+    return currentTime >= h.timeRange[0] && currentTime <= h.timeRange[1];
+  });
+
+  // ─── Render ──────────────────────────────────────────────────────────────────
+  return (
+    <div className="relative w-full h-[calc(100vh-73px)] sm:h-screen bg-black overflow-hidden select-none">
+      
+      {/* ─── Media Layer (z-0) ───────────────────────────────────────────────── */}
+      <div className="absolute inset-0 z-0">
+        {currentSlide.type === "image" ? (
           <Image
             src={currentSlide.src}
-            alt="FlipMeet Studio Collection"
-            fill priority
-            className="object-cover object-center"
-            sizes="100vw"
-            draggable={false}
+            alt="Hero Look"
+            fill
+            priority
+            className="object-cover"
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            src={currentSlide.src}
+            muted
+            playsInline
+            className="w-full h-full object-cover"
           />
         )}
-        <video
-          ref={videoRef}
-          muted playsInline preload="auto"
-          className={`absolute inset-0 w-full h-full object-cover object-center ${
-            currentSlide.type === "video" ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-        />
+        {/* Subtle gradient so bottom UI and dots stand out better */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none" />
       </div>
 
-      {/* ── Vignette ──────────────────────────────────────────────────────── */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/65" />
-
-      {/* ── Discovery dark tint ───────────────────────────────────────────── */}
-      {isDiscoveryMode && (
-        <div className="pointer-events-none absolute inset-0 bg-black/30 transition-opacity duration-300" />
-      )}
-
-      {/*
-        ── INTERACTION OVERLAY ────────────────────────────────────────────────
-        Sits at z-10, ABOVE the video element (which would otherwise swallow
-        touch events on mobile). Handles ALL background taps and swipe gestures.
-        Hotspots/cards at z-20+ sit above this overlay and handle their own taps.
-      */}
+      {/* ─── Interaction Overlay (z-10) ──────────────────────────────────────── */}
       <div
         className="absolute inset-0 z-10 cursor-pointer"
         onTouchStart={handleTouchStart}
@@ -360,8 +360,8 @@ export default function MobileStoryHero() {
         onClick={handleMouseClick}
       />
 
-      {/* ── Hotspot dots (z-20, above interaction overlay) ────────────────── */}
-      {isDiscoveryMode && currentSlide.hotspots.map((hotspot) => (
+      {/* ─── Hotspot dots (z-20, above interaction overlay) ────────────────── */}
+      {isDiscoveryMode && visibleHotspots.map((hotspot) => (
         <div
           key={hotspot.id}
           className="absolute z-20 cursor-pointer"
@@ -391,7 +391,7 @@ export default function MobileStoryHero() {
         </div>
       ))}
 
-      {/* ── Product card (z-30, above hotspots) ──────────────────────────── */}
+      {/* ─── Product card (z-30, above hotspots) ─────────────────────────────── */}
       {activeHotspot && (
         <div
           className="absolute z-30 bottom-[72px] left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-xs"
@@ -414,10 +414,10 @@ export default function MobileStoryHero() {
                 FlipMeet Studio
               </p>
               <p className="text-[12px] font-bold text-white leading-snug tracking-wide line-clamp-2">
-                {activeHotspot.name}
+                {liveProducts[activeHotspot.slug]?.name || activeHotspot.name}
               </p>
               <p className="text-[11px] text-accent mt-1.5 font-semibold tracking-wider">
-                {formatPrice(activeHotspot.price)}
+                {formatPrice(liveProducts[activeHotspot.slug]?.price || activeHotspot.price)}
               </p>
             </div>
             <div className="pr-4 text-white/40">
@@ -433,7 +433,7 @@ export default function MobileStoryHero() {
         </div>
       )}
 
-      {/* ── Discovery hint ────────────────────────────────────────────────── */}
+      {/* ─── Discovery hint ──────────────────────────────────────────────────── */}
       {isDiscoveryMode && !activeHotspot && (
         <div className="absolute bottom-[72px] left-1/2 -translate-x-1/2 pointer-events-none z-20">
           <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 text-center animate-pulse">
@@ -442,7 +442,7 @@ export default function MobileStoryHero() {
         </div>
       )}
 
-      {/* ── Bottom controls (z-40, topmost) ──────────────────────────────── */}
+      {/* ─── Bottom controls (z-40, topmost) ─────────────────────────────────── */}
       <div
         className="absolute bottom-5 right-4 z-40 flex items-center gap-2"
         onTouchEnd={(e) => e.stopPropagation()}
@@ -493,12 +493,15 @@ export default function MobileStoryHero() {
         </button>
       </div>
 
-      {/* ── Swipe hint (first slide only) ────────────────────────────────── */}
-      {activeIndex === 0 && !isDiscoveryMode && (
+      {/* ─── Global Interaction Hint ─────────────────────────────────────────── */}
+      {!isDiscoveryMode && (
         <div className="absolute bottom-5 left-4 z-40 pointer-events-none">
-          <p className="text-[8px] uppercase tracking-[0.22em] text-white/30">
-            Swipe to browse
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse" />
+            <p className="text-[8px] uppercase tracking-[0.22em] text-white/40">
+              Tap to shop the look
+            </p>
+          </div>
         </div>
       )}
     </div>

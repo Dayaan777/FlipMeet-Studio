@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqazaajfycutqildyrqw.supabase.co";
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     // Security check: Verify email matches the order exactly.
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select("id, status, tracking_number, courier_name, created_at, customer_email, items")
+      .select("id, status, tracking_number, courier_name, created_at, email")
       .eq("id", resolvedOrderId)
       .single();
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
     }
 
-    if (order.customer_email.toLowerCase() !== resolvedEmail) {
+    if (order.email.toLowerCase() !== resolvedEmail) {
       return NextResponse.json({ error: "Email does not match this order." }, { status: 403 });
     }
 
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         tracking_number: order.tracking_number,
         courier_name: order.courier_name,
         created_at: order.created_at,
-        items: order.items,
+        
       }
     });
   } catch (err: any) {
