@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef } from "react";
 
@@ -12,17 +12,15 @@ export default function VideoHero() {
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
 
-    // desynchronized = skip the browser compositing queue for lowest latency
     const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
     if (!ctx) return;
 
-    let targetTime = 0;
+    let targetScroll = 0;   // The raw scrollbar percentage (0.0 to 1.0)
+    let currentScrub = 0;   // The smoothly interpolated percentage (0.0 to 1.0)
     let isSeeking = false;
-    let hasPendingSeek = false;
     let rafId: number;
-    let rafStarted = false;
 
-    // --- Match canvas buffer to exact video dimensions
+    // --- Dynamic Resizing (Safety Check)
     const syncSize = () => {
       if (!video || video.videoWidth === 0) return;
       if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
@@ -31,66 +29,53 @@ export default function VideoHero() {
       }
     };
 
-    // --- Blit the current video frame onto the canvas 1:1
+    // --- Fast Canvas Blitting
     const drawFrame = () => {
-      if (video.readyState < 2) return;
-      syncSize();
-      ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    };
-
-    // --- Seek pipeline: queue at most ONE pending seek
-    const commitSeek = (t: number) => {
-      if (isSeeking) {
-        hasPendingSeek = true;
-        return;
-      }
-      isSeeking = true;
-      if (typeof video.fastSeek === "function") {
-        video.fastSeek(t);
-      } else {
-        video.currentTime = t;
+      if (video.readyState >= 2) {
+        syncSize();
+        ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
       }
     };
 
-    video.addEventListener("seeked", () => {
-      drawFrame();
-      isSeeking = false;
-      if (hasPendingSeek) {
-        hasPendingSeek = false;
-        commitSeek(targetTime);
-      }
-    });
-
-    // --- Scroll handler
+    // --- Passive Scroll Listener
     const handleScroll = () => {
-      if (!containerRef.current || !video.duration) return;
+      if (!containerRef.current) return;
       const { top, height } = containerRef.current.getBoundingClientRect();
       const scrolled = -top;
       const maxScroll = height - window.innerHeight;
-      const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
-      const newTarget = progress * video.duration;
-
-      if (Math.abs(newTarget - targetTime) > 0.033) {
-        targetTime = newTarget;
-        commitSeek(targetTime);
-      }
+      // Calculate target percentage (bounded between 0 and 1)
+      targetScroll = Math.max(0, Math.min(1, scrolled / maxScroll));
     };
 
-    // --- RAF loop
-    const startRaf = () => {
-      if (rafStarted) return;
-      rafStarted = true;
-      const tick = () => {
-        if (!isSeeking && video.readyState >= 2) {
+    // --- The Mathematical Engine (Lerping + Seek Throttling)
+    const tick = () => {
+      // 1. The Math: Smoothly glide currentScrub 8% closer to targetScroll on every frame
+      currentScrub += (targetScroll - currentScrub) * 0.08;
+
+      // 2. The Video Controller: Only seek if duration is loaded (Safety Check) and decoder is ready
+      if (video.readyState >= 1 && video.duration && !isSeeking) {
+        const targetTime = currentScrub * video.duration;
+        
+        // Prevent micro-jitter seeking if we are already close enough
+        if (Math.abs(video.currentTime - targetTime) > 0.01) {
+          isSeeking = true;
+          video.currentTime = targetTime;
+        } else {
+          // We are exactly on the frame, just draw it
           drawFrame();
         }
-        rafId = requestAnimationFrame(tick);
-      };
+      }
+
       rafId = requestAnimationFrame(tick);
     };
 
-    // --- Warm up decoder - MUST fire from a real user gesture.
-    // We piggyback on the first click anywhere (always the Gender Gate for new users).
+    // When the browser finishes decoding the requested frame, unlock the seeker
+    video.addEventListener("seeked", () => {
+      isSeeking = false;
+      drawFrame();
+    });
+
+    // --- Initialization & Warmup
     let warmedUp = false;
     const warmUp = () => {
       if (warmedUp || video.readyState < 1) return;
@@ -106,48 +91,49 @@ export default function VideoHero() {
         .catch(() => {});
     };
 
-    const onFirstInteraction = () => {
-      warmUp();
-      window.removeEventListener("click", onFirstInteraction, true);
-      window.removeEventListener("touchend", onFirstInteraction, true);
-    };
-
-    // Capture phase catches Gender Gate click before propagation stops
-    window.addEventListener("click", onFirstInteraction, true);
-    window.addEventListener("touchend", onFirstInteraction, true);
-
-    // --- Video readiness: fire on whichever event arrives first.
-    // iOS Safari often skips loadeddata but fires canplay reliably.
-    let initialised = false;
-    const onReady = () => {
-      if (initialised) return;
-      initialised = true;
+    const init = () => {
       syncSize();
-      drawFrame();
       handleScroll();
-      startRaf();
-      // Attempt warm-up in case user has already interacted (returning users / fast loads)
-      if (!warmedUp) warmUp();
+      warmUp();
+      rafId = requestAnimationFrame(tick);
     };
 
-    video.addEventListener("loadeddata",     onReady);
-    video.addEventListener("canplay",        onReady);
-    video.addEventListener("canplaythrough", onReady);
-
+    // Listeners
+    video.addEventListener("loadedmetadata", init);
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", () => { syncSize(); drawFrame(); });
+    window.addEventListener("resize", () => {
+      syncSize();
+      handleScroll(); // Recalculate maxScroll bounds if height changed
+    });
 
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    video.src = isMobile
+    const targetVideoUrl = isMobile
       ? "/videos/mobile-homepage-hero-section.mp4"
       : "/videos/homepage-hero-section.mp4";
 
-    video.load();
+    let objectUrl: string | null = null;
 
+    // The Blob Preloader: Force download to RAM to bypass Netlify chunking
+    fetch(targetVideoUrl)
+      .then(res => res.blob())
+      .then(blob => {
+        objectUrl = URL.createObjectURL(blob);
+        video.src = objectUrl;
+        video.load();
+      })
+      .catch(() => {
+        // Fallback to normal streaming if fetch fails
+        video.src = targetVideoUrl;
+        video.preload = "auto";
+        video.load();
+      });
+
+    // Clean Garbage Collection (Safety Check)
     return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("click", onFirstInteraction, true);
-      window.removeEventListener("touchend", onFirstInteraction, true);
+      window.removeEventListener("resize", syncSize);
+      video.removeEventListener("loadedmetadata", init);
       cancelAnimationFrame(rafId);
     };
   }, []);
@@ -159,12 +145,7 @@ export default function VideoHero() {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
-        {/*
-          Video is NOT hidden with display:none - that suppresses browser
-          preloading and decoding entirely on first visit.
-          We render it visually invisible but layout-present so the browser
-          keeps downloading and decoding frames while the Gender Gate is up.
-        */}
+        {/* Hidden video decoder */}
         <video
           ref={videoRef}
           muted
@@ -174,7 +155,7 @@ export default function VideoHero() {
           className="absolute opacity-0 pointer-events-none w-px h-px top-0 left-0"
         />
 
-        {/* Canvas - the only visible surface */}
+        {/* Visible Canvas Renderer */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full object-cover object-center"
