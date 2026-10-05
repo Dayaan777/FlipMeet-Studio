@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import Link from "next/link";
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -12,6 +12,30 @@ export default function AdminOrdersPage() {
   const [editCourier, setEditCourier] = useState("");
   const [editTracking, setEditTracking] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const getOrderItemsList = (order: any) => {
+    if (order.order_items && Array.isArray(order.order_items) && order.order_items.length > 0) {
+      return order.order_items;
+    }
+    if (order.items) {
+      if (typeof order.items === "string") {
+        try { return JSON.parse(order.items); } catch { return []; }
+      }
+      if (Array.isArray(order.items)) return order.items;
+    }
+    return [];
+  };
+
+  const calculateItemCount = (order: any) => {
+    const itemsList = getOrderItemsList(order);
+    return itemsList.reduce((sum: number, item: any) => sum + Math.max(1, Number(item.quantity) || 1), 0);
+  };
+
+  const toggleDetails = (id: string) => {
+    setExpandedOrderId(prev => (prev === id ? null : id));
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -101,6 +125,7 @@ export default function AdminOrdersPage() {
                 <tr>
                   <th className="px-6 py-4 font-bold">Order ID & Date</th>
                   <th className="px-6 py-4 font-bold">Customer</th>
+                  <th className="px-6 py-4 font-bold">Items</th>
                   <th className="px-6 py-4 font-bold">Status</th>
                   <th className="px-6 py-4 font-bold">Tracking</th>
                   <th className="px-6 py-4 font-bold text-right">Actions</th>
@@ -108,7 +133,8 @@ export default function AdminOrdersPage() {
               </thead>
               <tbody className="divide-y divide-base-border text-text-primary/80">
                 {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors">
+                  <Fragment key={order.id}>
+                  <tr className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-mono text-accent">{order.id}</div>
                       <div className="text-[10px] text-text-secondary mt-1">
@@ -118,6 +144,16 @@ export default function AdminOrdersPage() {
                     <td className="px-6 py-4">
                       <div>{order.customer_name}</div>
                       <div className="text-xs text-text-secondary">{order.email}</div>
+                    </td>
+                    
+                    {/* Items Column */}
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => toggleDetails(order.id)}
+                        className="text-xs font-bold text-accent hover:underline flex items-center gap-1"
+                      >
+                        {calculateItemCount(order)} items {expandedOrderId === order.id ? '[-]' : '[+]'}
+                      </button>
                     </td>
                     
                     {/* Status Column */}
@@ -189,15 +225,107 @@ export default function AdminOrdersPage() {
                           </button>
                         </div>
                       ) : (
-                        <button 
-                          onClick={() => handleEditClick(order)}
-                          className="text-xs text-accent hover:text-white underline underline-offset-4"
-                        >
-                          Update Status
-                        </button>
+                        <div className="flex flex-col items-end gap-2">
+                          <button 
+                            onClick={() => handleEditClick(order)}
+                            className="text-xs text-accent hover:text-white underline underline-offset-4"
+                          >
+                            Update Status
+                          </button>
+                          <button 
+                            onClick={() => toggleDetails(order.id)}
+                            className="text-xs text-text-secondary hover:text-white underline underline-offset-4"
+                          >
+                            {expandedOrderId === order.id ? "Hide Details" : "View Details"}
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
+                  
+                  {/* DETAILS VIEW ROW */}
+                  {expandedOrderId === order.id && (
+                    <tr className="bg-base-bg/30 border-b border-base-border/50">
+                      <td colSpan={6} className="px-6 py-6 whitespace-normal">
+                        <div className="text-xs space-y-6">
+                          
+                          {/* Order Items List */}
+                          <div>
+                            <h4 className="font-bold text-text-secondary uppercase tracking-widest mb-4 flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                              Ordered Items
+                            </h4>
+                            {getOrderItemsList(order).length === 0 ? (
+                              <p className="text-text-secondary italic">No items found for this order.</p>
+                            ) : (
+                              <div className="space-y-2 max-w-3xl">
+                                {getOrderItemsList(order).map((item: any, idx: number) => (
+                                  <div key={idx} className="flex flex-col sm:flex-row justify-between gap-3 border border-base-border/30 p-3.5 rounded-sm bg-base-surface/50 hover:border-base-border transition-colors">
+                                    <div>
+                                      <p className="font-bold text-text-primary text-sm">{item.name || item.product_id || item.lookId || "Unknown Item"}</p>
+                                      <p className="text-text-secondary mt-1.5 uppercase tracking-wider text-[10px]">
+                                        Size: <span className="text-accent font-bold">{item.size || "M"}</span>
+                                        {item.bundle_sizes && typeof item.bundle_sizes === "object" && (
+                                          <span className="ml-2 lowercase text-text-secondary font-normal">
+                                            (Includes {Array.isArray(item.bundle_sizes) ? item.bundle_sizes.length : 0} pieces)
+                                          </span>
+                                        )}
+                                      </p>
+                                    </div>
+                                    <div className="text-left sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                                      <p className="text-text-secondary text-[10px] uppercase tracking-widest">Qty: {item.quantity || 1}</p>
+                                      <p className="text-text-primary font-bold mt-0 sm:mt-1">PKR {(Number(item.price_at_purchase) || Number(item.price) || 0).toLocaleString()}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl pt-4 border-t border-base-border/30">
+                            {/* Summary Box */}
+                            <div className="space-y-3 p-4 border border-base-border/30 rounded-sm bg-base-surface/50">
+                              <h4 className="font-bold text-text-secondary uppercase tracking-widest mb-3">Order Summary</h4>
+                              <div className="flex justify-between text-text-secondary">
+                                <span>Subtotal / Base Price:</span>
+                                <span>PKR {(Number(order.total) + Number(order.discount_amount || 0)).toLocaleString()}</span>
+                              </div>
+                              {order.discount_amount > 0 && (
+                                <div className="flex justify-between text-emerald-400">
+                                  <span>Discount ({order.referral_code || "Promo"}):</span>
+                                  <span>- PKR {Number(order.discount_amount).toLocaleString()}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between text-text-primary font-bold pt-2 border-t border-base-border/30 mt-2">
+                                <span>Total Paid:</span>
+                                <span className="text-accent">PKR {(order.total || 0).toLocaleString()}</span>
+                              </div>
+                            </div>
+
+                            {/* Customer Details */}
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-bold text-text-secondary uppercase tracking-widest mb-1.5 text-[10px]">Phone</h4>
+                                <p className="text-text-primary">{order.phone || "-"}</p>
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-text-secondary uppercase tracking-widest mb-1.5 text-[10px]">Shipping Address</h4>
+                                <p className="text-text-primary leading-relaxed">{order.shipping_address || "-"}</p>
+                              </div>
+                              {order.notes && (
+                                <div>
+                                  <h4 className="font-bold text-text-secondary uppercase tracking-widest mb-1.5 text-[10px]">Customer Notes</h4>
+                                  <p className="text-accent italic bg-accent/5 p-2 rounded-sm border border-accent/10">{order.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
 
                 {orders.length === 0 && !loading && (

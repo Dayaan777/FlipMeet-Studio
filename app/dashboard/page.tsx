@@ -62,8 +62,22 @@ const ALL_STATUSES: OrderStatus[] = [
 // Helper to normalize Supabase records into the client Order structure
 function normalizeSupabaseOrder(dbOrder: any, allProducts: any[] = []): Order {
   const drop = drops[0];
-  const itemsList = Array.isArray(dbOrder.items) ? dbOrder.items : [];
+  let itemsList: any[] = [];
+  if (dbOrder.order_items && Array.isArray(dbOrder.order_items) && dbOrder.order_items.length > 0) {
+    itemsList = dbOrder.order_items;
+  } else if (dbOrder.items) {
+    if (typeof dbOrder.items === 'string') {
+      try { itemsList = JSON.parse(dbOrder.items); } catch { itemsList = []; }
+    } else if (Array.isArray(dbOrder.items)) {
+      itemsList = dbOrder.items;
+    }
+  }
 
+  let mappedStatus = (dbOrder.status || "pending").toLowerCase();
+  if (mappedStatus === "order_secured") mappedStatus = "pending";
+  else if (mappedStatus === "studio_processing") mappedStatus = "in_production";
+  else if (mappedStatus === "dispatched") mappedStatus = "shipped";
+  
   return {
     id: dbOrder.id,
     customerId: dbOrder.customer_id || `cust-${dbOrder.id}`,
@@ -73,7 +87,7 @@ function normalizeSupabaseOrder(dbOrder: any, allProducts: any[] = []): Order {
     shippingAddress: dbOrder.shipping_address || dbOrder.shippingAddress || "",
     dropId: "drop-001",
     total: Number(dbOrder.total) || 0,
-    status: (dbOrder.status || "pending").toLowerCase() as OrderStatus,
+    status: mappedStatus as OrderStatus,
     createdAt: dbOrder.created_at || new Date().toISOString(),
     deliveryWindow: { start: "2026-10-20", end: "2026-10-30" },
     notes: dbOrder.notes || "",

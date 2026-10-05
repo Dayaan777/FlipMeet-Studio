@@ -25,15 +25,34 @@ export async function GET(request: Request) {
   }
 
   const supabaseAdmin = getAdminClient();
-  const { data, error } = await supabaseAdmin
+  const { data: orders, error } = await supabaseAdmin
     .from("orders")
-    .select("*")
+    .select("*, order_items(*)")
     .order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json(data);
+
+  // Fetch all products to stitch names into order_items
+  // (Since order_items only has product_id and no FK to products)
+  const { data: products } = await supabaseAdmin
+    .from("products")
+    .select("id, name");
+  
+  const productMap = new Map(products?.map((p) => [p.id, p.name]) || []);
+
+  const dataWithProductNames = orders?.map((order) => {
+    if (order.order_items && Array.isArray(order.order_items)) {
+      order.order_items = order.order_items.map((item: any) => ({
+        ...item,
+        name: productMap.get(item.product_id) || item.product_id,
+      }));
+    }
+    return order;
+  });
+
+  return NextResponse.json(dataWithProductNames);
 }
 
 export async function PATCH(request: Request) {
@@ -44,10 +63,21 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
-  const { status, tracking_number, courier_name } = body;
+  let { status } = body;
+  const { tracking_number, courier_name } = body;
   const id = body.id || body.orderId;
   
   if (!id) return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+
+  // Map frontend status to DB check constraint statuses
+  if (status) {
+    const s = status.toLowerCase();
+    if (s === "pending" || s === "confirmed") status = "ORDER_SECURED";
+    else if (s === "in_production") status = "STUDIO_PROCESSING";
+    else if (s === "shipped") status = "DISPATCHED";
+    else if (s === "delivered") status = "DELIVERED";
+    else if (s === "cancelled") status = "CANCELLED";
+  }
 
   const supabaseAdmin = getAdminClient();
   const { data, error } = await supabaseAdmin
