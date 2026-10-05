@@ -139,6 +139,24 @@ export default function TrackPage() {
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1">Order Found</p>
                     <p className="text-xl font-display tracking-wider">{orderData.id}</p>
+                    {orderData.referral_code && (
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-text-secondary">
+                        <span>
+                          Referral code:{" "}
+                          <span className="font-mono font-bold text-accent">
+                            {orderData.referral_code}
+                          </span>
+                        </span>
+                        {Number(orderData.discount_amount) > 0 && (
+                          <span>
+                            Discount:{" "}
+                            <span className="font-bold text-emerald-400">
+                              PKR {Number(orderData.discount_amount).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] tracking-widest text-text-secondary uppercase mb-1">Date</p>

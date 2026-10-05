@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import ReferralSection from "@/components/ReferralSection";
 
 function PackagingFlyer() {
   const [shockKey, setShockKey] = useState(0);
@@ -61,11 +62,9 @@ export default function Footer() {
     e.preventDefault();
     if (!email) return;
     setStatus("loading");
-    // Simulate network request
     setTimeout(() => {
       setStatus("success");
       setEmail("");
-      // Reset success message after 3 seconds
       setTimeout(() => setStatus("idle"), 3000);
     }, 800);
   };
@@ -73,7 +72,7 @@ export default function Footer() {
   return (
     <footer className="relative z-50 px-6 py-16 md:py-24 border-t border-base-border bg-base-bg">
       <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
-        
+
         {/* Col 1: Brand & Mission */}
         <div className="md:col-span-4 flex flex-col justify-between">
           <div>
@@ -97,22 +96,34 @@ export default function Footer() {
           <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-6">Quick Links</p>
           <div className="flex flex-col gap-4 text-xs text-text-secondary">
             <Link href="/track" className="hover:text-accent transition-colors w-fit text-accent font-medium">Track Order</Link>
-            <a href="/terms" className="hover:text-accent transition-colors w-fit">Terms & Conditions</a>
+            <a href="/terms" className="hover:text-accent transition-colors w-fit">Terms &amp; Conditions</a>
             <a href="/privacy" className="hover:text-accent transition-colors w-fit">Privacy Policy</a>
             <a href="/shipping" className="hover:text-accent transition-colors w-fit">Shipping Policy</a>
-            <a href="/returns" className="hover:text-accent transition-colors w-fit">Returns & Exchange</a>
+            <a href="/returns" className="hover:text-accent transition-colors w-fit">Returns &amp; Exchange</a>
+            <a
+              href="https://www.instagram.com/flipmeet.studio?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors w-fit flex items-center gap-2"
+              aria-label="FlipMeet Studio on Instagram"
+            >
+              {/* Instagram icon */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <circle cx="12" cy="12" r="4.5" />
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+              </svg>
+              Instagram
+            </a>
           </div>
         </div>
 
         {/* Col 3: Newsletter */}
-        <div className="md:col-span-3">
+        <div className="md:col-span-2">
           <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-6">Stay Updated</p>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-3"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <p className="text-xs text-text-secondary mb-2 leading-relaxed">
-              Join the community. Be the first to know about new drops and archive pieces.
+              Join the community. Be first to know about drops.
             </p>
             <div className="flex">
               <input
@@ -122,13 +133,13 @@ export default function Footer() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 disabled={status === "loading" || status === "success"}
-                className="bg-base-surface border border-base-border rounded-sm px-4 py-3 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50 disabled:opacity-50"
+                className="bg-base-surface border border-base-border rounded-sm px-3 py-2.5 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50 disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={status === "loading" || status === "success"}
                 aria-label="Join waitlist"
-                className="bg-accent hover:bg-accent-dim transition-colors px-5 py-3 rounded-sm ml-2 text-text-primary font-bold shadow-[0_0_15px_rgba(255,168,56,0.15)] hover:shadow-[0_0_20px_rgba(255,168,56,0.3)] disabled:opacity-50 flex items-center justify-center min-w-[50px]"
+                className="bg-accent hover:bg-accent-dim transition-colors px-4 py-2.5 rounded-sm ml-2 text-text-primary font-bold shadow-[0_0_15px_rgba(255,168,56,0.15)] hover:shadow-[0_0_20px_rgba(255,168,56,0.3)] disabled:opacity-50 flex items-center justify-center min-w-[42px]"
               >
                 {status === "loading" ? "..." : "→"}
               </button>
@@ -141,8 +152,11 @@ export default function Footer() {
           </form>
         </div>
 
-        {/* Col 4: Packaging Flyer with Electric Shock Animation */}
-        <div className="md:col-span-3 flex justify-center md:justify-end items-center mt-8 md:mt-0">
+        {/* Col 4: Referral */}
+        <ReferralSection />
+
+        {/* Col 5: Packaging Flyer */}
+        <div className="md:col-span-2 flex justify-center md:justify-end items-center mt-8 md:mt-0">
           <PackagingFlyer />
         </div>
 

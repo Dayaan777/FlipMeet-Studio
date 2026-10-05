@@ -10,9 +10,57 @@ import { useOrderStore, Order } from "@/lib/order-store";
 import { supabase } from "@/lib/supabase";
 import { drops } from "@/data/drops";
 
+// ---------------------------------------------------------------------------
+// Bundle collapsible (reused from cart page pattern)
+// ---------------------------------------------------------------------------
+function BundleIncludesList({
+  bundleSizes,
+}: {
+  bundleSizes: Array<{ outfitName: string; topSize: string; waist: string }>;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-accent hover:text-accent-dim transition-colors font-bold"
+      >
+        Includes {open ? "▴" : "▾"}
+      </button>
+      {open && (
+        <ul className="mt-1.5 space-y-1 pl-3 border-l border-base-border">
+          {bundleSizes.map((bs, i) => (
+            <li key={i} className="text-[9px] text-text-secondary leading-relaxed">
+              <span className="text-text-primary font-semibold">{bs.outfitName}</span>{" "}
+              — Top: <strong className="text-text-primary">{bs.topSize}</strong> / Waist:{" "}
+              <strong className="text-text-primary">{bs.waist}</strong>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Checkout Page
+// ---------------------------------------------------------------------------
 export default function CheckoutPage() {
-  const { items, clear } = useCartStore();
+  const {
+    items,
+    clear,
+    referralCode,
+    referralDiscountPct,
+    referralCategories,
+    clearReferral,
+  } = useCartStore();
   const { createOrder } = useOrderStore();
+  const [clientOrderId] = useState(() => {
+    const timestamp = Date.now().toString().slice(-4);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `FM-2026-${timestamp}${random}`;
+  });
 
   const drop = drops[0];
 
@@ -26,6 +74,7 @@ export default function CheckoutPage() {
   const [phoneError, setPhoneError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [referralRemovedMsg, setReferralRemovedMsg] = useState("");
 
   const [province, setProvince] = useState("Sindh");
   const [shippingRates, setShippingRates] = useState<Record<string, number> | null>(null);
@@ -34,35 +83,79 @@ export default function CheckoutPage() {
   useEffect(() => {
     async function loadRates() {
       try {
-        const { data } = await supabase.from('products').select('description').eq('id', 'system-shipping-rates').single();
+        const { data } = await supabase
+          .from("products")
+          .select("description")
+          .eq("id", "system-shipping-rates")
+          .single();
         if (data && data.description) {
-           const parsed = JSON.parse(data.description);
-           const rates: Record<string, number> = {};
-           for (const p in parsed) {
-             rates[p] = Number(parsed[p]) || 0;
-           }
-           setShippingRates(rates);
+          try {
+            const parsed = JSON.parse(data.description);
+            const rates: Record<string, number> = {};
+            for (const p in parsed) {
+              const rawVal = String(parsed[p]).replace(/[^\d.-]/g, "");
+              rates[p] = Number(rawVal) || 0;
+            }
+            setShippingRates(rates);
+          } catch (parseError) {
+            console.error("Failed to parse shipping rates JSON:", parseError);
+          }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to fetch shipping rates:", e);
+      }
     }
     loadRates();
   }, []);
 
   useEffect(() => {
-    if (shippingRates && typeof shippingRates[province] === 'number') {
-      setShippingCost(shippingRates[province]);
+    if (shippingRates) {
+      const matchKey = Object.keys(shippingRates).find(
+        (k) => k.toLowerCase().trim() === province.toLowerCase().trim()
+      );
+      if (matchKey && typeof shippingRates[matchKey] === "number") {
+        setShippingCost(shippingRates[matchKey]);
+      } else {
+        setShippingCost(0);
+      }
     } else {
       setShippingCost(0);
     }
   }, [province, shippingRates]);
 
-  const itemsTotal = items.reduce((sum, item) => sum + (item.price || 18500) * item.quantity, 0);
-  const total = itemsTotal + shippingCost;
+  // ── Price helpers ──────────────────────────────────────────────────────────
+  const isAllCategories =
+    !referralCategories ||
+    referralCategories.length === 0 ||
+    referralCategories.includes("All categories");
 
+  function itemDiscountedPrice(price: number, category?: string): number {
+    if (!referralCode || !referralDiscountPct) return price;
+    const eligible =
+      isAllCategories || (category && referralCategories!.includes(category));
+    if (!eligible) return price;
+    return Math.round(price * (1 - referralDiscountPct / 100));
+  }
+
+  const itemsSubtotal = items.reduce(
+    (sum, item) => sum + (item.price || 18500) * item.quantity,
+    0
+  );
+
+  const discountedItemsSubtotal = items.reduce((sum, item) => {
+    const base = item.price || 18500;
+    return sum + itemDiscountedPrice(base, item.category) * item.quantity;
+  }, 0);
+
+  const discountAmount = Math.round(itemsSubtotal - discountedItemsSubtotal);
+  const total = Math.round(discountedItemsSubtotal + shippingCost);
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError("");
     setPhoneError("");
+    setReferralRemovedMsg("");
 
     if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
       alert("Please fill in all contact and delivery details.");
@@ -71,12 +164,16 @@ export default function CheckoutPage() {
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email.trim())) {
-      setEmailError("Please enter a valid email address (e.g. name@domain.com).");
+      setEmailError(
+        "Please enter a valid email address (e.g. name@domain.com)."
+      );
       return;
     }
 
     if (!/^\d+$/.test(phone.trim())) {
-      setPhoneError("Phone number must contain numbers only (no letters or symbols).");
+      setPhoneError(
+        "Phone number must contain numbers only (no letters or symbols)."
+      );
       return;
     }
 
@@ -87,39 +184,50 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
 
-    const orderItems = items.map((item) => {
-      return {
-        lookId: item.lookId,
-        product_id: item.lookId,
-        name: item.name,
-        size: item.size,
-        price: item.price || 18500,
-        price_at_purchase: item.price || 18500,
-        quantity: item.quantity,
-        image: item.image || "/images/products/stwd-shirt.png",
-      };
+    const orderItems = items.map((item) => ({
+      lookId: item.lookId,
+      product_id: item.lookId,
+      name: item.name,
+      size: item.size,
+      price: item.price || 18500,
+      price_at_purchase: item.price || 18500,
+      quantity: item.quantity,
+      image: item.image || "/images/products/stwd-shirt.png",
+      isBundle: item.isBundle ?? false,
+      bundleSizes: item.bundleSizes ?? null,
+      category: item.category,
+    }));
+
+  const calculatedTotal = total > 0 ? total : 18500;
+
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer_name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        shipping_address: `${province} — ${address.trim()}`,
+        notes: notes.trim(),
+        total: calculatedTotal,
+        items: orderItems,
+        referral_code: referralCode || undefined,
+        orderId: clientOrderId,
+      }),
     });
 
-    const calculatedTotal = total > 0 ? total : 18500;
-
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer_name: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          shipping_address: address.trim(),
-          notes: notes.trim(),
-          total: calculatedTotal,
-          items: orderItems,
-        }),
-      });
-
-      const data = await res.json();
+    const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Failed to create order.");
+      }
+
+      // If server didn't apply the referral code despite us sending one
+      if (referralCode && !data.referralApplied) {
+        setReferralRemovedMsg(
+          "Your code was not valid at checkout and was removed."
+        );
+        clearReferral();
       }
 
       const newOrder = createOrder({
@@ -128,7 +236,7 @@ export default function CheckoutPage() {
         customerName: name.trim(),
         customerEmail: email.trim(),
         customerPhone: phone.trim(),
-        shippingAddress: address.trim(),
+        shippingAddress: `${province} — ${address.trim()}`,
         dropId: "drop-001",
         items: orderItems,
         total: calculatedTotal,
@@ -139,14 +247,15 @@ export default function CheckoutPage() {
       clear();
       setCompletedOrder(newOrder);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Error placing order.";
+      const message =
+        err instanceof Error ? err.message : "Error placing order.";
       alert(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // SUCCESS CONFIRMATION SCREEN
+  // ── SUCCESS CONFIRMATION SCREEN ────────────────────────────────────────────
   if (completedOrder) {
     return (
       <>
@@ -165,13 +274,19 @@ export default function CheckoutPage() {
             </h1>
 
             <p className="text-xs text-text-secondary mt-3">
-              Your order has been placed and an order receipt is on its way to <span className="text-text-primary font-bold">{completedOrder.customerEmail}</span>. We&apos;ll be in touch before dispatch.
+              Your order has been placed and an order receipt is on its way to{" "}
+              <span className="text-text-primary font-bold">
+                {completedOrder.customerEmail}
+              </span>
+              . We&apos;ll be in touch before dispatch.
             </p>
 
             <div className="my-6 rounded-sm border border-base-border bg-base-bg p-4 text-left text-xs space-y-2">
               <div className="flex justify-between text-text-secondary">
                 <span>Customer</span>
-                <span className="text-text-primary font-bold">{completedOrder.customerName}</span>
+                <span className="text-text-primary font-bold">
+                  {completedOrder.customerName}
+                </span>
               </div>
               <div className="flex justify-between text-text-secondary">
                 <span>Total Amount</span>
@@ -200,7 +315,7 @@ export default function CheckoutPage() {
     );
   }
 
-  // EMPTY CART CHECK
+  // ── EMPTY CART CHECK ───────────────────────────────────────────────────────
   if (items.length === 0) {
     return (
       <>
@@ -240,16 +355,21 @@ export default function CheckoutPage() {
             </h1>
           </div>
 
+          {/* Referral code removed warning */}
+          {referralRemovedMsg && (
+            <div className="mb-6 rounded-sm border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-xs text-amber-400">
+              {referralRemovedMsg}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left 2 Cols: Form */}
+            {/* ── Left 2 Cols: Form ─────────────────────────────────────── */}
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="space-y-6">
-
-
                 {/* Contact & Delivery Form */}
                 <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 backdrop-blur-sm space-y-4">
                   <h2 className="font-display text-base font-bold uppercase tracking-wide text-text-primary border-b border-base-border pb-3">
-                    Contact & Delivery Details
+                    Contact &amp; Delivery Details
                   </h2>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -280,7 +400,9 @@ export default function CheckoutPage() {
                         }}
                         placeholder="zaid@domain.com"
                         className={`w-full rounded-sm border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:outline-none transition-colors ${
-                          emailError ? "border-red-500 focus:border-red-500" : "border-base-border focus:border-accent"
+                          emailError
+                            ? "border-red-500 focus:border-red-500"
+                            : "border-base-border focus:border-accent"
                         }`}
                         required
                       />
@@ -315,8 +437,16 @@ export default function CheckoutPage() {
                           e.key === "ArrowRight" ||
                           e.key === "Home" ||
                           e.key === "End" ||
-                          (e.ctrlKey && (e.key === "a" || e.key === "c" || e.key === "v" || e.key === "x")) ||
-                          (e.metaKey && (e.key === "a" || e.key === "c" || e.key === "v" || e.key === "x"))
+                          (e.ctrlKey &&
+                            (e.key === "a" ||
+                              e.key === "c" ||
+                              e.key === "v" ||
+                              e.key === "x")) ||
+                          (e.metaKey &&
+                            (e.key === "a" ||
+                              e.key === "c" ||
+                              e.key === "v" ||
+                              e.key === "x"))
                         ) {
                           return;
                         }
@@ -333,7 +463,9 @@ export default function CheckoutPage() {
                       }}
                       placeholder="03218841920"
                       className={`w-full rounded-sm border bg-base-bg px-4 py-2.5 text-sm text-text-primary focus:outline-none transition-colors ${
-                        phoneError ? "border-red-500 focus:border-red-500" : "border-base-border focus:border-accent"
+                        phoneError
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-base-border focus:border-accent"
                       }`}
                       required
                     />
@@ -391,49 +523,153 @@ export default function CheckoutPage() {
               </form>
             </div>
 
-            {/* Right 1 Col: Summary */}
+            {/* ── Right 1 Col: Summary ──────────────────────────────────── */}
             <div>
               <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 backdrop-blur-sm sticky top-28 space-y-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">
                   ORDER SUMMARY
                 </p>
 
+                {/* Applied referral code pill */}
+                {referralCode && (referralDiscountPct || 0) > 0 && (
+                  <div className="flex items-center justify-between gap-2 rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[10px]">
+                    <p className="text-emerald-400">
+                      <span className="font-bold">
+                        {referralCode.toUpperCase()}
+                      </span>{" "}
+                      — {referralDiscountPct}% off
+                    </p>
+                    <button
+                      type="button"
+                      onClick={clearReferral}
+                      className="text-text-secondary hover:text-red-400 transition-colors font-bold"
+                      aria-label="Remove referral"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                {/* Item list */}
                 <div className="divide-y divide-base-border/50 max-h-72 overflow-y-auto">
                   {items.map((item, idx) => {
-                    const img = item.image || "/images/products/stwd-shirt.png";
-                    const price = item.price || 18500;
+                    const img =
+                      item.image || "/images/products/stwd-shirt.png";
+                    const basePrice = item.price || 18500;
+                    const discountedPrice = itemDiscountedPrice(
+                      basePrice,
+                      item.category
+                    );
+                    const hasDiscount = discountedPrice < basePrice;
 
                     return (
-                      <div key={idx} className="flex items-center justify-between py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="relative size-12 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
-                            <Image src={img} alt={item.name} fill sizes="48px" className="object-contain" />
+                      <div key={idx} className="py-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="relative size-12 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
+                              <Image
+                                src={img}
+                                alt={item.name}
+                                fill
+                                sizes="48px"
+                                className="object-contain"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold uppercase tracking-widest text-text-primary">
+                                {item.isBundle ? "ANIME PACK 5 IN 1" : item.name}
+                              </p>
+                              {item.isBundle ? (
+                                <>
+                                  <p className="text-[9px] text-accent tracking-widest uppercase">
+                                    Bundle
+                                  </p>
+                                  {item.bundleSizes && item.bundleSizes.length > 0 && (
+                                    <BundleIncludesList
+                                      bundleSizes={item.bundleSizes}
+                                    />
+                                  )}
+                                </>
+                              ) : (
+                                <p className="text-[10px] text-text-secondary">
+                                  Size:{" "}
+                                  <strong className="text-text-primary">
+                                    {item.size}
+                                  </strong>{" "}
+                                  • Qty: {item.quantity}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-xs font-bold uppercase tracking-widest text-text-primary">
-                              {item.name}
-                            </p>
-                            <p className="text-[10px] text-text-secondary">
-                              Size: <strong className="text-text-primary">{item.size}</strong> • Qty: {item.quantity}
-                            </p>
+
+                          <div className="text-right shrink-0">
+                            {hasDiscount ? (
+                              <>
+                                <p className="font-display text-xs font-bold text-emerald-400 tracking-widest">
+                                  PKR{" "}
+                                  {(
+                                    discountedPrice * item.quantity
+                                  ).toLocaleString()}
+                                </p>
+                                <p className="text-[9px] text-text-secondary line-through">
+                                  PKR{" "}
+                                  {(basePrice * item.quantity).toLocaleString()}
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p className="font-display text-xs font-bold text-text-primary tracking-widest">
+                                  PKR{" "}
+                                  {(basePrice * item.quantity).toLocaleString()}
+                                </p>
+                                {item.oldPrice && item.oldPrice > basePrice && (
+                                  <p className="text-[9px] text-text-secondary line-through">
+                                    PKR{" "}
+                                    {(
+                                      item.oldPrice * item.quantity
+                                    ).toLocaleString()}
+                                  </p>
+                                )}
+                              </>
+                            )}
                           </div>
                         </div>
-
-                        <p className="font-display text-xs font-bold text-text-primary tracking-widest">
-                          PKR {(price * item.quantity).toLocaleString()}
-                        </p>
                       </div>
                     );
                   })}
                 </div>
 
+                {/* Totals breakdown */}
                 <div className="border-t border-base-border pt-4 space-y-2 text-xs text-text-secondary">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="text-text-primary font-bold">
+                      PKR {itemsSubtotal.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {referralCode && discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-400">
+                      <span>
+                        Referral {referralCode.toUpperCase()} (−
+                        {referralDiscountPct}%)
+                      </span>
+                      <span className="font-bold">
+                        &minus; PKR {discountAmount.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between">
                     <span>Delivery ({province})</span>
                     {shippingCost > 0 ? (
-                      <span className="text-text-primary font-bold">PKR {shippingCost.toLocaleString()}</span>
+                      <span className="text-text-primary font-bold">
+                        PKR {shippingCost.toLocaleString()}
+                      </span>
                     ) : (
-                      <span className="text-emerald-400 font-bold">COMPLIMENTARY</span>
+                      <span className="text-emerald-400 font-bold">
+                        COMPLIMENTARY
+                      </span>
                     )}
                   </div>
                   <div className="flex justify-between">

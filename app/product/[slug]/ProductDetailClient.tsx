@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@/lib/products";
+import { parseSizeVariants } from "@/lib/products";
+import ReferralSection from "@/components/ReferralSection";
+import { getDiscountedPrice } from "@/lib/referral-utils";
 
 const SizeChartTable = () => (
   <div className="w-full text-[10px] sm:text-xs">
@@ -46,19 +49,47 @@ export default function ProductDetailClient({
  variants?: Product[];
 }) {
  const router = useRouter();
- const [selectedSize, setSelectedSize] = useState(
-  product.sizes && product.sizes.length > 0 ? product.sizes[0] : "M"
- );
+
+ // Parse size variants (supports both legacy plain sizes and new JSON-serialized variants)
+ const sizeVariants = useMemo(() => parseSizeVariants(product.sizes || []), [product.sizes]);
+
+ // Find the default size: use isDefault, or first available in-stock, or first
+ const defaultSize = useMemo(() => {
+  const defaultVariant = sizeVariants.find(v => v.isDefault && v.stock > 0);
+  if (defaultVariant) return defaultVariant.size;
+  const firstInStock = sizeVariants.find(v => v.stock > 0);
+  if (firstInStock) return firstInStock.size;
+  return sizeVariants[0]?.size || "M";
+ }, [sizeVariants]);
+
+ const [selectedSize, setSelectedSize] = useState(defaultSize);
  const [selectedWaist, setSelectedWaist] = useState("30");
  const [added, setAdded] = useState(false);
+ const [soldOutError, setSoldOutError] = useState(false);
  const [showMobileSizeGuide, setShowMobileSizeGuide] = useState(false);
  const [showDesktopSizeGuide, setShowDesktopSizeGuide] = useState(false);
  const [fileName, setFileName] = useState<string | null>(null);
  const items = useCartStore((s) => s.items);
  const addItem = useCartStore((s) => s.addItem);
+ const { referralCode, referralDiscountPct, referralCategories } = useCartStore();
 
- const isPants = product.category?.toLowerCase().includes("pant") || product.category?.toLowerCase().includes("trouser") || product.category?.toLowerCase().includes("outfit");
- const finalSize = isPants ? `${selectedSize} / ${selectedWaist}` : selectedSize;
+ // Referral discount for this product
+ const { discountedPrice: referralDiscountedPrice, hasDiscount: hasReferralDiscount } =
+  getDiscountedPrice(
+   Number(product.price),
+   product.category,
+   referralCode,
+   referralDiscountPct,
+   referralCategories
+  );
+
+ const isOutfit = product.category?.toLowerCase().includes("outfit");
+ const isPants = (product.category?.toLowerCase().includes("pant") || product.category?.toLowerCase().includes("trouser")) && !isOutfit;
+ const finalSize = (isPants || isOutfit) ? `${selectedSize} / ${selectedWaist}` : selectedSize;
+
+ // Check stock for the currently selected size
+ const selectedVariant = sizeVariants.find(v => v.size === selectedSize);
+ const isSelectedSoldOut = selectedVariant ? selectedVariant.stock <= 0 : false;
 
  const sizeLabel = (() => {
   const cat = product.category?.toLowerCase() || "";
@@ -68,11 +99,17 @@ export default function ProductDetailClient({
  })();
 
  const handleAddToCart = () => {
+  if (isSelectedSoldOut) {
+   setSoldOutError(true);
+   setTimeout(() => setSoldOutError(false), 3000);
+   return;
+  }
   addItem({
    lookId: product.id,
    name: product.name,
    size: finalSize,
    price: product.price || 18500,
+    oldPrice: product.old_price,
    quantity: 1,
    image: product.images?.[0] || "/images/products/stwd-shirt.png",
   });
@@ -81,6 +118,11 @@ export default function ProductDetailClient({
  };
 
  const handleProceedToCheckout = () => {
+  if (isSelectedSoldOut) {
+   setSoldOutError(true);
+   setTimeout(() => setSoldOutError(false), 3000);
+   return;
+  }
   const alreadyInCart = items.some(
    (item) => item.lookId === product.id && item.size === finalSize
   );
@@ -90,6 +132,7 @@ export default function ProductDetailClient({
     name: product.name,
     size: finalSize,
     price: product.price || 18500,
+    oldPrice: product.old_price,
     quantity: 1,
     image: product.images?.[0] || "/images/products/stwd-shirt.png",
    });
@@ -183,9 +226,29 @@ export default function ProductDetailClient({
         <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-widest text-text-primary">
          {product.name}
         </h1>
-        <p className="font-display text-2xl font-bold text-accent mt-2">
-         PKR {Number(product.price).toLocaleString()}
-        </p>
+         <div className="flex items-center gap-3 mt-2 flex-wrap">
+          {hasReferralDiscount ? (
+           <>
+            <p className="font-display text-2xl font-bold text-accent">
+             PKR {referralDiscountedPrice.toLocaleString()}
+            </p>
+            <p className="font-display text-base text-text-secondary line-through">
+             PKR {Number(product.price).toLocaleString()}
+            </p>
+           </>
+          ) : (
+           <>
+            <p className="font-display text-2xl font-bold text-accent">
+             PKR {Number(product.price).toLocaleString()}
+            </p>
+            {product.old_price && product.old_price > product.price && (
+             <p className="font-display text-base text-text-secondary line-through">
+              PKR {Number(product.old_price).toLocaleString()}
+             </p>
+            )}
+           </>
+          )}
+         </div>
         <p className="text-xs text-text-secondary mt-3 leading-relaxed">
          {product.description}
         </p>
@@ -194,46 +257,82 @@ export default function ProductDetailClient({
        {/* Size Selector */}
        <div className="space-y-3 pt-2 mt-4">
         
-        {/* Size Guide Trigger */}
-        <div className="mb-4">
-          {/* Mobile Button (opens modal) */}
-          <button 
-            type="button" 
-            onClick={() => setShowMobileSizeGuide(true)}
-            className="md:hidden flex items-center justify-center w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors gap-2"
-          >
-            <span>📏</span> SIZE GUIDE
-          </button>
-          
-          {/* Desktop Accordion Trigger */}
-          <button 
-            type="button" 
-            onClick={() => setShowDesktopSizeGuide(!showDesktopSizeGuide)}
-            className="hidden md:flex items-center justify-between w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <span>📏</span> SIZE GUIDE
-            </div>
-            <span className="text-text-secondary font-mono">{showDesktopSizeGuide ? "−" : "+"}</span>
-          </button>
+        {!isPants && (
+         <>
+         {/* Size Guide Trigger */}
+         <div className="mb-4">
+           {/* Mobile Button (opens modal) */}
+           <button
+             type="button"
+             onClick={() => setShowMobileSizeGuide(true)}
+             className="md:hidden flex items-center justify-center w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors gap-2"
+           >
+             <span>📏</span> SIZE GUIDE
+           </button>
 
-          {/* Desktop Inline Chart */}
-          {showDesktopSizeGuide && (
-            <div className="hidden md:block mt-3 animate-in fade-in slide-in-from-top-2">
-              <SizeChartTable />
-            </div>
-          )}
-        </div>
+           {/* Desktop Accordion Trigger */}
+           <button
+             type="button"
+             onClick={() => setShowDesktopSizeGuide(!showDesktopSizeGuide)}
+             className="hidden md:flex items-center justify-between w-full rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-text-primary hover:border-accent transition-colors"
+           >
+             <div className="flex items-center gap-2">
+               <span>📏</span> SIZE GUIDE
+             </div>
+             <span className="text-text-secondary font-mono">{showDesktopSizeGuide ? "−" : "+"}</span>
+           </button>
 
-        <div className="flex items-center justify-between text-xs">
-         <span className="text-text-secondary uppercase tracking-widest">{sizeLabel}</span>
-         <span className="text-[10px] text-accent font-bold uppercase tracking-widest">
-          {isPants ? "Relaxed Fit" : "Oversized Boxy Fit"}
-         </span>
-        </div>
+           {/* Desktop Inline Chart */}
+           {showDesktopSizeGuide && (
+             <div className="hidden md:block mt-3 animate-in fade-in slide-in-from-top-2">
+               <SizeChartTable />
+             </div>
+           )}
+         </div>
+         </>
+        )}
 
+        {!isPants && (
+         <div className="flex items-center justify-between text-xs">
+          <span className="text-text-secondary uppercase tracking-widest">{sizeLabel}</span>
+          <span className="text-[10px] text-accent font-bold uppercase tracking-widest">
+           Oversized Boxy Fit
+          </span>
+         </div>
+        )}
+
+        {(!isPants || isOutfit) && (
         <div className="grid grid-cols-5 gap-2.5">
-         {([...new Set([...(product.sizes || ["S", "M", "L", "XL"]), "2XL"])]).map((sz) => (
+         {sizeVariants.length > 0 ? sizeVariants.map((variant) => {
+          const isOOS = variant.stock <= 0;
+          return (
+           <button
+            key={variant.size}
+            type="button"
+            onClick={() => {
+             setSelectedSize(variant.size);
+             setSoldOutError(false);
+            }}
+            disabled={isOOS}
+            title={isOOS ? "Sold out" : undefined}
+            className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border relative ${
+             isOOS
+              ? "border-base-border/40 bg-base-bg/40 text-text-secondary/40 line-through cursor-not-allowed"
+              : selectedSize === variant.size
+              ? "border-accent bg-accent/15 text-accent shadow-sm"
+              : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
+            }`}
+            style={
+             selectedSize === variant.size && !isOOS
+              ? { boxShadow: "0 0 12px rgb(var(--accent) / 0.4)" }
+              : undefined
+            }
+           >
+            {variant.size}
+            {isOOS && <span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500 border border-base-bg" title="Sold out" />}
+           </button>
+          );
+         }) : ([...new Set([...(product.sizes || ["S", "M", "L", "XL"])])]).map((sz) => (
           <button
            key={sz}
            type="button"
@@ -253,9 +352,10 @@ export default function ProductDetailClient({
           </button>
          ))}
         </div>
+        )}
 
-        {/* Waist Size Options for Pants/Trousers */}
-        {isPants && (
+        {/* Waist Size Options for Pants/Trousers/Outfits */}
+        {(isPants || isOutfit) && (
          <div className="pt-3">
           <div className="flex items-center justify-between text-xs mb-3">
            <span className="text-text-secondary uppercase tracking-widest">Select Waist Size</span>
@@ -285,35 +385,53 @@ export default function ProductDetailClient({
         )}
        </div>
 
-       {/* Stock status & Delivery window */}
-       <div className="rounded-sm border border-base-border bg-base-surface/60 p-4 text-xs space-y-2">
+       {/* Stock status */}
+       <div className="rounded-sm border border-base-border bg-base-surface/60 p-4 text-xs">
         <div className="flex items-center justify-between">
          <span className="text-text-secondary uppercase tracking-widest">Availability</span>
-         <span className="text-emerald-400 font-bold tracking-widest uppercase flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          {product.stock > 0 ? `${product.stock} PIECES ALLOCATED` : "SOLD OUT"}
-         </span>
-        </div>
-        <div className="flex items-center justify-between">
-         <span className="text-text-secondary uppercase tracking-widest">Delivery Window</span>
-         <span className="text-text-primary font-bold">20-30 OCT 2026</span>
+         {isSelectedSoldOut ? (
+          <span className="text-red-400 font-bold tracking-widest uppercase flex items-center gap-1.5">
+           <span className="size-1.5 rounded-full bg-red-400" />
+           SOLD OUT
+          </span>
+         ) : (
+          <span className="text-emerald-400 font-bold tracking-widest uppercase flex items-center gap-1.5">
+           <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+           {selectedVariant ? `${selectedVariant.stock} PIECES LEFT` : `${product.stock} PIECES ALLOCATED`}
+          </span>
+         )}
         </div>
        </div>
+
+       {/* Sold-out error message */}
+       {soldOutError && (
+        <div className="rounded-sm border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-400 font-medium animate-in fade-in duration-200">
+         Sorry, this size just sold out. Please pick another size to continue.
+        </div>
+       )}
 
        {/* Action Buttons */}
        <div className="space-y-3">
         <button
          type="button"
          onClick={handleAddToCart}
-         className="w-full rounded-sm bg-accent py-4 text-xs font-bold uppercase tracking-[0.2em] text-text-primary hover:bg-accent-dim transition-colors shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
+         className={`w-full rounded-sm py-4 text-xs font-bold uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2 ${
+          isSelectedSoldOut
+           ? "bg-base-surface border border-base-border text-text-secondary cursor-not-allowed"
+           : "bg-accent hover:bg-accent-dim text-text-primary shadow-lg shadow-accent/20"
+         }`}
         >
-         {added ? "✓ ADDED TO BAG" : "ADD TO BAG"}
+         {added ? "✓ ADDED TO BAG" : isSelectedSoldOut ? "SIZE SOLD OUT" : "ADD TO BAG"}
         </button>
 
         <button
          type="button"
          onClick={handleProceedToCheckout}
-         className="block w-full rounded-sm border border-base-border bg-base-surface py-3.5 text-center text-xs font-bold uppercase tracking-widest text-text-primary hover:border-text-secondary transition-colors"
+         className={`block w-full rounded-sm border py-3.5 text-center text-xs font-bold uppercase tracking-widest transition-colors ${
+          isSelectedSoldOut
+           ? "border-base-border/40 text-text-secondary/40 cursor-not-allowed"
+           : "border-base-border bg-base-surface text-text-primary hover:border-text-secondary"
+         }`}
         >
          PROCEED TO CHECKOUT
         </button>
@@ -336,6 +454,16 @@ export default function ProductDetailClient({
           </>
          )}
         </ul>
+       </div>
+
+       {/* Referral Code — below Garment Craft Specifications */}
+       <div className="pt-4 border-t border-base-border">
+        <ReferralSection
+         className="w-full"
+         title="REFERRAL CODE"
+         subtitle="Have a referral code? Enter it below to apply it."
+         formLayout="col"
+        />
        </div>
       </div>
      </div>
@@ -456,8 +584,7 @@ export default function ProductDetailClient({
            <p className="text-[11px] text-text-secondary mt-1 truncate">
             {piece.description}
            </p>
-           <div className="mt-3 flex items-center justify-between text-[10px] tracking-widest text-text-secondary uppercase">
-            <span>Sizes: {piece.sizes.join(" · ")}</span>
+           <div className="mt-3 flex items-center justify-end text-[10px] tracking-widest text-text-secondary uppercase">
             <span className="font-bold text-text-primary group-hover:text-accent transition-colors">
              VIEW PIECE &rarr;
             </span>

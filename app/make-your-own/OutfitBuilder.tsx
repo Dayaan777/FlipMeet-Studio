@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCartStore } from "@/lib/cart-store";
 
 export type Product = {
   id: string;
@@ -10,6 +12,8 @@ export type Product = {
   category: string;
   price: number;
   images: string[];
+  sizes?: string[];
+  sizeVariants?: { size: string; stock: number; isDefault?: boolean }[];
 };
 
 interface OutfitBuilderProps {
@@ -254,6 +258,173 @@ function PreviewCard({
   );
 }
 
+// ─── Outfit Checkout ───────────────────────────────────────────────────────────
+
+function OutfitCheckout({ top, bottom }: { top: Product; bottom: Product }) {
+  const router = useRouter();
+  const addItem = useCartStore((s) => s.addItem);
+  const clear = useCartStore((s) => s.clear);
+
+  // Determine available sizes for top
+  const topSizes =
+    top.sizeVariants && top.sizeVariants.length > 0
+      ? top.sizeVariants.filter((v) => v.stock > 0).map((v) => v.size)
+      : top.sizes && top.sizes.length > 0
+      ? top.sizes
+      : ["S", "M", "L", "XL"];
+  const topDefault =
+    top.sizeVariants?.find((v) => v.isDefault && v.stock > 0)?.size ??
+    top.sizeVariants?.find((v) => v.stock > 0)?.size ??
+    topSizes[0] ??
+    "M";
+
+  // Determine if bottom is a pant/trouser
+  const bottomIsPants =
+    bottom.category?.toLowerCase().includes("pant") ||
+    bottom.category?.toLowerCase().includes("trouser");
+  const waistSizes = ["28", "30", "32", "34", "36"];
+
+  const [topSize, setTopSize] = useState(topDefault);
+  const [waistSize, setWaistSize] = useState("30");
+
+  const topImg = top.images?.[0] ?? "/images/placeholder.jpg";
+  const bottomImg = bottom.images?.[0] ?? "/images/placeholder.jpg";
+
+  const canShop = topSize && waistSize;
+
+  const handleShop = () => {
+    if (!canShop) return;
+    clear();
+    addItem({
+      lookId: top.id,
+      name: top.name,
+      size: topSize,
+      price: top.price || 18500,
+      quantity: 1,
+      image: topImg,
+    });
+    const finalBottomSize = `${"M"} / ${waistSize}`;
+    addItem({
+      lookId: bottom.id,
+      name: bottom.name,
+      size: finalBottomSize,
+      price: bottom.price || 18500,
+      quantity: 1,
+      image: bottomImg,
+    });
+    router.push("/checkout");
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-[10px] tracking-[0.25em] uppercase text-accent font-bold">
+        Shop Your Outfit
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Top card */}
+        <div className="rounded-sm border border-base-border bg-base-surface p-3 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative w-14 h-14 rounded-sm overflow-hidden border border-base-border bg-base-bg shrink-0">
+              <Image src={topImg} alt={top.name} fill sizes="56px" className="object-contain" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-text-primary text-xs font-bold tracking-widest truncate">
+                {top.name}
+              </p>
+              <p className="text-accent text-[10px] font-bold">
+                PKR {top.price.toLocaleString()}
+              </p>
+            </div>
+          </div>
+          {/* Size selector */}
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-text-secondary mb-1.5">
+              Select Size
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {topSizes.map((sz) => (
+                <button
+                  key={sz}
+                  type="button"
+                  onClick={() => setTopSize(sz)}
+                  className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-colors ${
+                    topSize === sz
+                      ? "border-accent bg-accent/15 text-accent"
+                      : "border-base-border text-text-secondary hover:border-text-secondary"
+                  }`}
+                >
+                  {sz}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom card */}
+        <div className="rounded-sm border border-base-border bg-base-surface p-3 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative w-14 h-14 rounded-sm overflow-hidden border border-base-border bg-base-bg shrink-0">
+              <Image
+                src={bottomImg}
+                alt={bottom.name}
+                fill
+                sizes="56px"
+                className="object-contain"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-text-primary text-xs font-bold tracking-widest truncate">
+                {bottom.name}
+              </p>
+              <p className="text-accent text-[10px] font-bold">
+                PKR {bottom.price.toLocaleString()}
+              </p>
+            </div>
+          </div>
+          {/* Waist selector */}
+          {bottomIsPants && (
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-text-secondary mb-1.5">
+                Waist Size
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {waistSizes.map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => setWaistSize(sz)}
+                    className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-colors ${
+                      waistSize === sz
+                        ? "border-accent bg-accent/15 text-accent"
+                        : "border-base-border text-text-secondary hover:border-text-secondary"
+                    }`}
+                  >
+                    {sz}&quot;
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Shop button */}
+      <button
+        type="button"
+        onClick={handleShop}
+        disabled={!canShop}
+        className={`w-full py-3.5 text-xs font-bold uppercase tracking-[0.2em] rounded-sm transition-colors ${
+          canShop
+            ? "bg-accent text-base-bg hover:bg-accent-dim shadow-[0_0_15px_rgba(255,168,56,0.2)]"
+            : "bg-base-surface border border-base-border text-text-secondary/50 cursor-not-allowed"
+        }`}
+      >
+        {canShop ? "SHOP THIS OUTFIT →" : "SELECT SIZES TO CONTINUE"}
+      </button>
+    </div>
+  );
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
@@ -491,18 +662,14 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
                 >
                   Generate New Look
                 </button>
-
-                {selectedTop && selectedBottom && (
-                  <Link
-                    href={`/product/${selectedTop.id}`}
-                    className="text-[11px] tracking-[0.15em] uppercase bg-accent text-base-bg font-bold px-4 py-2 rounded-sm hover:bg-accent-dim transition-colors shadow-[0_0_15px_rgba(255,168,56,0.2)] hover:shadow-[0_0_22px_rgba(255,168,56,0.35)]"
-                  >
-                    Shop This Outfit
-                  </Link>
-                )}
               </div>
             </div>
-          </div>
+           </div>
+
+          {/* OUTFIT SELECTION CARDS + SHOP */}
+          {selectedTop && selectedBottom && (
+            <OutfitCheckout top={selectedTop} bottom={selectedBottom} />
+          )}
         </div>
       </main>
     </div>

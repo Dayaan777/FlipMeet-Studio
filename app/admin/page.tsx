@@ -5,16 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/lib/products";
+import { parseSizeVariants, serializeSizeVariants, type SizeVariant } from "@/lib/products";
 
 type ProductForm = {
   id: string;
   name: string;
   category: string;
   price: string;
-  stock: string;
-  sizes: string;
+  old_price: string;
   images: string;
   description: string;
+  is_bundle: boolean;
 };
 
 const DEFAULT_FORM: ProductForm = {
@@ -22,11 +23,19 @@ const DEFAULT_FORM: ProductForm = {
   name: "",
   category: "Outfits",
   price: "23500",
-  stock: "100",
-  sizes: "S, M, L, XL",
+  old_price: "",
   images: "",
   description: "",
+  is_bundle: false,
 };
+
+const DEFAULT_SIZE_VARIANTS: SizeVariant[] = [
+  { size: "S", stock: 100, isDefault: false },
+  { size: "M", stock: 100, isDefault: true },
+  { size: "L", stock: 100, isDefault: false },
+  { size: "XL", stock: 100, isDefault: false },
+];
+
 
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -37,6 +46,8 @@ export default function AdminPage() {
   // Modal State: null = closed, "add" = new product, Product = edit mode
   const [activeModal, setActiveModal] = useState<"add" | Product | null>(null);
   const [formData, setFormData] = useState<ProductForm>(DEFAULT_FORM);
+  const [sizeVariants, setSizeVariants] = useState<SizeVariant[]>(DEFAULT_SIZE_VARIANTS);
+  const [newSizeInput, setNewSizeInput] = useState("");
   const [formSaving, setFormSaving] = useState(false);
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
 
@@ -150,6 +161,8 @@ export default function AdminPage() {
       name: `Product ${String(nextNum).padStart(2, "0")}`,
       images: "",
     });
+    setSizeVariants([...DEFAULT_SIZE_VARIANTS.map(v => ({ ...v }))]);
+    setNewSizeInput("");
     setUploadFiles([]);
     setActiveModal("add");
   };
@@ -161,11 +174,14 @@ export default function AdminPage() {
       name: product.name,
       category: product.category || "DROP 001",
       price: product.price.toString(),
-      stock: product.stock.toString(),
-      sizes: (product.sizes || []).join(", "),
+      old_price: product.old_price ? product.old_price.toString() : "",
       images: (product.images || []).join(", "),
       description: product.description || "",
+      is_bundle: !!product.is_bundle,
     });
+    const variants = parseSizeVariants(product.sizes || []);
+    setSizeVariants(variants.length > 0 ? variants : [...DEFAULT_SIZE_VARIANTS.map(v => ({ ...v }))]);
+    setNewSizeInput("");
     setUploadFiles([]);
     setActiveModal(product);
   };
@@ -201,11 +217,6 @@ export default function AdminPage() {
         }
       }
 
-      const parsedSizes = formData.sizes
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-
       const parsedImages = formData.images
         .split(",")
         .map((s) => s.trim())
@@ -213,15 +224,26 @@ export default function AdminPage() {
 
       const finalImages = [...parsedImages, ...uploadedUrls];
 
+      // Compute total stock from size variants
+      const totalStock = sizeVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
+      // Ensure at least one default; if none set, make first one default
+      const hasDefault = sizeVariants.some(v => v.isDefault);
+      const normalizedVariants = sizeVariants.map((v, i) => ({
+        ...v,
+        isDefault: hasDefault ? v.isDefault : i === 0,
+      }));
+
       const payload = {
         id: formData.id.trim(),
         name: formData.name.trim(),
         category: formData.category.trim(),
         price: Number(formData.price) || 0,
-        stock: Number(formData.stock) || 0,
-        sizes: parsedSizes.length > 0 ? parsedSizes : ["S", "M", "L", "XL"],
+        old_price: formData.old_price ? Number(formData.old_price) : null,
+        stock: totalStock,
+        sizes: serializeSizeVariants(normalizedVariants),
         images: finalImages.length > 0 ? finalImages : [`/images/looks/${formData.id.trim()}.jpg`],
         description: formData.description.trim(),
+        is_bundle: formData.is_bundle,
       };
 
       const response = await fetch("/api/admin/products", {
@@ -327,6 +349,13 @@ export default function AdminPage() {
             >
               <span>+</span> ADD PRODUCT
             </button>
+
+            <Link
+              href="/admin/referral"
+              className="rounded-sm border border-base-border bg-base-surface px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-accent hover:border-accent/40 transition-colors"
+            >
+              🎟 REFERRALS
+            </Link>
 
             <Link
               href="/dashboard"
@@ -523,13 +552,13 @@ export default function AdminPage() {
 
                       {/* Sizes */}
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="flex gap-1">
-                          {(product.sizes || []).map((s) => (
+                        <div className="flex gap-1 flex-wrap">
+                          {(product.sizeVariants || []).map((v) => (
                             <span
-                              key={s}
+                              key={v.size}
                               className="rounded-sm border border-base-border bg-base-bg px-1.5 py-0.5 text-[9px] font-bold text-text-secondary"
                             >
-                              {s}
+                              {v.size} · {v.stock}
                             </span>
                           ))}
                         </div>
@@ -661,8 +690,8 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {/* Price */}
+              {/* Price + Original Price */}
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
                     Price (PKR) *
@@ -677,40 +706,117 @@ export default function AdminPage() {
                     required
                   />
                 </div>
-
-                {/* Stock */}
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                    Allocated Stock *
+                    OLD PRICE (OPTIONAL)
                   </label>
                   <input
                     type="number"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    placeholder="100"
+                    value={formData.old_price}
+                    onChange={(e) => setFormData({ ...formData, old_price: e.target.value })}
+                    placeholder="(strikethrough price)"
                     min="0"
                     className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors font-mono"
-                    required
                   />
                 </div>
               </div>
 
-              {/* Sizes */}
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                  Available Sizes (Comma Separated) *
-                </label>
+              {/* Bundle toggle */}
+              <div className="flex items-center gap-3 rounded-sm border border-base-border bg-base-bg px-3.5 py-2.5">
                 <input
-                  type="text"
-                  value={formData.sizes}
-                  onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
-                  placeholder="S, M, L, XL"
-                  className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors"
-                  required
+                  type="checkbox"
+                  id="is_bundle"
+                  checked={formData.is_bundle}
+                  onChange={(e) => setFormData({ ...formData, is_bundle: e.target.checked })}
+                  className="accent-accent w-4 h-4 cursor-pointer"
                 />
+                <label htmlFor="is_bundle" className="text-xs text-text-secondary cursor-pointer select-none">
+                  <span className="font-bold text-text-primary">Bundle product</span> — show only on Anime page; excluded from Shop, search &amp; homepage
+                </label>
               </div>
 
-              {/* Images */}
+              {/* SIZE VARIANTS MANAGER */}
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-3 font-medium">
+                  Sizes & Stock (per size)
+                </label>
+                <div className="rounded-sm border border-base-border bg-base-bg overflow-hidden">
+                  {/* Header */}
+                  <div className="grid grid-cols-[auto_1fr_80px_32px] gap-2 px-3 py-2 border-b border-base-border bg-base-surface/50 text-[9px] font-bold uppercase tracking-widest text-text-secondary">
+                    <span>Default</span>
+                    <span>Size</span>
+                    <span>Stock</span>
+                    <span></span>
+                  </div>
+                  {/* Rows */}
+                  {sizeVariants.map((variant, idx) => (
+                    <div key={idx} className="grid grid-cols-[auto_1fr_80px_32px] gap-2 items-center px-3 py-2 border-b border-base-border/40 last:border-0">
+                      <input
+                        type="radio"
+                        name="defaultSize"
+                        checked={!!variant.isDefault}
+                        onChange={() => setSizeVariants(sizeVariants.map((v, i) => ({ ...v, isDefault: i === idx })))}
+                        className="accent-accent cursor-pointer"
+                        title="Set as default size on product page"
+                      />
+                      <span className="text-xs font-bold text-text-primary font-mono">{variant.size}</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={variant.stock}
+                        onChange={(e) => setSizeVariants(sizeVariants.map((v, i) => i === idx ? { ...v, stock: Number(e.target.value) } : v))}
+                        className="w-full rounded-sm border border-base-border bg-base-surface px-2 py-1 text-xs text-text-primary focus:border-accent focus:outline-none font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSizeVariants(sizeVariants.filter((_, i) => i !== idx))}
+                        className="text-red-400 hover:text-red-300 font-bold text-sm transition-colors"
+                        title="Remove size"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  {/* Add new size row */}
+                  <div className="flex items-center gap-2 px-3 py-2 border-t border-dashed border-base-border/60 bg-base-surface/20">
+                    <input
+                      type="text"
+                      value={newSizeInput}
+                      onChange={(e) => setNewSizeInput(e.target.value.toUpperCase())}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const s = newSizeInput.trim();
+                          if (s && !sizeVariants.some(v => v.size === s)) {
+                            setSizeVariants([...sizeVariants, { size: s, stock: 100, isDefault: false }]);
+                            setNewSizeInput("");
+                          }
+                        }
+                      }}
+                      placeholder="Add size (e.g. 2XL)"
+                      className="flex-1 rounded-sm border border-base-border bg-base-bg px-2.5 py-1 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none font-mono uppercase"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const s = newSizeInput.trim();
+                        if (s && !sizeVariants.some(v => v.size === s)) {
+                          setSizeVariants([...sizeVariants, { size: s, stock: 100, isDefault: false }]);
+                          setNewSizeInput("");
+                        }
+                      }}
+                      className="rounded-sm bg-accent/10 border border-accent/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-accent hover:bg-accent/20 transition-colors"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-text-secondary mt-1.5">
+                  Total stock: <strong className="text-accent">{sizeVariants.reduce((s, v) => s + (Number(v.stock) || 0), 0)}</strong> units · Radio = default size on product page
+                </p>
+              </div>
+
+
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
                     Images (Upload from device or enter URLs)

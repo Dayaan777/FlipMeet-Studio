@@ -1,51 +1,142 @@
 import { Resend } from "resend";
 
+export type BundleSize = {
+  outfitName: string;
+  topSize: string;
+  waist: string;
+};
+
+export type OrderEmailItem = {
+  name: string;
+  size: string;
+  quantity: number;
+  price: number;
+  isBundle?: boolean;
+  bundleSizes?: BundleSize[] | null;
+};
+
 export type OrderConfirmationEmailData = {
   orderId: string;
   customerName: string;
   customerEmail: string;
   shippingAddress: string;
   total: number;
-  items: Array<{
-    name: string;
-    size: string;
-    quantity: number;
-    price: number;
-  }>;
+  items: OrderEmailItem[];
   deliveryEstimate?: string;
+  /** Referral code that was applied to this order */
+  referralCode?: string;
+  /** Total PKR saved via the referral discount */
+  discountAmount?: number;
+  /** Per-product-id discount amounts (for display only) */
+  perItemDiscounts?: Record<string, number>;
 };
 
-export async function sendOrderConfirmationEmail(data: OrderConfirmationEmailData) {
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Render one regular (non-bundle) item row */
+function renderRegularItemRow(item: OrderEmailItem): string {
+  return `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #242424; vertical-align: top;">
+        <div style="font-weight: 700; color: #FFFFFF; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
+          ${item.name}
+        </div>
+        <div style="font-size: 12px; color: #9A9A9A; margin-top: 4px;">
+          Size: <strong style="color: #FFFFFF;">${item.size}</strong> &bull; Qty: ${item.quantity}
+        </div>
+      </td>
+      <td style="padding: 12px 0; border-bottom: 1px solid #242424; text-align: right; vertical-align: top; font-weight: 700; color: #FFFFFF; font-size: 14px;">
+        PKR ${(item.price * item.quantity).toLocaleString()}
+      </td>
+    </tr>
+  `;
+}
+
+/** Render a bundle item row with outfit sub-list */
+function renderBundleItemRow(item: OrderEmailItem): string {
+  const sizesHtml =
+    item.bundleSizes && item.bundleSizes.length > 0
+      ? item.bundleSizes
+          .map(
+            (bs) =>
+              `<li style="margin: 2px 0; color: #D1D1D1;">
+                <span style="color: #FFFFFF; font-weight: 600;">${bs.outfitName}</span>
+                — Top: ${bs.topSize} / Waist: ${bs.waist}
+              </li>`
+          )
+          .join("")
+      : "";
+
+  return `
+    <tr>
+      <td style="padding: 12px 0; border-bottom: 1px solid #242424; vertical-align: top;">
+        <div style="font-weight: 700; color: #FF4D1E; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
+          ANIME PACK 5 IN 1
+        </div>
+        <div style="font-size: 12px; color: #9A9A9A; margin-top: 2px;">
+          Bundle &bull; Qty: 1
+        </div>
+        ${
+          sizesHtml
+            ? `<ul style="margin: 6px 0 0 0; padding-left: 16px; font-size: 11px; line-height: 1.8;">
+                ${sizesHtml}
+               </ul>`
+            : ""
+        }
+      </td>
+      <td style="padding: 12px 0; border-bottom: 1px solid #242424; text-align: right; vertical-align: top; font-weight: 700; color: #FFFFFF; font-size: 14px;">
+        PKR ${item.price.toLocaleString()}
+      </td>
+    </tr>
+  `;
+}
+
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
+
+export async function sendOrderConfirmationEmail(
+  data: OrderConfirmationEmailData
+) {
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
-    console.warn("[Resend] RESEND_API_KEY is not configured in environment. Skipping email sending.");
+    console.warn(
+      "[Resend] RESEND_API_KEY is not configured in environment. Skipping email sending."
+    );
     return { success: false, reason: "missing_api_key" };
   }
 
   const resend = new Resend(apiKey);
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "FlipMeet Studio <onboarding@resend.dev>";
+  const fromEmail =
+    process.env.RESEND_FROM_EMAIL ||
+    "FlipMeet Studio <onboarding@resend.dev>";
   const deliveryWindow = data.deliveryEstimate || "20–30 Oct 2026";
 
+  // Build items HTML
   const itemsHtml = data.items
-    .map(
-      (item) => `
-      <tr>
-        <td style="padding: 12px 0; border-bottom: 1px solid #242424; vertical-align: top;">
-          <div style="font-weight: 700; color: #FFFFFF; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
-            ${item.name}
-          </div>
-          <div style="font-size: 12px; color: #9A9A9A; margin-top: 4px;">
-            Size: <strong style="color: #FFFFFF;">${item.size}</strong> &bull; Qty: ${item.quantity}
-          </div>
-        </td>
-        <td style="padding: 12px 0; border-bottom: 1px solid #242424; text-align: right; vertical-align: top; font-weight: 700; color: #FFFFFF; font-size: 14px;">
-          PKR ${(item.price * item.quantity).toLocaleString()}
-        </td>
-      </tr>
-    `
+    .map((item) =>
+      item.isBundle ? renderBundleItemRow(item) : renderRegularItemRow(item)
     )
     .join("");
+
+  // Referral discount row (optional)
+  const referralRowHtml =
+    data.referralCode && data.discountAmount && data.discountAmount > 0
+      ? `
+        <tr>
+          <td style="padding: 8px 0; font-size: 13px; color: #10B981;">
+            Referral Discount
+            <span style="font-size: 11px; color: #9A9A9A; margin-left: 6px;">(Code: ${data.referralCode.toUpperCase()})</span>
+          </td>
+          <td style="padding: 8px 0; font-size: 13px; font-weight: 700; color: #10B981; text-align: right;">
+            &minus; PKR ${data.discountAmount.toLocaleString()}
+          </td>
+        </tr>
+      `
+      : "";
 
   const emailHtml = `
 <!DOCTYPE html>
@@ -124,6 +215,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationEmailDat
                   <td style="padding: 8px 0; font-size: 13px; color: #9A9A9A;">Shipping</td>
                   <td style="padding: 8px 0; font-size: 13px; font-weight: 700; color: #10B981; text-align: right;">FREE</td>
                 </tr>
+                ${referralRowHtml}
                 <tr>
                   <td style="padding: 12px 0 0 0; font-size: 15px; font-weight: 800; color: #FFFFFF; text-transform: uppercase; letter-spacing: 0.05em; border-top: 1px solid #242424;">
                     Total
@@ -169,11 +261,18 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationEmailDat
       return { success: false, error: result.error.message || result.error };
     }
 
-    console.log("[Resend] Order confirmation email dispatched successfully:", result.data);
+    console.log(
+      "[Resend] Order confirmation email dispatched successfully:",
+      result.data
+    );
     return { success: true, result: result.data };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Error sending email via Resend";
-    console.error("[Resend] Exception sending order confirmation email:", message);
+    const message =
+      err instanceof Error ? err.message : "Error sending email via Resend";
+    console.error(
+      "[Resend] Exception sending order confirmation email:",
+      message
+    );
     return { success: false, error: message };
   }
 }

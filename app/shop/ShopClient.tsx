@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/products";
+import { useCartStore } from "@/lib/cart-store";
+import { getDiscountedPrice } from "@/lib/referral-utils";
 
 const CATEGORIES = ["All", "Shirts", "Jerseys", "Pants", "Trousers", "Outfits"] as const;
 
@@ -16,9 +18,15 @@ function ShopContent({ products }: { products: Product[] }) {
  const [activeCategory, setActiveCategory] = useState<string>("All");
  const [searchOpen, setSearchOpen] = useState(false);
  const [query, setQuery] = useState("");
+ const [priceFilter, setPriceFilter] = useState<'below2000' | 'below4000' | 'above4000' | null>(null);
+
+ const { referralCode, referralDiscountPct, referralCategories } = useCartStore();
 
  const filtered = useMemo(() => {
   let list = products;
+
+  // Exclude bundle-only products from shop
+  list = list.filter(p => !p.is_bundle);
 
   // Apply hidden URL filter (e.g., from Anime page One Piece card)
   if (hiddenFilter === "one-piece") {
@@ -34,6 +42,9 @@ function ShopContent({ products }: { products: Product[] }) {
   if (activeCategory !== "All") {
    list = list.filter((p) => p.category === activeCategory);
   }
+  if (priceFilter === 'below2000') list = list.filter(p => p.price < 2000);
+  else if (priceFilter === 'below4000') list = list.filter(p => p.price < 4000);
+  else if (priceFilter === 'above4000') list = list.filter(p => p.price >= 4000);
   if (query.trim()) {
    const q = query.trim().toLowerCase();
    list = list.filter(
@@ -63,27 +74,49 @@ function ShopContent({ products }: { products: Product[] }) {
   });
 
   return list;
- }, [products, activeCategory, query, hiddenFilter]);
+ }, [products, activeCategory, query, hiddenFilter, priceFilter]);
 
  return (
   <>
-   {/* â”€â”€ Controls row: category filters + search â”€â”€ */}
+   {/* ── Controls row: category filters + search ── */}
    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    {/* Category pills */}
-    <div className="flex flex-wrap gap-2">
-     {CATEGORIES.map((cat) => (
-      <button
-       key={cat}
-       onClick={() => setActiveCategory(cat)}
-       className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
-        activeCategory === cat
-         ? "border-accent bg-accent/10 text-accent"
-         : "border-base-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
-       }`}
-      >
-       {cat}
-      </button>
-     ))}
+    {/* Category pills + price filter pills */}
+    <div className="flex flex-col gap-2">
+     <div className="flex flex-wrap gap-2">
+      {CATEGORIES.map((cat) => (
+       <button
+        key={cat}
+        onClick={() => { setActiveCategory(cat); setPriceFilter(null); }}
+        className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+         activeCategory === cat
+          ? "border-accent bg-accent/10 text-accent"
+          : "border-base-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
+        }`}
+       >
+        {cat}
+       </button>
+      ))}
+     </div>
+     {/* Price filter pills — always visible */}
+     <div className="flex flex-wrap gap-2">
+      {([
+        {label: 'Below PKR 2,000', value: 'below2000'},
+        {label: 'Below PKR 4,000', value: 'below4000'},
+        {label: 'PKR 4,000 & above', value: 'above4000'}
+      ] as const).map(opt => (
+       <button
+        key={opt.value}
+        onClick={() => setPriceFilter(priceFilter === opt.value ? null : opt.value)}
+        className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+         priceFilter === opt.value
+          ? 'border-accent bg-accent/10 text-accent'
+          : 'border-base-border text-text-secondary hover:border-accent/50 hover:text-text-primary'
+        }`}
+       >
+        {opt.label}
+       </button>
+      ))}
+     </div>
     </div>
 
     {/* Search */}
@@ -117,7 +150,7 @@ function ShopContent({ products }: { products: Product[] }) {
          className="text-text-secondary hover:text-text-primary"
          aria-label="Clear search"
         >
-         Ã—
+         ×
         </button>
        )}
        <button
@@ -152,19 +185,19 @@ function ShopContent({ products }: { products: Product[] }) {
     </div>
    </div>
 
-   {/* â”€â”€ Result count â”€â”€ */}
+   {/* ── Result count ── */}
    <p className="mb-6 text-[10px] uppercase tracking-widest text-text-secondary">
     {filtered.length} {filtered.length === 1 ? "product" : "products"}
     {activeCategory !== "All" && ` in ${activeCategory}`}
     {query.trim() && ` matching "${query.trim()}"`}
    </p>
 
-   {/* â”€â”€ Product grid â”€â”€ */}
+   {/* ── Product grid ── */}
    {filtered.length === 0 ? (
     <div className="flex flex-col items-center justify-center py-24 text-center">
      <p className="text-text-secondary text-sm">No products found.</p>
      <button
-      onClick={() => { setActiveCategory("All"); setQuery(""); }}
+      onClick={() => { setActiveCategory("All"); setQuery(""); setPriceFilter(null); }}
       className="mt-4 text-[10px] font-bold uppercase tracking-widest text-accent hover:underline"
      >
       Clear filters
@@ -209,15 +242,46 @@ function ShopContent({ products }: { products: Product[] }) {
           <h2 className="font-display text-base font-bold uppercase tracking-widest text-text-primary transition-colors group-hover:text-accent">
            {product.name}
           </h2>
-          <span className="font-display text-sm font-bold text-accent tracking-widest">
-           PKR {Number(product.price).toLocaleString()}
-          </span>
+          {/* Price: referral discount aware */}
+          {(() => {
+           const { discountedPrice, hasDiscount } = getDiscountedPrice(
+            Number(product.price),
+            product.category,
+            referralCode,
+            referralDiscountPct,
+            referralCategories
+           );
+           return (
+            <div className="flex items-center gap-2">
+             {hasDiscount ? (
+              <>
+               <span className="font-display text-sm font-bold text-accent tracking-widest">
+                PKR {discountedPrice.toLocaleString()}
+               </span>
+               <span className="text-[10px] text-text-secondary line-through">
+                PKR {Number(product.price).toLocaleString()}
+               </span>
+              </>
+             ) : (
+              <>
+               <span className="font-display text-sm font-bold text-accent tracking-widest">
+                PKR {Number(product.price).toLocaleString()}
+               </span>
+               {product.old_price && product.old_price > product.price && (
+                <span className="text-[10px] text-text-secondary line-through">
+                 PKR {Number(product.old_price).toLocaleString()}
+                </span>
+               )}
+              </>
+             )}
+            </div>
+           );
+          })()}
          </div>
          <p className="mt-1 truncate text-xs text-text-secondary">
           {product.description}
          </p>
-         <div className="mt-4 flex items-center justify-between text-[10px] uppercase tracking-widest text-text-secondary">
-          <span>Sizes: {product.sizes.join(" · ")}</span>
+         <div className="mt-4 flex items-center justify-end text-[10px] uppercase tracking-widest text-text-secondary">
           <span className="font-bold text-text-primary transition-colors group-hover:text-accent">
            ORDER NOW &rarr;
           </span>

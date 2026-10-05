@@ -71,7 +71,7 @@ export default function AnimeDropReveal() {
 
  return (
   <section
-   className="overflow-hidden border-b border-base-border px-4 py-20 sm:px-6 sm:py-28"
+   className="overflow-hidden px-4 py-20 sm:px-6 sm:py-28"
    aria-labelledby="anime-drop-reveal-heading"
   >
    <div className="mx-auto max-w-7xl">

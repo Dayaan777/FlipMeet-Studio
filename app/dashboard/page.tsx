@@ -137,7 +137,9 @@ export default function DashboardPage() {
         throw new Error(`Server returned status ${res.status}`);
       }
       const data = await res.json();
-      if (data.success && Array.isArray(data.orders)) {
+      if (Array.isArray(data)) {
+        setOrders(data.map((o: any) => normalizeSupabaseOrder(o, allProducts)));
+      } else if (data.success && Array.isArray(data.orders)) {
         setOrders(data.orders.map((o: any) => normalizeSupabaseOrder(o, allProducts)));
       } else {
         throw new Error(data.error || "Failed to load orders");
@@ -169,7 +171,7 @@ export default function DashboardPage() {
       const res = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, status: newStatus }),
+        body: JSON.stringify({ id: orderId, status: newStatus }),
       });
       if (!res.ok) {
         throw new Error("Failed to persist status change.");

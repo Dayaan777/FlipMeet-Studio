@@ -1,11 +1,18 @@
 import { supabase } from "@/lib/supabase";
 import { Look, Drop, drops } from "@/data/drops";
 
+export type SizeVariant = {
+  size: string;
+  stock: number;
+  isDefault?: boolean;
+};
+
 export type Product = {
   id: string;
   name: string;
   category: string;
   price: number;
+  old_price?: number;
   sizes: string[];
   stock: number;
   images: string[];
@@ -13,7 +20,30 @@ export type Product = {
   created_at?: string;
   set_id?: string | null;
   specs?: string[];
+  sizeVariants?: SizeVariant[];
+  is_bundle?: boolean;
 };
+
+/** Parses the sizes array from Supabase. Each element may be a plain size string
+ *  (e.g. "M") or a JSON-serialized SizeVariant object. Always returns clean SizeVariants. */
+export function parseSizeVariants(sizes: string[]): SizeVariant[] {
+  if (!sizes || sizes.length === 0) return [];
+  return sizes.map((s) => {
+    try {
+      const parsed = JSON.parse(s);
+      if (parsed && typeof parsed === "object" && "size" in parsed) {
+        return parsed as SizeVariant;
+      }
+    } catch (_) {}
+    // Plain string size — default stock of 100
+    return { size: s, stock: 100, isDefault: false };
+  });
+}
+
+/** Converts SizeVariant array back to the string[] format stored in Supabase. */
+export function serializeSizeVariants(variants: SizeVariant[]): string[] {
+  return variants.map((v) => JSON.stringify(v));
+}
 
 export function productToLook(product: Product): Look {
   return {
@@ -30,13 +60,18 @@ export function productToLook(product: Product): Look {
   };
 }
 
-export async function getProducts(): Promise<Product[]> {
+
+export async function getProducts(options?: { includeBundles?: boolean }): Promise<Product[]> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select("*")
       .neq("category", "SYSTEM")
       .order("id", { ascending: true });
+    if (!options?.includeBundles) {
+      query = query.neq("is_bundle", true);
+    }
+    const { data, error } = await query;
 
     if (error || !data || data.length === 0) {
       if (error) {
@@ -48,6 +83,9 @@ export async function getProducts(): Promise<Product[]> {
     return data.map((item) => ({
       ...item,
       price: Number(item.price),
+      old_price: item.old_price ? Number(item.old_price) : undefined,
+      sizeVariants: parseSizeVariants(item.sizes || []),
+      is_bundle: !!item.is_bundle,
     }));
   } catch (err) {
     console.error("Error fetching products from Supabase:", err);
@@ -71,6 +109,9 @@ export async function getProductById(id: string): Promise<Product | null> {
     return {
       ...data,
       price: Number(data.price),
+      old_price: data.old_price ? Number(data.old_price) : undefined,
+      sizeVariants: parseSizeVariants(data.sizes || []),
+      is_bundle: !!data.is_bundle,
     };
   } catch (err) {
     console.error("Error fetching product by id from Supabase:", err);

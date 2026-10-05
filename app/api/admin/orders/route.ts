@@ -44,7 +44,8 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
-  const { id, status, tracking_number, courier_name } = body;
+  const { status, tracking_number, courier_name } = body;
+  const id = body.id || body.orderId;
   
   if (!id) return NextResponse.json({ error: "Missing order id" }, { status: 400 });
 
@@ -60,4 +61,29 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   return NextResponse.json(data);
+}
+
+export async function DELETE(request: Request) {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("admin_session")?.value;
+  if (session !== "authenticated") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const id = body.id || body.orderId;
+  
+  if (!id) return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+
+  const supabaseAdmin = getAdminClient();
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .delete()
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ success: true, data });
 }

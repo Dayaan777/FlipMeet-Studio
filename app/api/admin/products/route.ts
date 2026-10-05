@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, name, category, price, stock, sizes, images, description } = body;
+    const { id, name, category, price, old_price, is_bundle, stock, sizes, images, description } = body;
 
     if (!id || !name) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       id: String(id).trim(),
       name: String(name).trim(),
       category: String(category || "DROP 001").trim(),
@@ -56,6 +56,16 @@ export async function POST(request: Request) {
       images: Array.isArray(images) ? images : [`/images/looks/${id}.jpg`],
       description: String(description || "").trim(),
     };
+
+    // Only include old_price if it was explicitly passed (don't overwrite with null)
+    if (old_price !== undefined) {
+      payload.old_price = old_price !== null && old_price !== "" ? Number(old_price) : null;
+    }
+
+    // Pass is_bundle flag through
+    if (is_bundle !== undefined) {
+      payload.is_bundle = !!is_bundle;
+    }
 
     const supabaseAdmin = getAdminClient();
 
