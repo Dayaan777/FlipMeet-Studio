@@ -1,1 +1,1 @@
-web: npm ci --omit=dev && npm start
+web: npm start
