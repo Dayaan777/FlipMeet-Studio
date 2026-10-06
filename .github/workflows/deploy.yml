@@ -9,6 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,10 +25,21 @@ jobs:
 
       - name: Build Next.js App
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Create Zip Artifact
+      - name: Create Deployment Zip
         run: |
-          zip -r deploy.zip . -x "node_modules/*" -x ".git/*" -x "deploy.zip"
+          # Zip only what the server needs — built output + configs
+          zip -r deploy.zip \
+            .next \
+            public \
+            package.json \
+            package-lock.json \
+            next.config.ts \
+            Procfile \
+            -x ".next/cache/*"
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
