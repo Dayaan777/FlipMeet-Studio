@@ -16,6 +16,8 @@ export type Product = {
   sizes: string[];
   stock: number;
   images: string[];
+  cover_image?: string;
+  secondary_images?: string[];
   description: string;
   created_at?: string;
   set_id?: string | null;
@@ -44,6 +46,29 @@ export function parseSizeVariants(sizes: string[]): SizeVariant[] {
 export function serializeSizeVariants(variants: SizeVariant[]): string[] {
   return variants.map((v) => JSON.stringify(v));
 }
+
+/** Returns the primary cover image URL for a product (index 0 of images array or fallback). */
+export function getProductCoverImage(product: { id: string; images?: string[]; cover_image?: string }): string {
+  if (product.cover_image) {
+    return product.cover_image;
+  }
+  if (product.images && product.images.length > 0 && product.images[0]) {
+    return product.images[0];
+  }
+  return `/images/looks/${product.id}.jpg`;
+}
+
+/** Returns the secondary images URLs for a product (indices 1..N of images array). */
+export function getProductSecondaryImages(product: { id?: string; images?: string[]; secondary_images?: string[] }): string[] {
+  if (product.secondary_images && product.secondary_images.length > 0) {
+    return product.secondary_images.filter(Boolean);
+  }
+  if (product.images && product.images.length > 1) {
+    return product.images.slice(1).filter(Boolean);
+  }
+  return [];
+}
+
 
 export function productToLook(product: Product): Look {
   return {

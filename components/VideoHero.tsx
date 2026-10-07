@@ -111,26 +111,11 @@ export default function VideoHero() {
       ? "/videos/mobile-homepage-hero-section.mp4"
       : "/videos/homepage-hero-section.mp4";
 
-    let objectUrl: string | null = null;
-
-    // The Blob Preloader: Force download to RAM to bypass Netlify chunking
-    fetch(targetVideoUrl)
-      .then(res => res.blob())
-      .then(blob => {
-        objectUrl = URL.createObjectURL(blob);
-        video.src = objectUrl;
-        video.load();
-      })
-      .catch(() => {
-        // Fallback to normal streaming if fetch fails
-        video.src = targetVideoUrl;
-        video.preload = "auto";
-        video.load();
-      });
+    video.src = targetVideoUrl;
+    video.load();
 
     // Clean Garbage Collection (Safety Check)
     return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", syncSize);
       video.removeEventListener("loadedmetadata", init);

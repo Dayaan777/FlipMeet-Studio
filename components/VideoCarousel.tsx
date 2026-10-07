@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
@@ -266,7 +266,7 @@ export default function VideoCarousel() {
            muted
            loop
            autoPlay={isActive}
-           preload={isVisible ? "auto" : "none"}
+           preload={isActive ? "metadata" : "none"}
            className="h-full w-full object-cover"
           />
 

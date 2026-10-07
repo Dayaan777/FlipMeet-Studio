@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -88,8 +88,13 @@ export default function ProductDetailClient({
  const finalSize = (isPants || isOutfit) ? `${selectedSize} / ${selectedWaist}` : selectedSize;
 
  // Check stock for the currently selected size
- const selectedVariant = sizeVariants.find(v => v.size === selectedSize);
- const isSelectedSoldOut = selectedVariant ? selectedVariant.stock <= 0 : false;
+ const selectedVariant = sizeVariants.find((v) => v.size === selectedSize);
+ const availableStock = selectedVariant
+  ? selectedVariant.stock
+  : sizeVariants.length === 0
+  ? (product.stock ?? 0)
+  : 0;
+ const isSelectedSoldOut = availableStock <= 0;
 
  const sizeLabel = (() => {
   const cat = product.category?.toLowerCase() || "";
@@ -99,33 +104,50 @@ export default function ProductDetailClient({
  })();
 
  const handleAddToCart = () => {
-  if (isSelectedSoldOut) {
+  const currentQtyInCart = items
+   .filter((i) => i.lookId === product.id && i.size.split("/")[0].trim() === selectedSize)
+   .reduce((sum, i) => sum + i.quantity, 0);
+
+  if (availableStock <= 0 || currentQtyInCart + 1 > availableStock) {
    setSoldOutError(true);
-   setTimeout(() => setSoldOutError(false), 3000);
+   setTimeout(() => setSoldOutError(false), 3500);
    return;
   }
+
+  setSoldOutError(false);
   addItem({
    lookId: product.id,
    name: product.name,
    size: finalSize,
    price: product.price || 18500,
-    oldPrice: product.old_price,
+   oldPrice: product.old_price,
    quantity: 1,
    image: product.images?.[0] || "/images/products/stwd-shirt.png",
+   category: product.category,
+   maxStock: availableStock,
   });
   setAdded(true);
   setTimeout(() => setAdded(false), 2500);
  };
 
  const handleProceedToCheckout = () => {
-  if (isSelectedSoldOut) {
-   setSoldOutError(true);
-   setTimeout(() => setSoldOutError(false), 3000);
-   return;
-  }
+  const currentQtyInCart = items
+   .filter((i) => i.lookId === product.id && i.size.split("/")[0].trim() === selectedSize)
+   .reduce((sum, i) => sum + i.quantity, 0);
+
   const alreadyInCart = items.some(
    (item) => item.lookId === product.id && item.size === finalSize
   );
+
+  const targetQty = alreadyInCart ? currentQtyInCart : currentQtyInCart + 1;
+
+  if (availableStock <= 0 || targetQty > availableStock) {
+   setSoldOutError(true);
+   setTimeout(() => setSoldOutError(false), 3500);
+   return;
+  }
+
+  setSoldOutError(false);
   if (!alreadyInCart) {
    addItem({
     lookId: product.id,
@@ -135,15 +157,75 @@ export default function ProductDetailClient({
     oldPrice: product.old_price,
     quantity: 1,
     image: product.images?.[0] || "/images/products/stwd-shirt.png",
+    category: product.category,
+    maxStock: availableStock,
    });
   }
   router.push("/checkout");
  };
 
- const imageSrc =
-  product.images && product.images.length > 0
-   ? product.images[0]
-   : `/images/looks/${product.id}.jpg`;
+ // Resolve Cover Image
+ const coverImage = useMemo(() => {
+  return product.cover_image || product.images?.[0] || `/images/looks/${product.id}.jpg`;
+ }, [product.cover_image, product.images, product.id]);
+
+ // Resolve Secondary Images: from product.secondary_images (if non-empty) or product.images.slice(1) (if length > 1). Deduplicate and exclude coverImage.
+ const secondaryImages = useMemo(() => {
+  const raw =
+   product.secondary_images && product.secondary_images.length > 0
+    ? product.secondary_images
+    : product.images && product.images.length > 1
+    ? product.images.slice(1)
+    : [];
+  return Array.from(new Set(raw.filter(Boolean))).filter((img) => img !== coverImage);
+ }, [product.secondary_images, product.images, coverImage]);
+
+ // Combined gallery images with cover image first
+ const allGalleryImages = useMemo(() => {
+  return [coverImage, ...secondaryImages];
+ }, [coverImage, secondaryImages]);
+
+ const hasSecondaryImages = secondaryImages.length > 0;
+ const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+ // Reset active image index when product ID changes
+ useEffect(() => {
+  setActiveImageIndex(0);
+ }, [product.id]);
+
+ const activeImageSrc = allGalleryImages[activeImageIndex] || coverImage;
+
+ const handlePrevImage = () => {
+  setActiveImageIndex((prev) => (prev - 1 + allGalleryImages.length) % allGalleryImages.length);
+ };
+
+ const handleNextImage = () => {
+  setActiveImageIndex((prev) => (prev + 1) % allGalleryImages.length);
+ };
+
+ // Touch swipe handling for mobile (40px threshold)
+ const touchStartX = useRef<number | null>(null);
+ const touchStartY = useRef<number | null>(null);
+
+ const handleTouchStart = (e: React.TouchEvent) => {
+  touchStartX.current = e.touches[0].clientX;
+  touchStartY.current = e.touches[0].clientY;
+ };
+
+ const handleTouchEnd = (e: React.TouchEvent) => {
+  if (touchStartX.current === null || touchStartY.current === null) return;
+  const diffX = e.changedTouches[0].clientX - touchStartX.current;
+  const diffY = e.changedTouches[0].clientY - touchStartY.current;
+  if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+   if (diffX < 0) {
+    handleNextImage(); // Swipe left -> next
+   } else {
+    handlePrevImage(); // Swipe right -> prev
+   }
+  }
+  touchStartX.current = null;
+  touchStartY.current = null;
+ };
 
  const filteredPieces = pieces.filter(
   (p) => !variants.some((v) => v.id === p.id)
@@ -182,7 +264,11 @@ export default function ProductDetailClient({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
      {/* Left Column: Image Stage */}
      <div className="lg:col-span-7">
-      <div className="relative aspect-[3/4] w-full rounded-sm border border-base-border bg-base-surface/40 p-8 flex items-end justify-center overflow-hidden">
+      <div
+       className="relative aspect-[3/4] w-full rounded-sm border border-base-border bg-base-surface/40 p-8 flex items-end justify-center overflow-hidden select-none"
+       onTouchStart={hasSecondaryImages ? handleTouchStart : undefined}
+       onTouchEnd={hasSecondaryImages ? handleTouchEnd : undefined}
+      >
        {/* Subtle radial glow */}
        <div
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -193,24 +279,81 @@ export default function ProductDetailClient({
        />
 
        <Image
-        src={imageSrc}
+        key={activeImageSrc}
+        src={activeImageSrc}
         alt={`${product.name} ${product.description}`}
         fill
-        priority
+        priority={activeImageIndex === 0}
         sizes="(min-width: 1024px) 58vw, 100vw"
-        className="object-contain object-bottom p-6"
+        className="object-contain object-bottom p-6 transition-opacity duration-300"
        />
+
+       {/* Navigation Chevrons (Only if secondary images exist) */}
+       {hasSecondaryImages && (
+        <>
+         <button
+          type="button"
+          onClick={handlePrevImage}
+          aria-label="Previous image"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-base-border bg-base-bg/80 text-text-secondary hover:text-text-primary hover:border-accent backdrop-blur-sm transition-all"
+         >
+          ←
+         </button>
+         <button
+          type="button"
+          onClick={handleNextImage}
+          aria-label="Next image"
+          className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-base-border bg-base-bg/80 text-text-secondary hover:text-text-primary hover:border-accent backdrop-blur-sm transition-all"
+         >
+          →
+         </button>
+        </>
+       )}
+
+       {/* Counter Badge (Only if secondary images exist) */}
+       {hasSecondaryImages && (
+        <div className="absolute bottom-4 left-4 z-10 flex items-center gap-1.5 rounded-full border border-base-border bg-base-bg/85 px-3 py-1 text-[10px] font-mono tracking-widest text-text-secondary uppercase backdrop-blur-sm">
+         <span className="text-accent font-bold">{activeImageIndex + 1}</span> / <span>{allGalleryImages.length}</span>
+        </div>
+       )}
 
        {/* Status pill overlay */}
        <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full border border-base-border bg-base-bg/80 px-3 py-1 text-[10px] tracking-widest text-text-secondary uppercase backdrop-blur-sm">
         <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        
        </div>
 
        <div className="absolute top-4 right-4 rounded-full border border-base-border bg-base-bg/80 px-3 py-1 text-[10px] tracking-widest text-accent uppercase font-bold backdrop-blur-sm">
         {product.category || "LIMITED ARCHIVE"}
        </div>
       </div>
+
+      {/* Thumbnail Strip: STRICT CONDITIONAL COLLAPSE — 0 gap when hasSecondaryImages is false */}
+      {hasSecondaryImages && (
+       <div className="mt-4 flex items-center gap-3 overflow-x-auto pb-2 pt-0.5 scrollbar-thin scrollbar-thumb-base-border/50">
+        {allGalleryImages.map((img, idx) => (
+         <button
+          key={`${img}-${idx}`}
+          type="button"
+          onClick={() => setActiveImageIndex(idx)}
+          aria-label={`View image ${idx + 1} of ${allGalleryImages.length}`}
+          aria-current={activeImageIndex === idx ? "true" : undefined}
+          className={`relative h-20 w-16 sm:h-24 sm:w-20 shrink-0 rounded-sm border overflow-hidden cursor-pointer transition-all duration-200 bg-base-surface/60 ${
+           activeImageIndex === idx
+            ? "border-accent shadow-[0_0_12px_rgb(var(--accent)/0.35)] scale-102 ring-1 ring-accent/60 opacity-100"
+            : "border-base-border opacity-60 hover:opacity-100 hover:border-text-secondary"
+          }`}
+         >
+          <Image
+           src={img}
+           alt={`${product.name} view ${idx + 1}`}
+           fill
+           sizes="(max-width: 640px) 64px, 80px"
+           className="object-contain object-center p-1.5"
+          />
+         </button>
+        ))}
+       </div>
+      )}
      </div>
 
      {/* Right Column: Product Details & Purchase Controls */}
@@ -311,15 +454,20 @@ export default function ProductDetailClient({
             type="button"
             onClick={() => {
              setSelectedSize(variant.size);
-             setSoldOutError(false);
+             if (variant.stock <= 0) {
+              setSoldOutError(true);
+             } else {
+              setSoldOutError(false);
+             }
             }}
-            disabled={isOOS}
             title={isOOS ? "Sold out" : undefined}
-            className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border relative ${
-             isOOS
-              ? "border-base-border/40 bg-base-bg/40 text-text-secondary/40 line-through cursor-not-allowed"
-              : selectedSize === variant.size
-              ? "border-accent bg-accent/15 text-accent shadow-sm"
+            className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border relative cursor-pointer ${
+             selectedSize === variant.size
+              ? isOOS
+                ? "border-red-500/60 bg-red-500/10 text-red-400 line-through shadow-sm"
+                : "border-accent bg-accent/15 text-accent shadow-sm"
+              : isOOS
+              ? "border-base-border/40 bg-base-bg/40 text-text-secondary/40 line-through hover:border-base-border"
               : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
             }`}
             style={
@@ -336,8 +484,11 @@ export default function ProductDetailClient({
           <button
            key={sz}
            type="button"
-           onClick={() => setSelectedSize(sz)}
-           className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border ${
+           onClick={() => {
+            setSelectedSize(sz);
+            setSoldOutError(false);
+           }}
+           className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border cursor-pointer ${
             selectedSize === sz
              ? "border-accent bg-accent/15 text-accent shadow-sm"
              : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
@@ -405,8 +556,11 @@ export default function ProductDetailClient({
 
        {/* Sold-out error message */}
        {soldOutError && (
-        <div className="rounded-sm border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-400 font-medium animate-in fade-in duration-200">
-         Sorry, this size just sold out. Please pick another size to continue.
+        <div
+         role="alert"
+         className="rounded-sm border border-red-500/40 bg-red-500/10 px-4 py-3 text-xs text-red-400 font-medium animate-in fade-in duration-200"
+        >
+         out of stock please choose a different size
         </div>
        )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -13,7 +13,6 @@ type ProductForm = {
   category: string;
   price: string;
   old_price: string;
-  images: string;
   description: string;
   is_bundle: boolean;
 };
@@ -24,9 +23,14 @@ const DEFAULT_FORM: ProductForm = {
   category: "Outfits",
   price: "23500",
   old_price: "",
-  images: "",
   description: "",
   is_bundle: false,
+};
+
+type SecondaryFileItem = {
+  id: string;
+  file: File;
+  previewUrl: string;
 };
 
 const DEFAULT_SIZE_VARIANTS: SizeVariant[] = [
@@ -49,7 +53,17 @@ export default function AdminPage() {
   const [sizeVariants, setSizeVariants] = useState<SizeVariant[]>(DEFAULT_SIZE_VARIANTS);
   const [newSizeInput, setNewSizeInput] = useState("");
   const [formSaving, setFormSaving] = useState(false);
-  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+
+  // Image Management State
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+
+  const [existingSecondaryUrls, setExistingSecondaryUrls] = useState<string[]>([]);
+  const [secondaryFiles, setSecondaryFiles] = useState<SecondaryFileItem[]>([]);
+
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const secondaryInputRef = useRef<HTMLInputElement>(null);
 
   // Shipping Modal State
   const [showShippingModal, setShowShippingModal] = useState(false);
@@ -151,78 +165,245 @@ export default function AdminPage() {
     }
   };
 
+  // Image state helpers
+  const resetImageState = useCallback(() => {
+    if (coverPreviewUrl) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
+    setCoverFile(null);
+    setCoverPreviewUrl(null);
+    setExistingCoverUrl(null);
+
+    secondaryFiles.forEach((item) => {
+      if (item.previewUrl) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    });
+    setSecondaryFiles([]);
+    setExistingSecondaryUrls([]);
+
+    if (coverInputRef.current) coverInputRef.current.value = "";
+    if (secondaryInputRef.current) secondaryInputRef.current.value = "";
+  }, [coverPreviewUrl, secondaryFiles]);
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl);
+      secondaryFiles.forEach((item) => {
+        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      });
+    };
+  }, [coverPreviewUrl, secondaryFiles]);
+
+  const handleCloseModal = () => {
+    resetImageState();
+    setActiveModal(null);
+  };
+
+  // Image Compression Helper
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_SIZE = 1200;
+        let width = img.width;
+        let height = img.height;
+        if (width > height && width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+            resolve(new File([blob], newName, { type: "image/webp" }));
+          } else {
+            resolve(file);
+          }
+        }, "image/webp", 0.85);
+      };
+      img.onerror = () => resolve(file);
+    });
+  };
+
+  const handleSetCoverFile = async (file: File) => {
+    if (coverPreviewUrl) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
+    const compressed = await compressImage(file);
+    setCoverFile(compressed);
+    setCoverPreviewUrl(URL.createObjectURL(compressed));
+  };
+
+  const handleRemoveCover = () => {
+    if (coverPreviewUrl) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
+    setCoverFile(null);
+    setCoverPreviewUrl(null);
+    setExistingCoverUrl(null);
+    if (coverInputRef.current) {
+      coverInputRef.current.value = "";
+    }
+  };
+
+  const handleAddSecondaryFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const newItems: SecondaryFileItem[] = [];
+    for (const f of Array.from(files)) {
+      const compressed = await compressImage(f);
+      newItems.push({
+        id: `${compressed.name}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        file: compressed,
+        previewUrl: URL.createObjectURL(compressed),
+      });
+    }
+    setSecondaryFiles((prev) => [...prev, ...newItems]);
+  };
+
+  const handleRemoveSecondaryFile = (id: string) => {
+    setSecondaryFiles((prev) => {
+      const target = prev.find((item) => item.id === id);
+      if (target?.previewUrl) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      return prev.filter((item) => item.id !== id);
+    });
+  };
+
+  const handleRemoveExistingSecondaryUrl = (index: number) => {
+    setExistingSecondaryUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleClearSecondaryFiles = () => {
+    secondaryFiles.forEach((f) => {
+      if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
+    });
+    setSecondaryFiles([]);
+    if (secondaryInputRef.current) {
+      secondaryInputRef.current.value = "";
+    }
+  };
+
   // Open modal in Add mode
   const handleOpenAdd = () => {
+    resetImageState();
     const nextNum = products.length + 1;
     const generatedId = `product-${String(nextNum).padStart(2, "0")}`;
     setFormData({
       ...DEFAULT_FORM,
       id: generatedId,
       name: `Product ${String(nextNum).padStart(2, "0")}`,
-      images: "",
     });
     setSizeVariants([...DEFAULT_SIZE_VARIANTS.map(v => ({ ...v }))]);
     setNewSizeInput("");
-    setUploadFiles([]);
     setActiveModal("add");
   };
 
   // Open modal in Edit mode
   const handleOpenEdit = (product: Product) => {
+    resetImageState();
     setFormData({
       id: product.id,
       name: product.name,
       category: product.category || "DROP 001",
       price: product.price.toString(),
       old_price: product.old_price ? product.old_price.toString() : "",
-      images: (product.images || []).join(", "),
       description: product.description || "",
       is_bundle: !!product.is_bundle,
     });
+    const imgs = product.images || [];
+    setExistingCoverUrl(imgs[0] || null);
+    setExistingSecondaryUrls(imgs.slice(1));
     const variants = parseSizeVariants(product.sizes || []);
     setSizeVariants(variants.length > 0 ? variants : [...DEFAULT_SIZE_VARIANTS.map(v => ({ ...v }))]);
     setNewSizeInput("");
-    setUploadFiles([]);
     setActiveModal(product);
   };
 
   // Save (Create or Update) product to Supabase
-    const handleSaveProduct = async (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSaving(true);
     setStatusMessage(null);
 
     try {
-      let uploadedUrls: string[] = [];
-      
-      // Upload files to Supabase
-      if (uploadFiles.length > 0) {
-        for (const file of uploadFiles) {
-          const fileExt = file.name.split(".").pop();
-          const fileName = `${formData.id.trim()}-${Date.now()}-${Math.random().toString(36).substring(2,7)}.${fileExt}`;
-          
-          const { data: uploadData, error: uploadError } = await supabase.storage
+      const cleanId = formData.id.trim();
+
+      // 1. Process Cover Image (Single file direct device upload)
+      let finalCoverUrl = existingCoverUrl || "";
+      if (coverFile) {
+        const fileExt = (coverFile.name.split(".").pop() || "png").toLowerCase();
+        const random = Math.random().toString(36).substring(2, 7);
+        const coverFileName = `${cleanId}-cover-${Date.now()}-${random}.${fileExt}`;
+
+        const { error: coverUploadError } = await supabase.storage
+          .from("products")
+          .upload(coverFileName, coverFile, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (coverUploadError) {
+          throw new Error(`Failed to upload cover image (${coverFile.name}): ${coverUploadError.message}`);
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("products")
+          .getPublicUrl(coverFileName);
+
+        finalCoverUrl = publicUrl;
+      }
+
+      // 2. Process Secondary Images (Multiple files direct device upload)
+      const uploadedSecondaryUrls: string[] = [];
+      if (secondaryFiles.length > 0) {
+        for (let i = 0; i < secondaryFiles.length; i++) {
+          const item = secondaryFiles[i];
+          const file = item.file;
+          const fileExt = (file.name.split(".").pop() || "png").toLowerCase();
+          const random = Math.random().toString(36).substring(2, 7);
+          const secFileName = `${cleanId}-sec-${Date.now()}-${i}-${random}.${fileExt}`;
+
+          const { error: secUploadError } = await supabase.storage
             .from("products")
-            .upload(fileName, file, {
+            .upload(secFileName, file, {
               cacheControl: "3600",
-              upsert: true
+              upsert: true,
             });
-            
-          if (uploadError) {
-            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+
+          if (secUploadError) {
+            throw new Error(`Failed to upload secondary image (${file.name}): ${secUploadError.message}`);
           }
-          
-          const { data: { publicUrl } } = supabase.storage.from("products").getPublicUrl(fileName);
-          uploadedUrls.push(publicUrl);
+
+          const { data: { publicUrl } } = supabase.storage
+            .from("products")
+            .getPublicUrl(secFileName);
+
+          uploadedSecondaryUrls.push(publicUrl);
         }
       }
 
-      const parsedImages = formData.images
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const finalSecondaryUrls = [...existingSecondaryUrls, ...uploadedSecondaryUrls];
 
-      const finalImages = [...parsedImages, ...uploadedUrls];
+      // Assemble final images array: [finalCoverUrl, ...finalSecondaryUrls]
+      let finalImages: string[] = [];
+      if (finalCoverUrl) {
+        finalImages = [finalCoverUrl, ...finalSecondaryUrls];
+      } else if (finalSecondaryUrls.length > 0) {
+        finalImages = finalSecondaryUrls;
+      } else {
+        finalImages = [`/images/looks/${cleanId}.jpg`];
+      }
 
       // Compute total stock from size variants
       const totalStock = sizeVariants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0);
@@ -234,14 +415,14 @@ export default function AdminPage() {
       }));
 
       const payload = {
-        id: formData.id.trim(),
+        id: cleanId,
         name: formData.name.trim(),
         category: formData.category.trim(),
         price: Number(formData.price) || 0,
         old_price: formData.old_price ? Number(formData.old_price) : null,
         stock: totalStock,
         sizes: serializeSizeVariants(normalizedVariants),
-        images: finalImages.length > 0 ? finalImages : [`/images/looks/${formData.id.trim()}.jpg`],
+        images: finalImages,
         description: formData.description.trim(),
         is_bundle: formData.is_bundle,
       };
@@ -264,8 +445,8 @@ export default function AdminPage() {
         text: `Product successfully ${activeModal === "add" ? "created" : "updated"} in Supabase!`,
       });
 
+      resetImageState();
       setActiveModal(null);
-      setUploadFiles([]);
       fetchProducts();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to save product.";
@@ -615,7 +796,7 @@ export default function AdminPage() {
               </div>
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={handleCloseModal}
                 className="text-text-secondary hover:text-text-primary text-xl font-bold p-1"
               >
                 ✕
@@ -817,62 +998,199 @@ export default function AdminPage() {
               </div>
 
 
-                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
-                    Images (Upload from device or enter URLs)
-                  </label>
-                  
-                  {/* Existing URL Input */}
-                  <input
-                    type="text"
-                    value={formData.images}
-                    onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                    placeholder="/images/products/stwd-shirt.png, https://..."
-                    className="w-full rounded-sm border border-base-border bg-base-bg px-3.5 py-2 text-xs text-text-primary placeholder:text-text-secondary/40 focus:border-accent focus:outline-none transition-colors font-mono mb-2"
-                  />
+                {/* PRODUCT IMAGES: TWO DISTINCT DEVICE UPLOAD SECTIONS */}
+                <div className="space-y-4">
+                  {/* SECTION 1: COVER IMAGE (SINGLE) */}
+                  <div className="rounded-sm border border-base-border bg-base-bg/30 p-3.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-[10px] uppercase tracking-widest text-text-primary font-bold">
+                        Cover Image <span className="text-accent text-[9px] font-normal normal-case tracking-normal">(Required · Strictly 1 file)</span>
+                      </label>
+                      {(coverPreviewUrl || existingCoverUrl) && (
+                        <span className="text-[9px] uppercase tracking-wider font-mono text-accent bg-accent/10 px-2 py-0.5 rounded-sm border border-accent/20">
+                          {coverFile ? "New file selected" : "Saved in database"}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* File Upload Input */}
-                  <label className="mt-2 flex items-center justify-center w-full cursor-pointer rounded-sm border border-dashed border-base-border px-4 py-3 hover:border-text-secondary transition-colors text-center bg-base-bg/50 hover:bg-base-bg">
-                      <span className="text-xs font-bold uppercase tracking-widest text-accent">
-                        + Choose Images to Upload
-                      </span>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/jpeg, image/png, image/webp"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            const newFiles = Array.from(e.target.files);
-                            setUploadFiles((prev) => [...prev, ...newFiles]);
-                            e.target.value = "";
-                          }
-                        }}
-                      />
-                    </label>
+                    {/* Single device file input without multiple */}
+                    <input
+                      ref={coverInputRef}
+                      type="file"
+                      accept="image/png, image/jpeg, image/webp, image/avif"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleSetCoverFile(e.target.files[0]);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
 
-                    {uploadFiles.length > 0 && (
-                      <div className="mt-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-[10px] text-text-secondary uppercase tracking-widest font-bold">Pending Uploads ({uploadFiles.length})</p>
-                          <button 
-                            type="button" 
-                            onClick={() => setUploadFiles([])} 
-                            className="text-[10px] font-bold tracking-widest uppercase text-red-400 hover:text-red-300 transition-colors"
-                          >
-                            Clear
-                          </button>
+                    {/* Dedicated preview card or upload trigger */}
+                    {coverPreviewUrl || existingCoverUrl ? (
+                      <div className="flex items-center gap-3.5 bg-base-bg border border-base-border rounded-sm p-2.5">
+                        <div className="relative size-20 rounded-sm overflow-hidden border border-base-border bg-base-surface shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={coverPreviewUrl || existingCoverUrl || ""}
+                            alt="Cover image preview"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {uploadFiles.map((f, i) => (
-                            <div key={i} className="relative size-12 rounded-sm border border-base-border overflow-hidden shrink-0 bg-base-bg">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-text-primary truncate font-mono">
+                            {coverFile ? coverFile.name : (existingCoverUrl?.split("/").pop() || "cover-image")}
+                          </p>
+                          <p className="text-[10px] text-text-secondary mt-0.5">
+                            {coverFile ? `${(coverFile.size / 1024).toFixed(1)} KB · Ready to upload` : "Active cover image"}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2.5">
+                            <button
+                              type="button"
+                              onClick={() => coverInputRef.current?.click()}
+                              className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest bg-base-surface border border-base-border hover:border-accent hover:text-accent text-text-primary rounded-sm transition-colors"
+                            >
+                              Replace
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleRemoveCover}
+                              className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 rounded-sm transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => coverInputRef.current?.click()}
+                        className="flex flex-col items-center justify-center w-full py-4 px-3 cursor-pointer rounded-sm border border-dashed border-base-border hover:border-accent bg-base-bg/50 hover:bg-base-bg transition-colors group"
+                      >
+                        <span className="text-xs font-bold uppercase tracking-widest text-accent group-hover:text-accent-dim">
+                          + Choose Cover Image
+                        </span>
+                        <span className="text-[10px] text-text-secondary/70 mt-1">
+                          Select 1 image file from device (PNG, JPG, WEBP, AVIF)
+                        </span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* SECTION 2: SECONDARY IMAGES (MULTIPLE) */}
+                  <div className="rounded-sm border border-base-border bg-base-bg/30 p-3.5">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-[10px] uppercase tracking-widest text-text-primary font-bold">
+                        Secondary Images <span className="text-text-secondary text-[9px] font-normal normal-case tracking-normal">(Optional · Multiple files)</span>
+                      </label>
+                      {(existingSecondaryUrls.length > 0 || secondaryFiles.length > 0) && (
+                        <span className="text-[9px] uppercase tracking-wider font-mono text-text-secondary">
+                          {existingSecondaryUrls.length + secondaryFiles.length} {existingSecondaryUrls.length + secondaryFiles.length === 1 ? "image" : "images"}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Multiple files input */}
+                    <input
+                      ref={secondaryInputRef}
+                      type="file"
+                      multiple
+                      accept="image/png, image/jpeg, image/webp, image/avif"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          handleAddSecondaryFiles(e.target.files);
+                          e.target.value = "";
+                        }
+                      }}
+                    />
+
+                    {/* Choose Secondary Images trigger */}
+                    <button
+                      type="button"
+                      onClick={() => secondaryInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-3 cursor-pointer rounded-sm border border-dashed border-base-border hover:border-accent bg-base-bg/50 hover:bg-base-bg transition-colors mb-3 group"
+                    >
+                      <span className="text-xs font-bold uppercase tracking-widest text-accent group-hover:text-accent-dim">
+                        + Choose Secondary Images
+                      </span>
+                      <span className="text-[10px] text-text-secondary/70">
+                        (Upload multiple files from device)
+                      </span>
+                    </button>
+
+                    {/* Grid of thumbnail preview cards */}
+                    {(existingSecondaryUrls.length > 0 || secondaryFiles.length > 0) ? (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-48 overflow-y-auto pr-1">
+                          {/* Saved secondary images */}
+                          {existingSecondaryUrls.map((url, idx) => (
+                            <div
+                              key={`existing-sec-${idx}`}
+                              className="group relative aspect-square rounded-sm border border-base-border bg-base-surface overflow-hidden shrink-0"
+                            >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={URL.createObjectURL(f)} alt="preview" className="object-cover w-full h-full" />
+                              <img src={url} alt={`Secondary ${idx + 1}`} className="w-full h-full object-cover" />
+                              <span className="absolute bottom-1 left-1 bg-black/75 text-[8px] font-mono px-1 rounded text-text-secondary">
+                                Saved
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveExistingSecondaryUrl(idx)}
+                                className="absolute top-1 right-1 size-5 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition-all"
+                                title="Remove secondary image"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+
+                          {/* Newly chosen secondary files */}
+                          {secondaryFiles.map((item) => (
+                            <div
+                              key={item.id}
+                              className="group relative aspect-square rounded-sm border border-accent/40 bg-base-surface overflow-hidden shrink-0"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={item.previewUrl} alt={item.file.name} className="w-full h-full object-cover" />
+                              <span className="absolute bottom-1 left-1 bg-accent/90 text-black text-[8px] font-mono px-1 rounded font-bold">
+                                New
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSecondaryFile(item.id)}
+                                className="absolute top-1 right-1 size-5 rounded-full bg-black/80 hover:bg-red-600 text-white flex items-center justify-center text-xs opacity-80 hover:opacity-100 transition-all"
+                                title="Remove new image"
+                              >
+                                ✕
+                              </button>
                             </div>
                           ))}
                         </div>
+
+                        {secondaryFiles.length > 0 && (
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-[10px] text-accent font-medium">
+                              {secondaryFiles.length} new {secondaryFiles.length === 1 ? "image" : "images"} pending upload
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleClearSecondaryFiles}
+                              className="text-[10px] font-bold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              Clear New
+                            </button>
+                          </div>
+                        )}
                       </div>
+                    ) : (
+                      <p className="text-[10px] text-text-secondary/60 text-center py-2">
+                        No secondary images added yet.
+                      </p>
                     )}
+                  </div>
                 </div>
 
               {/* Description */}
@@ -894,7 +1212,7 @@ export default function AdminPage() {
               <div className="border-t border-base-border pt-5 flex items-center justify-end gap-3 mt-6">
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={handleCloseModal}
                   disabled={formSaving}
                   className="rounded-sm border border-base-border bg-base-bg px-4 py-2 text-xs font-bold uppercase tracking-widest text-text-secondary hover:text-text-primary transition-colors"
                 >

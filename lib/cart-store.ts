@@ -21,6 +21,8 @@ export type CartItem = {
   bundleSizes?: BundleSize[];
   /** Product category, used for referral discount filtering */
   category?: string;
+  /** Maximum available stock for this item / size */
+  maxStock?: number;
 };
 
 type CartState = {
@@ -51,6 +53,11 @@ export const useCartStore = create<CartState>()(
 
       addItem: (item) =>
         set((state) => {
+          // If maxStock is specified and is 0 or less, reject addition
+          if (item.maxStock !== undefined && item.maxStock <= 0) {
+            return state;
+          }
+
           if (item.isBundle) {
             // Bundle items are matched only by lookId — quantity is always 1
             const index = state.items.findIndex(
@@ -70,13 +77,24 @@ export const useCartStore = create<CartState>()(
             (i) => i.lookId === item.lookId && i.size === item.size
           );
           if (index > -1) {
+            const currentQty = state.items[index].quantity;
+            const max = item.maxStock !== undefined ? item.maxStock : state.items[index].maxStock;
+            if (max !== undefined && currentQty + item.quantity > max) {
+              return state;
+            }
             const updated = [...state.items];
             updated[index] = {
               ...updated[index],
-              quantity: updated[index].quantity + item.quantity,
+              quantity: currentQty + item.quantity,
+              maxStock: max,
             };
             return { items: updated };
           }
+
+          if (item.maxStock !== undefined && item.quantity > item.maxStock) {
+            return state;
+          }
+
           return { items: [...state.items, item] };
         }),
 

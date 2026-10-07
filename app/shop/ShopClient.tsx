@@ -40,7 +40,7 @@ function ShopContent({ products }: { products: Product[] }) {
   }
 
   if (activeCategory !== "All") {
-   list = list.filter((p) => p.category === activeCategory);
+   list = list.filter((p) => p.category && p.category.split(",").map(c => c.trim().toLowerCase()).includes(activeCategory.toLowerCase()));
   }
   if (priceFilter === 'below2000') list = list.filter(p => p.price < 2000);
   else if (priceFilter === 'below4000') list = list.filter(p => p.price < 4000);

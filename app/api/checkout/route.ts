@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { parseSizeVariants, serializeSizeVariants } from "@/lib/products";
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -125,6 +127,92 @@ export async function POST(request: Request) {
           },
           { status: 200 }
         );
+      }
+    }
+
+    // ── Pre-order Stock Validation ──────────────────────────────────────────
+    const productIdsToValidate = Array.from(
+      new Set(
+        (items as IncomingItem[])
+          .map((i) => i.product_id || i.productId || i.lookId)
+          .filter((id): id is string => Boolean(id))
+      )
+    );
+
+    if (productIdsToValidate.length > 0) {
+      const { data: dbProducts, error: dbProductsErr } = await supabaseAdmin
+        .from("products")
+        .select("id, name, sizes, stock")
+        .in("id", productIdsToValidate);
+
+      if (dbProductsErr) {
+        console.error("[Checkout] Failed to fetch products for stock validation:", dbProductsErr);
+      } else if (dbProducts) {
+        // Map: `${productId}:::${primarySize}` -> total requested quantity
+        const requestedQtyByProductAndSize = new Map<string, number>();
+        const totalRequestedQtyByProduct = new Map<string, number>();
+
+        for (const item of items as IncomingItem[]) {
+          const pId = item.product_id || item.productId || item.lookId;
+          if (!pId) continue;
+          const primarySize = (item.size || "ONE SIZE").split("/")[0].trim().toUpperCase();
+          const qty = item.isBundle ? 1 : Math.max(1, Number(item.quantity) || 1);
+          const key = `${pId}:::${primarySize}`;
+          requestedQtyByProductAndSize.set(
+            key,
+            (requestedQtyByProductAndSize.get(key) || 0) + qty
+          );
+          totalRequestedQtyByProduct.set(
+            pId,
+            (totalRequestedQtyByProduct.get(pId) || 0) + qty
+          );
+        }
+
+        for (const dbProduct of dbProducts) {
+          const variants = parseSizeVariants(dbProduct.sizes || []);
+          const totalRequestedForProd = totalRequestedQtyByProduct.get(dbProduct.id) || 0;
+
+          // Check aggregate product stock
+          if (Number(dbProduct.stock) <= 0 && totalRequestedForProd > 0) {
+            return NextResponse.json(
+              { error: "out of stock please choose a different size" },
+              { status: 400 }
+            );
+          }
+
+          if (variants.length > 0) {
+            for (const [key, reqQty] of requestedQtyByProductAndSize.entries()) {
+              const [pId, primarySize] = key.split(":::");
+              if (pId !== dbProduct.id) continue;
+
+              const variant = variants.find(
+                (v) => v.size.toUpperCase() === primarySize
+              );
+
+              if (!variant) {
+                // If variant not found in existing variants
+                return NextResponse.json(
+                  { error: "out of stock please choose a different size" },
+                  { status: 400 }
+                );
+              }
+
+              if (Number(variant.stock) <= 0 || reqQty > Number(variant.stock)) {
+                return NextResponse.json(
+                  { error: "out of stock please choose a different size" },
+                  { status: 400 }
+                );
+              }
+            }
+          } else {
+            if (totalRequestedForProd > Number(dbProduct.stock)) {
+              return NextResponse.json(
+                { error: "out of stock please choose a different size" },
+                { status: 400 }
+              );
+            }
+          }
+        }
       }
     }
 
@@ -272,6 +360,86 @@ export async function POST(request: Request) {
       .insert(orderItemsPayload);
     if (itemsError) {
       console.error("[Checkout] Order Items Insert Error:", itemsError);
+    }
+
+    // ── Decrement Stock for Purchased Products and Sizes ───────────────────
+    const itemsByProductId = new Map<string, Array<{ size: string; quantity: number }>>();
+
+    for (const oi of orderItemsPayload) {
+      if (!oi.product_id) continue;
+      const list = itemsByProductId.get(oi.product_id) || [];
+      list.push({ size: oi.size, quantity: oi.quantity });
+      itemsByProductId.set(oi.product_id, list);
+    }
+
+    for (const [prodId, orderedList] of itemsByProductId.entries()) {
+      try {
+        const { data: prodRow, error: fetchErr } = await supabaseAdmin
+          .from("products")
+          .select("id, sizes, stock")
+          .eq("id", prodId)
+          .maybeSingle();
+
+        if (fetchErr || !prodRow) {
+          console.warn(`[Checkout] Product ${prodId} not found for stock decrement:`, fetchErr);
+          continue;
+        }
+
+        const variants = parseSizeVariants(prodRow.sizes || []);
+
+        if (variants.length > 0) {
+          for (const ordered of orderedList) {
+            const primarySize = (ordered.size || "").split("/")[0].trim().toUpperCase();
+            const variantIndex = variants.findIndex(
+              (v) => v.size.toUpperCase() === primarySize
+            );
+            if (variantIndex > -1) {
+              const currentVariantStock = Number(variants[variantIndex].stock) || 0;
+              variants[variantIndex].stock = Math.max(0, currentVariantStock - ordered.quantity);
+            }
+          }
+
+          // Recompute total product stock = sum(variant.stock)
+          const newTotalStock = variants.reduce(
+            (sum, v) => sum + (Number(v.stock) || 0),
+            0
+          );
+
+          const serialized = serializeSizeVariants(variants);
+
+          const { error: updateErr } = await supabaseAdmin
+            .from("products")
+            .update({
+              sizes: serialized,
+              stock: newTotalStock,
+            })
+            .eq("id", prodId);
+
+          if (updateErr) {
+            console.error(`[Checkout] Failed to update stock for product ${prodId}:`, updateErr);
+          }
+        } else {
+          const totalOrderedQty = orderedList.reduce((s, o) => s + o.quantity, 0);
+          const newStock = Math.max(0, (Number(prodRow.stock) || 0) - totalOrderedQty);
+          const { error: updateErr } = await supabaseAdmin
+            .from("products")
+            .update({ stock: newStock })
+            .eq("id", prodId);
+
+          if (updateErr) {
+            console.error(`[Checkout] Failed to update aggregate stock for product ${prodId}:`, updateErr);
+          }
+        }
+      } catch (stockErr) {
+        console.error(`[Checkout] Error decrementing stock for product ${prodId}:`, stockErr);
+      }
+    }
+
+    // ── Revalidate cache ───────────────────────────────────────────────────
+    try {
+      revalidatePath("/", "layout");
+    } catch (revErr) {
+      console.warn("[Checkout] revalidatePath warning:", revErr);
     }
 
     // ── Reduce stock for bundle (by 1) ─────────────────────────────────────

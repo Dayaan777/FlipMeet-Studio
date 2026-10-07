@@ -33,8 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`bg-base-bg ${display.variable} ${body.variable}`}>
       <head>
-        <link rel="preload" as="video" href="/videos/mobile-homepage-hero-section.mp4" type="video/mp4" media="(max-width: 768px)" />
-        <link rel="preload" as="video" href="/videos/homepage-hero-section.mp4" type="video/mp4" media="(min-width: 769px)" />
+        {/* Video preloads removed to improve initial page load performance */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

@@ -13,10 +13,10 @@ export const metadata: Metadata = {
 export default async function MakeYourOwnPage() {
   const allProducts = await getProducts();
   const tops = allProducts.filter(
-    (p) => p.category === "Shirts" || p.category === "Jerseys"
+    (p) => (p.category && (p.category.includes("Shirts") || p.category.includes("Jerseys")))
   );
   const bottoms = allProducts.filter(
-    (p) => p.category === "Pants" || p.category === "Trousers"
+    (p) => (p.category && (p.category.includes("Pants") || p.category.includes("Trousers")))
   );
 
   return (

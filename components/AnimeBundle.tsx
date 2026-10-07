@@ -568,11 +568,11 @@ export default function AnimeBundle() {
 
   const jerseys = individualProducts.filter(
     (p) =>
-      p.category === "Jerseys" && BUNDLE_ITEMS.some((b) => b.topId === p.id)
+      (p.category && p.category.includes("Jerseys")) && BUNDLE_ITEMS.some((b) => b.topId === p.id)
   );
   const outfits = individualProducts.filter(
     (p) =>
-      p.category === "Outfits" &&
+      (p.category && p.category.includes("Outfits")) &&
       BUNDLE_ITEMS.some((b) => b.bottomId === p.id)
   );
 

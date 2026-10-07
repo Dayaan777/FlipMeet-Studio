@@ -5,6 +5,8 @@ import { getProductById, getProducts, getProductsBySetId } from "@/lib/products"
 import ProductDetailClient from "./ProductDetailClient";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
  const products = await getProducts();
  return products.map((p) => ({ slug: p.id }));
@@ -49,7 +51,7 @@ export default async function ProductPage({
   (p) => 
    p.id !== product.id && 
    p.name.split(" (")[0] === product.name.split(" (")[0] &&
-   p.category === product.category
+   (!p.category || !product.category || p.category.split(",").some(c => product.category.includes(c.trim())))
  );
 
  return (
