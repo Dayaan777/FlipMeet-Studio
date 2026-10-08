@@ -389,14 +389,15 @@ export async function POST(request: Request) {
 
         if (variants.length > 0) {
           for (const ordered of orderedList) {
-            const primarySize = (ordered.size || "").split("/")[0].trim().toUpperCase();
-            const variantIndex = variants.findIndex(
-              (v) => v.size.toUpperCase() === primarySize
-            );
-            if (variantIndex > -1) {
-              const currentVariantStock = Number(variants[variantIndex].stock) || 0;
-              variants[variantIndex].stock = Math.max(0, currentVariantStock - ordered.quantity);
-            }
+            const parts = (ordered.size || "").split("/").map(s => s.trim().toUpperCase());
+              for (const part of parts) {
+                if (!part) continue;
+                const variantIndex = variants.findIndex((v) => v.size.toUpperCase() === part);
+                if (variantIndex > -1) {
+                  const currentVariantStock = Number(variants[variantIndex].stock) || 0;
+                  variants[variantIndex].stock = Math.max(0, currentVariantStock - ordered.quantity);
+                }
+              }
           }
 
           // Recompute total product stock = sum(variant.stock)

@@ -5,6 +5,7 @@ export type SizeVariant = {
   size: string;
   stock: number;
   isDefault?: boolean;
+type?: "top" | "bottom";
 };
 
 export type Product = {
@@ -34,11 +35,11 @@ export function parseSizeVariants(sizes: string[]): SizeVariant[] {
     try {
       const parsed = JSON.parse(s);
       if (parsed && typeof parsed === "object" && "size" in parsed) {
-        return parsed as SizeVariant;
+        if (!parsed.type) { const isNumeric = !isNaN(Number(parsed.size)); parsed.type = isNumeric ? "bottom" : "top"; } return parsed as SizeVariant;
       }
     } catch (_) {}
     // Plain string size — default stock of 100
-    return { size: s, stock: 100, isDefault: false };
+    const isNumeric = !isNaN(Number(s)); return { size: s, stock: 100, isDefault: false, type: isNumeric ? "bottom" : "top" };
   });
 }
 
@@ -694,3 +695,4 @@ function getFallbackProducts(): Product[] {
 
   return newProducts;
 }
+

@@ -52,24 +52,33 @@ export default function ProductDetailClient({
 
  // Parse size variants (supports both legacy plain sizes and new JSON-serialized variants)
  const sizeVariants = useMemo(() => parseSizeVariants(product.sizes || []), [product.sizes]);
+  const topVariants = useMemo(() => sizeVariants.filter(v => v.type === "top" || !v.type), [sizeVariants]);
+  const bottomVariants = useMemo(() => sizeVariants.filter(v => v.type === "bottom"), [sizeVariants]);
 
- // Find the default size: use isDefault, or first available in-stock, or first
- const defaultSize = useMemo(() => {
-  const defaultVariant = sizeVariants.find(v => v.isDefault && v.stock > 0);
-  if (defaultVariant) return defaultVariant.size;
-  const firstInStock = sizeVariants.find(v => v.stock > 0);
-  if (firstInStock) return firstInStock.size;
-  return sizeVariants[0]?.size || "M";
- }, [sizeVariants]);
+  const defaultTopSize = useMemo(() => {
+    const defaultVariant = topVariants.find(v => v.isDefault && v.stock > 0);
+    if (defaultVariant) return defaultVariant.size;
+    const firstInStock = topVariants.find(v => v.stock > 0);
+    if (firstInStock) return firstInStock.size;
+    return topVariants[0]?.size || "M";
+  }, [topVariants]);
 
- const [selectedSize, setSelectedSize] = useState(defaultSize);
- const [selectedWaist, setSelectedWaist] = useState("30");
- const [added, setAdded] = useState(false);
- const [soldOutError, setSoldOutError] = useState(false);
- const [showMobileSizeGuide, setShowMobileSizeGuide] = useState(false);
- const [showDesktopSizeGuide, setShowDesktopSizeGuide] = useState(false);
- const [fileName, setFileName] = useState<string | null>(null);
- const items = useCartStore((s) => s.items);
+  const defaultBottomSize = useMemo(() => {
+    const defaultVariant = bottomVariants.find(v => v.isDefault && v.stock > 0);
+    if (defaultVariant) return defaultVariant.size;
+    const firstInStock = bottomVariants.find(v => v.stock > 0);
+    if (firstInStock) return firstInStock.size;
+    return bottomVariants[0]?.size || "30";
+  }, [bottomVariants]);
+
+  const [selectedSize, setSelectedSize] = useState(defaultTopSize);
+  const [selectedWaist, setSelectedWaist] = useState(defaultBottomSize);
+  const [added, setAdded] = useState(false);
+  const [soldOutError, setSoldOutError] = useState(false);
+  const [showMobileSizeGuide, setShowMobileSizeGuide] = useState(false);
+  const [showDesktopSizeGuide, setShowDesktopSizeGuide] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const items = useCartStore((s) => s.items);
  const addItem = useCartStore((s) => s.addItem);
  const { referralCode, referralDiscountPct, referralCategories } = useCartStore();
 
@@ -83,29 +92,40 @@ export default function ProductDetailClient({
    referralCategories
   );
 
- const isOutfit = product.category?.toLowerCase().includes("outfit");
- const isPants = (product.category?.toLowerCase().includes("pant") || product.category?.toLowerCase().includes("trouser")) && !isOutfit;
- const finalSize = (isPants || isOutfit) ? `${selectedSize} / ${selectedWaist}` : selectedSize;
+ 
+  const hasTop = topVariants.length > 0;
+  const hasBottom = bottomVariants.length > 0;
+  
+  let finalSize = "";
+  if (hasTop && hasBottom) finalSize = `${selectedSize} / ${selectedWaist}`;
+  else if (hasBottom) finalSize = selectedWaist;
+  else finalSize = selectedSize;
 
- // Check stock for the currently selected size
- const selectedVariant = sizeVariants.find((v) => v.size === selectedSize);
- const availableStock = selectedVariant
-  ? selectedVariant.stock
-  : sizeVariants.length === 0
-  ? (product.stock ?? 0)
-  : 0;
- const isSelectedSoldOut = availableStock <= 0;
+  const selectedTopVariant = topVariants.find((v) => v.size === selectedSize);
+  const selectedBottomVariant = bottomVariants.find((v) => v.size === selectedWaist);
 
- const sizeLabel = (() => {
-  const cat = product.category?.toLowerCase() || "";
-  if (cat.includes("jersey")) return "Jersey Size";
-  if (cat.includes("shirt")) return "Shirt Size";
-  return "Select Size";
- })();
+  let availableStock = 0;
+  if (hasTop && hasBottom) {
+    availableStock = Math.min(selectedTopVariant?.stock || 0, selectedBottomVariant?.stock || 0);
+  } else if (hasBottom) {
+    availableStock = selectedBottomVariant?.stock || 0;
+  } else if (hasTop) {
+    availableStock = selectedTopVariant?.stock || 0;
+  } else {
+    availableStock = product.stock ?? 0;
+  }
 
- const handleAddToCart = () => {
+  const isSelectedSoldOut = availableStock <= 0;
+
+  const sizeLabel = (() => {
+    const cat = product.category?.toLowerCase() || "";
+    if (cat.includes("jersey")) return "Jersey Size";
+    if (cat.includes("shirt")) return "Shirt Size";
+    return "Select Size";
+  })();
+const handleAddToCart = () => {
   const currentQtyInCart = items
-   .filter((i) => i.lookId === product.id && i.size.split("/")[0].trim() === selectedSize)
+   .filter((i) => i.lookId === product.id && i.size === finalSize)
    .reduce((sum, i) => sum + i.quantity, 0);
 
   if (availableStock <= 0 || currentQtyInCart + 1 > availableStock) {
@@ -132,7 +152,7 @@ export default function ProductDetailClient({
 
  const handleProceedToCheckout = () => {
   const currentQtyInCart = items
-   .filter((i) => i.lookId === product.id && i.size.split("/")[0].trim() === selectedSize)
+   .filter((i) => i.lookId === product.id && i.size === finalSize)
    .reduce((sum, i) => sum + i.quantity, 0);
 
   const alreadyInCart = items.some(
@@ -400,7 +420,7 @@ export default function ProductDetailClient({
        {/* Size Selector */}
        <div className="space-y-3 pt-2 mt-4">
         
-        {!isPants && (
+        {hasTop && (
          <>
          {/* Size Guide Trigger */}
          <div className="mb-4">
@@ -435,7 +455,7 @@ export default function ProductDetailClient({
          </>
         )}
 
-        {!isPants && (
+        {hasTop && (
          <div className="flex items-center justify-between text-xs">
           <span className="text-text-secondary uppercase tracking-widest">{sizeLabel}</span>
           <span className="text-[10px] text-accent font-bold uppercase tracking-widest">
@@ -444,9 +464,9 @@ export default function ProductDetailClient({
          </div>
         )}
 
-        {(!isPants || isOutfit) && (
+        {hasTop && (
         <div className="grid grid-cols-5 gap-2.5">
-         {sizeVariants.length > 0 ? sizeVariants.map((variant) => {
+         {topVariants.length > 0 ? topVariants.map((variant) => {
           const isOOS = variant.stock <= 0;
           return (
            <button
@@ -505,34 +525,48 @@ export default function ProductDetailClient({
         </div>
         )}
 
-        {/* Waist Size Options for Pants/Trousers/Outfits */}
-        {(isPants || isOutfit) && (
+        {hasBottom && (
          <div className="pt-3">
           <div className="flex items-center justify-between text-xs mb-3">
            <span className="text-text-secondary uppercase tracking-widest">Select Waist Size</span>
           </div>
           <div className="grid grid-cols-4 gap-2.5">
-           {["28", "30", "32", "34", "36"].map((sz) => (
+           {bottomVariants.map((variant) => {
+            const isOOS = variant.stock <= 0;
+            return (
             <button
-             key={sz}
+             key={variant.size}
              type="button"
-             onClick={() => setSelectedWaist(sz)}
-             className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border ${
-              selectedWaist === sz
-               ? "border-accent bg-accent/15 text-accent shadow-sm"
+             onClick={() => setSelectedWaist(variant.size)}
+             className={`py-3 text-xs font-bold uppercase tracking-widest transition-all duration-200 rounded-sm border relative cursor-pointer ${
+              selectedWaist === variant.size
+               ? isOOS
+                 ? "border-red-500/60 bg-red-500/10 text-red-400 line-through shadow-sm"
+                 : "border-accent bg-accent/15 text-accent shadow-sm"
+               : isOOS
+               ? "border-base-border/40 bg-base-bg/40 text-text-secondary/40 line-through hover:border-base-border"
                : "border-base-border bg-base-surface text-text-secondary hover:border-text-secondary hover:text-text-primary"
              }`}
              style={
-              selectedWaist === sz
+              selectedWaist === variant.size && !isOOS
                ? { boxShadow: "0 0 12px rgb(var(--accent) / 0.4)" }
                : undefined
              }
             >
-             {sz}
+             {variant.size}
+             {isOOS && <span className="absolute -top-1 -right-1 size-2 rounded-full bg-red-500 border border-base-bg" title="Sold out" />}
             </button>
-           ))}
+           )})}
           </div>
          </div>
+        )}
+       </div>
+
+       <div className="h-4 mt-2 mb-2">
+        {soldOutError && (
+         <p className="text-red-400 text-[10px] uppercase font-bold tracking-widest animate-fade-in text-center">
+          Selected size combination is out of stock.
+         </p>
         )}
        </div>
 
@@ -548,7 +582,7 @@ export default function ProductDetailClient({
          ) : (
           <span className="text-emerald-400 font-bold tracking-widest uppercase flex items-center gap-1.5">
            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-           {selectedVariant ? `${selectedVariant.stock} PIECES LEFT` : `${product.stock} PIECES ALLOCATED`}
+           {hasTop || hasBottom ? `${availableStock} PIECES LEFT` : `${product.stock} PIECES ALLOCATED`}
           </span>
          )}
         </div>
