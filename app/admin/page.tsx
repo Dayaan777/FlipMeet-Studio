@@ -970,21 +970,14 @@ export default function AdminPage() {
                     <div className="mb-6">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-accent mb-2">Top Sizes</p>
                       <div className="rounded-sm border border-base-border bg-base-bg overflow-hidden">
-                        <div className="grid grid-cols-[auto_1fr_80px_32px] gap-2 px-3 py-2 border-b border-base-border bg-base-surface/50 text-[9px] font-bold uppercase tracking-widest text-text-secondary">
-                          <span>Default</span>
+                        <div className="grid grid-cols-[1fr_80px_32px] gap-2 px-3 py-2 border-b border-base-border bg-base-surface/50 text-[9px] font-bold uppercase tracking-widest text-text-secondary">
                           <span>Size</span>
                           <span>Stock</span>
                           <span></span>
                         </div>
                         {sizeVariants.map((variant, idx) => variant.type === "top" && (
-                          <div key={idx} className="grid grid-cols-[auto_1fr_80px_32px] gap-2 items-center px-3 py-2 border-b border-base-border/40 last:border-0">
-                            <input
-                              type="radio"
-                              name="defaultTopSize"
-                              checked={!!variant.isDefault}
-                              onChange={() => setSizeVariants(sizeVariants.map((v, i) => v.type === "top" ? { ...v, isDefault: i === idx } : v))}
-                              className="accent-accent cursor-pointer"
-                            />
+                          <div key={idx} className="grid grid-cols-[1fr_80px_32px] gap-2 items-center px-3 py-2 border-b border-base-border/40 last:border-0">
+                            
                             <span className="text-xs font-bold text-text-primary font-mono">{variant.size}</span>
                             <input
                               type="number"
@@ -1038,21 +1031,14 @@ export default function AdminPage() {
                     <div className="mb-6">
                       <p className="text-[10px] font-bold uppercase tracking-widest text-accent mb-2">Bottom Sizes</p>
                       <div className="rounded-sm border border-base-border bg-base-bg overflow-hidden">
-                        <div className="grid grid-cols-[auto_1fr_80px_32px] gap-2 px-3 py-2 border-b border-base-border bg-base-surface/50 text-[9px] font-bold uppercase tracking-widest text-text-secondary">
-                          <span>Default</span>
+                        <div className="grid grid-cols-[1fr_80px_32px] gap-2 px-3 py-2 border-b border-base-border bg-base-surface/50 text-[9px] font-bold uppercase tracking-widest text-text-secondary">
                           <span>Size</span>
                           <span>Stock</span>
                           <span></span>
                         </div>
                         {sizeVariants.map((variant, idx) => variant.type === "bottom" && (
-                          <div key={idx} className="grid grid-cols-[auto_1fr_80px_32px] gap-2 items-center px-3 py-2 border-b border-base-border/40 last:border-0">
-                            <input
-                              type="radio"
-                              name="defaultBottomSize"
-                              checked={!!variant.isDefault}
-                              onChange={() => setSizeVariants(sizeVariants.map((v, i) => v.type === "bottom" ? { ...v, isDefault: i === idx } : v))}
-                              className="accent-accent cursor-pointer"
-                            />
+                          <div key={idx} className="grid grid-cols-[1fr_80px_32px] gap-2 items-center px-3 py-2 border-b border-base-border/40 last:border-0">
+                            
                             <span className="text-xs font-bold text-text-primary font-mono">{variant.size}</span>
                             <input
                               type="number"
