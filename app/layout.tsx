@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
 import GenderGate from "@/components/GenderGate";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const display = Bebas_Neue({
   subsets: ["latin"],
@@ -59,6 +60,7 @@ export default function RootLayout({
         <div className="fm-protected-content">
           {children}
         </div>
+        <GoogleAnalytics gaId="G-QMYCM79SGY" />
       </body>
     </html>
   );
