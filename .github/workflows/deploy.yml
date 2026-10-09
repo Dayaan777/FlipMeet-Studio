@@ -39,6 +39,7 @@ jobs:
             package-lock.json \
             next.config.ts \
             Procfile \
+            .platform \
             -x ".next/cache/*"
 
       - name: Deploy to Elastic Beanstalk
