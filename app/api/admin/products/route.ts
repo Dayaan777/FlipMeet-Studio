@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, name, category, price, old_price, is_bundle, stock, sizes, images, description } = body;
+    const { id, name, category, price, old_price, is_bundle, stock, sizes, images, description, specs } = body;
 
     if (!id || !name) {
       return NextResponse.json(
@@ -55,6 +55,7 @@ export async function POST(request: Request) {
       sizes: Array.isArray(sizes) ? sizes : ["S", "M", "L", "XL"],
       images: Array.isArray(images) ? images : [`/images/looks/${id}.jpg`],
       description: String(description || "").trim(),
+      specs: Array.isArray(specs) ? specs : [],
     };
 
     // Only include old_price if it was explicitly passed (don't overwrite with null)

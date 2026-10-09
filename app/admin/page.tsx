@@ -8,24 +8,26 @@ import type { Product } from "@/lib/products";
 import { parseSizeVariants, serializeSizeVariants, type SizeVariant } from "@/lib/products";
 
 type ProductForm = {
-  id: string;
-  name: string;
-  category: string;
-  price: string;
-  old_price: string;
-  description: string;
-  is_bundle: boolean;
-};
+    id: string;
+    name: string;
+    category: string;
+    price: string;
+    old_price: string;
+    description: string;
+    is_bundle: boolean;
+    specs: string[];
+  };
 
 const DEFAULT_FORM: ProductForm = {
-  id: "",
-  name: "",
-  category: "Outfits",
-  price: "23500",
-  old_price: "",
-  description: "",
-  is_bundle: false,
-};
+    id: "",
+    name: "",
+    category: "Outfits",
+    price: "23500",
+    old_price: "",
+    description: "",
+    is_bundle: false,
+    specs: [],
+  };
 
 type SecondaryFileItem = {
   id: string;
@@ -328,8 +330,9 @@ export default function AdminPage() {
       price: product.price.toString(),
       old_price: product.old_price ? product.old_price.toString() : "",
       description: product.description || "",
-      is_bundle: !!product.is_bundle,
-    });
+        is_bundle: !!product.is_bundle,
+        specs: product.specs || [],
+      });
     const imgs = product.images || [];
     setExistingCoverUrl(imgs[0] || null);
     setExistingSecondaryUrls(imgs.slice(1));
@@ -432,8 +435,9 @@ export default function AdminPage() {
         sizes: serializeSizeVariants(normalizedVariants),
         images: finalImages,
         description: formData.description.trim(),
-        is_bundle: formData.is_bundle,
-      };
+          is_bundle: formData.is_bundle,
+          specs: formData.specs.filter(s => s.trim() !== ""),
+        };
 
       const response = await fetch("/api/admin/products", {
         method: "POST",
@@ -1303,6 +1307,44 @@ export default function AdminPage() {
                   required
                 />
               </div>
+                {/* Specifications */}
+                <div className="mt-4">
+                  <label className="block text-[10px] uppercase tracking-widest text-text-secondary mb-1.5 font-medium">
+                    Garment Craft Specifications
+                  </label>
+                  <div className="flex flex-col gap-2 mb-2">
+                    {formData.specs.map((spec, i) => (
+                      <div key={i} className="flex gap-2 items-center">
+                        <span className="text-accent text-[8px] shrink-0">●</span>
+                        <input
+                          type="text"
+                          value={spec}
+                          onChange={(e) => {
+                            const newSpecs = [...formData.specs];
+                            newSpecs[i] = e.target.value;
+                            setFormData({ ...formData, specs: newSpecs });
+                          }}
+                          className="flex-1 rounded-sm border border-base-border bg-base-bg px-2 py-1.5 text-xs text-text-primary focus:border-accent focus:outline-none transition-colors"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, specs: formData.specs.filter((_, idx) => idx !== i) })}
+                          className="text-text-secondary hover:text-red-400 text-xs font-bold px-2 py-1 bg-base-surface border border-base-border rounded-sm"
+                        >
+                          X
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, specs: [...formData.specs, ""] })}
+                    className="text-[10px] font-bold uppercase tracking-widest text-accent hover:text-accent-dim"
+                  >
+                    + ADD SPECIFICATION
+                  </button>
+                </div>
+
 
               {/* Modal Buttons */}
               <div className="border-t border-base-border pt-5 flex items-center justify-end gap-3 mt-6">
