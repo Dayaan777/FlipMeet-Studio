@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Fragment } from "react";
 import Link from "next/link";
+import AdminPushManager from "@/components/AdminPushManager";
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,9 @@ export default function AdminOrdersPage() {
             {loading ? "Syncing..." : "Refresh"}
           </button>
         </div>
+
+        {/* Push Notifications Device Manager */}
+        <AdminPushManager />
 
         {/* Status Message */}
         {statusMessage && (

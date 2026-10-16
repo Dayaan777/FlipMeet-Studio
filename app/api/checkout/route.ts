@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { sendOrderPushNotification } from "@/lib/push";
 import { parseSizeVariants, serializeSizeVariants } from "@/lib/products";
 
 const supabaseUrl =
@@ -497,6 +498,19 @@ export async function POST(request: Request) {
       });
     } catch (emailErr) {
       console.error("[Checkout] Failed to dispatch email:", emailErr);
+    }
+
+    // ── Send admin push notification ────────────────────────────────────────
+    try {
+      await sendOrderPushNotification({
+        orderId,
+        customerName: resolvedName,
+        total: finalTotal,
+        itemsCount: emailItems.reduce((acc, item) => acc + (item.quantity || 1), 0),
+        city: resolvedAddress.split(",").pop()?.trim() || "",
+      });
+    } catch (pushErr) {
+      console.error("[Checkout] Failed to dispatch admin push notification:", pushErr);
     }
 
     return NextResponse.json(

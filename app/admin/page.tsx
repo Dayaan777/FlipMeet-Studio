@@ -6,6 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/lib/products";
 import { parseSizeVariants, serializeSizeVariants, type SizeVariant } from "@/lib/products";
+import AdminPushManager from "@/components/AdminPushManager";
 
 type ProductForm = {
     id: string;
@@ -596,6 +597,9 @@ export default function AdminPage() {
             </button>
           </div>
         )}
+
+        {/* Push Notifications Device Manager */}
+        <AdminPushManager />
 
         {/* Overview Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
