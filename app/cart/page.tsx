@@ -267,7 +267,7 @@ export default function CartPage() {
 
                   <div className="flex justify-between text-text-secondary">
                     <span>Est. Delivery</span>
-                    <span className="text-text-primary">20–30 Oct 2026</span>
+                    <span className="text-text-primary">2-3 Working Days</span>
                   </div>
                 </div>
 

@@ -113,7 +113,7 @@ export async function sendOrderConfirmationEmail(
   const fromEmail =
     process.env.RESEND_FROM_EMAIL ||
     "FlipMeet Studio <onboarding@resend.dev>";
-  const deliveryWindow = data.deliveryEstimate || "20–30 Oct 2026";
+  const deliveryWindow = data.deliveryEstimate || "2-3 Working Days";
 
   // Build items HTML
   const itemsHtml = data.items

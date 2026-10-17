@@ -492,7 +492,7 @@ export default function DashboardPage() {
                 {metrics.inProductionCount} <span className="text-sm font-normal text-text-secondary">garments</span>
               </p>
               <p className="text-[11px] text-text-secondary mt-2">
-                Target delivery: 20–30 Oct 2026
+                Target delivery: 2-3 Working Days
               </p>
             </div>
           </div>

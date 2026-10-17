@@ -490,7 +490,7 @@ export async function POST(request: Request) {
         shippingAddress: resolvedAddress,
         total: finalTotal,
         items: emailItems,
-        deliveryEstimate: "20-30 Oct 2026",
+        deliveryEstimate: "2-3 Working Days",
         referralCode: referralApplied ? rawReferralCode : undefined,
         discountAmount: discountAmount > 0 ? discountAmount : undefined,
         perItemDiscounts:
