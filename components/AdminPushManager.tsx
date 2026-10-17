@@ -25,10 +25,18 @@ export default function AdminPushManager() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [isSecure, setIsSecure] = useState(true);
 
   // Check support and active subscription on mount
   const checkStatus = useCallback(async () => {
     if (typeof window === "undefined") return;
+
+    const secure =
+      window.isSecureContext ??
+      (window.location.protocol === "https:" ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+    setIsSecure(secure);
 
     const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
     setIsIOS(ios);
@@ -74,6 +82,15 @@ export default function AdminPushManager() {
     setActionLoading(true);
     setMessage(null);
 
+    if (!isSecure) {
+      setMessage({
+        type: "error",
+        text: `Chrome requires HTTPS for notifications. When opening via local IP (${window.location.host}), Chrome blocks notifications automatically. Please deploy and open your live HTTPS site.`,
+      });
+      setActionLoading(false);
+      return;
+    }
+
     // If iPhone and not added to home screen yet
     if (isIOS && !isStandalone) {
       setShowIOSGuide(true);
@@ -82,13 +99,22 @@ export default function AdminPushManager() {
     }
 
     try {
+      if (Notification.permission === "denied") {
+        setMessage({
+          type: "error",
+          text: "Notification permission is blocked for this site in Chrome. Tap the lock/tune icon next to the URL in Chrome -> Permissions -> Notifications -> Allow.",
+        });
+        setActionLoading(false);
+        return;
+      }
+
       const perm = await Notification.requestPermission();
       setPermission(perm);
 
       if (perm !== "granted") {
         setMessage({
           type: "error",
-          text: "Notification permission was denied. Please allow notifications in your browser settings.",
+          text: "Notification permission was denied. Tap the lock/tune icon next to the URL in Chrome -> Permissions -> Notifications -> Allow.",
         });
         setActionLoading(false);
         return;
@@ -324,6 +350,22 @@ export default function AdminPushManager() {
             >
               Dismiss
             </button>
+          </div>
+        </div>
+      )}
+      {/* HTTPS Required Callout (e.g. if testing on local IP) */}
+      {!isSecure && (
+        <div className="mt-4 border-t border-base-border pt-3">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-sm p-3 text-xs text-amber-300">
+            <p className="font-bold uppercase tracking-wide mb-1 flex items-center gap-1.5 text-amber-400">
+              <span>🔒</span> HTTPS Connection Required:
+            </p>
+            <p className="text-[11px] leading-relaxed text-amber-200/90">
+              Android Chrome strictly prohibits push notifications on local HTTP addresses (like <code>{typeof window !== "undefined" ? window.location.origin : ""}</code>). When testing on an HTTP IP address, Chrome automatically suppresses notification permission prompts.
+            </p>
+            <p className="text-[11px] leading-relaxed text-amber-200/90 mt-1.5 font-medium">
+              👉 Once pushed to your live website (<strong>https://flipmeetstudio.com/admin</strong>), open it on your phone and tap Enable. Chrome will prompt and work immediately!
+            </p>
           </div>
         </div>
       )}
