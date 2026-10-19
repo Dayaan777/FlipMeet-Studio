@@ -64,10 +64,21 @@ body {
   background: radial-gradient(ellipse at center, transparent 35%, rgb(10 8 6 / 0.42) 100%);
 }
 
+.htx-studio-surface > section,
+.htx-studio-surface > div > section {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+
 .htx-studio-footer {
-  background:
-    linear-gradient(180deg, rgb(35 31 27 / 0.94), rgb(22 20 18 / 0.98)),
-    repeating-linear-gradient(90deg, rgb(214 190 154 / 0.04) 0 1px, transparent 1px 9px);
+  border-top: 0 !important;
+  background-color: #71685d;
+  background-image:
+    linear-gradient(180deg, rgb(31 27 22 / 0.1), rgb(28 25 21 / 0.42)),
+    url('/images/htx-studio-wall.png');
+  background-size: cover, cover;
+  background-position: center bottom, center bottom;
+  background-attachment: scroll, fixed;
 }
 
 /* Keyboard focus ring - uses themed accent */

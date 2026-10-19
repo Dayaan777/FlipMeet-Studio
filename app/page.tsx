@@ -17,7 +17,7 @@ export default async function Home() {
   return (
     <>
       <NavBar />
-      <main className="bg-base-bg">
+      <main className="bg-transparent">
         <ResponsiveHero />
 
         <div className="htx-studio-surface">
@@ -27,7 +27,7 @@ export default async function Home() {
           {/* <TryOnPanel drop={drop} /> */}
           
           {/* ── ANIME PACK 5 IN 1 ── */}
-          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-12 sm:pt-20 border-t border-base-border">
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-12 sm:pt-20">
             <AnimeBundle />
           </section>
 
