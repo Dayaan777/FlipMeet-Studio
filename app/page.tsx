@@ -20,18 +20,20 @@ export default async function Home() {
       <main className="bg-base-bg">
         <ResponsiveHero />
 
-        <LookCarousel drop={drop} />
-        {/* <FeaturedLooksGrid drop={drop} /> */}
-        <AnimeTeaser drop={drop} />
-        {/* <TryOnPanel drop={drop} /> */}
-        
-        {/* ── ANIME PACK 5 IN 1 ── */}
-        <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-12 sm:pt-20 border-t border-base-border">
-          <AnimeBundle />
-        </section>
+        <div className="htx-studio-surface">
+          <LookCarousel drop={drop} />
+          {/* <FeaturedLooksGrid drop={drop} /> */}
+          <AnimeTeaser drop={drop} />
+          {/* <TryOnPanel drop={drop} /> */}
+          
+          {/* ── ANIME PACK 5 IN 1 ── */}
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-12 sm:pt-20 border-t border-base-border">
+            <AnimeBundle />
+          </section>
 
-        <VideoCarousel />
-        <TrustBadges />
+          <VideoCarousel />
+          <TrustBadges />
+        </div>
       </main>
      <Footer />
     </>

@@ -70,7 +70,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative z-50 px-6 py-16 md:py-24 border-t border-base-border bg-base-bg">
+    <footer className="htx-studio-footer relative z-50 px-6 py-16 md:py-24 border-t border-base-border">
       <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
 
         {/* Col 1: Brand & Mission */}

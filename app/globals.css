@@ -27,6 +27,46 @@ body {
   font-family: var(--font-body);
 }
 
+/* A weathered, mineral-toned field for the post-hero studio story. The layered
+   gradients suggest plaster, dust, and warm light without using a copied asset. */
+.htx-studio-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 12% 8%, rgb(178 151 116 / 0.26), transparent 34%),
+    radial-gradient(ellipse at 88% 38%, rgb(116 91 69 / 0.28), transparent 38%),
+    linear-gradient(115deg, #302b25 0%, #4a4035 42%, #272522 100%);
+}
+
+.htx-studio-surface::before,
+.htx-studio-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.htx-studio-surface::before {
+  z-index: -1;
+  opacity: 0.22;
+  background:
+    repeating-linear-gradient(103deg, transparent 0 22px, rgb(232 213 183 / 0.08) 23px, transparent 25px 73px),
+    repeating-linear-gradient(7deg, transparent 0 38px, rgb(18 15 12 / 0.14) 39px, transparent 41px 104px);
+  mix-blend-mode: soft-light;
+}
+
+.htx-studio-surface::after {
+  z-index: -1;
+  background: radial-gradient(ellipse at center, transparent 35%, rgb(10 8 6 / 0.42) 100%);
+}
+
+.htx-studio-footer {
+  background:
+    linear-gradient(180deg, rgb(35 31 27 / 0.94), rgb(22 20 18 / 0.98)),
+    repeating-linear-gradient(90deg, rgb(214 190 154 / 0.04) 0 1px, transparent 1px 9px);
+}
+
 /* Keyboard focus ring - uses themed accent */
 *:focus-visible {
   outline: 2px solid rgb(var(--accent));
