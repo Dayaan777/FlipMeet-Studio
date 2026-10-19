@@ -33,10 +33,13 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 12% 8%, rgb(178 151 116 / 0.26), transparent 34%),
-    radial-gradient(ellipse at 88% 38%, rgb(116 91 69 / 0.28), transparent 38%),
-    linear-gradient(115deg, #302b25 0%, #4a4035 42%, #272522 100%);
+  background-color: #4a4036;
+  background-image:
+    linear-gradient(112deg, rgb(20 17 14 / 0.2), rgb(188 159 122 / 0.08) 48%, rgb(15 13 11 / 0.3)),
+    url('/images/htx-concrete-wall.png');
+  background-size: cover, 720px auto;
+  background-position: center, center;
+  background-attachment: fixed, fixed;
 }
 
 .htx-studio-surface::before,
@@ -49,7 +52,7 @@ body {
 
 .htx-studio-surface::before {
   z-index: -1;
-  opacity: 0.22;
+  opacity: 0.16;
   background:
     repeating-linear-gradient(103deg, transparent 0 22px, rgb(232 213 183 / 0.08) 23px, transparent 25px 73px),
     repeating-linear-gradient(7deg, transparent 0 38px, rgb(18 15 12 / 0.14) 39px, transparent 41px 104px);
