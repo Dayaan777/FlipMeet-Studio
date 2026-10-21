@@ -28,34 +28,9 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     type: "image",
-    src: "/videos/mobile-ui/1st-slide.png",
+    src: "/videos/mobile-ui/1st-slide.jpg",
     duration: 5500,
-    hotspots: [
-      {
-        id: "saint-culture-jersey",
-        name: "Saint Culture Jersey",
-        price: 19500,
-        slug: "saint-culture-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/saint-culture-jersey.png",
-        x: 12, y: 53,
-      },
-      {
-        id: "anime-op-flame-jersey",
-        name: "One Piece Flame Jersey",
-        price: 16500,
-        slug: "anime-op-flame-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/anime-op-flame-jersey.png",
-        x: 33, y: 52,
-      },
-      {
-        id: "dreamer-jersey",
-        name: "Dreamer 84 Mesh Football Jersey",
-        price: 23500,
-        slug: "dreamer-jersey",
-        image: "https://gqazaajfycutqildyrqw.supabase.co/storage/v1/object/public/products/dreamer-jersey.png",
-        x: 78, y: 55,
-      },
-    ],
+    hotspots: [],
   },
   {
     type: "video",
@@ -290,6 +265,11 @@ export default function MobileStoryHero() {
   };
 
   const handleBackgroundTap = () => {
+    if (visibleHotspots.length === 0) {
+      // No hotspots on this slide (e.g. 1st slide): simply toggle pause/play without any dots
+      setIsPaused((prev) => !prev);
+      return;
+    }
     if (isDiscoveryMode) {
       // Close UI and resume
       setIsDiscoveryMode(false);
@@ -310,7 +290,9 @@ export default function MobileStoryHero() {
       setActiveHotspot(null);
     } else {
       setIsPaused(true);
-      setIsDiscoveryMode(true);
+      if (visibleHotspots.length > 0) {
+        setIsDiscoveryMode(true);
+      }
     }
   };
 
@@ -434,7 +416,7 @@ export default function MobileStoryHero() {
       )}
 
       {/* ─── Discovery hint ──────────────────────────────────────────────────── */}
-      {isDiscoveryMode && !activeHotspot && (
+      {isDiscoveryMode && !activeHotspot && visibleHotspots.length > 0 && (
         <div className="absolute bottom-[72px] left-1/2 -translate-x-1/2 pointer-events-none z-20">
           <p className="text-[10px] uppercase tracking-[0.3em] text-white/55 text-center animate-pulse">
             Tap a dot to explore
@@ -494,7 +476,7 @@ export default function MobileStoryHero() {
       </div>
 
       {/* ─── Global Interaction Hint ─────────────────────────────────────────── */}
-      {!isDiscoveryMode && (
+      {!isDiscoveryMode && visibleHotspots.length > 0 && (
         <div className="absolute bottom-5 left-4 z-40 pointer-events-none">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse" />
