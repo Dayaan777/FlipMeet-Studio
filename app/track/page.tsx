@@ -3,6 +3,7 @@
 import { useState } from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import HomeWallBackground from "@/components/HomeWallBackground";
 
 const TRACKING_STEPS = [
   { key: "ORDER_SECURED", label: "ORDER SECURED" },
@@ -63,18 +64,20 @@ export default function TrackPage() {
   return (
     <>
       <NavBar mobileSolid />
-      <main className="min-h-screen bg-base-bg pt-32 pb-20 px-6 sm:px-8 text-text-primary selection:bg-accent selection:text-white">
-        <div className="max-w-2xl mx-auto">
+      <main className="home-wall min-h-screen pt-32 pb-20 px-6 sm:px-8 text-text-primary selection:bg-accent selection:text-white">
+        <HomeWallBackground />
+        <div className="relative z-10 max-w-2xl mx-auto">
+        
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="font-display text-4xl tracking-wider text-text-primary mb-3 uppercase">Locate Order</h1>
-            <p className="text-sm tracking-widest text-text-secondary uppercase">
+            <h1 className="font-display text-4xl tracking-wider text-[#1c1510] mb-3 uppercase">Locate Order</h1>
+            <p className="text-sm tracking-widest text-[#4e4034] uppercase">
               Enter your credentials to track your archive.
             </p>
           </div>
 
           {!orderData ? (
-            <form onSubmit={handleTrack} className="bg-base-surface/50 border border-base-border backdrop-blur-md p-6 sm:p-8 rounded-xl max-w-md mx-auto">
+            <form onSubmit={handleTrack} className="bg-[#141210]/90 border border-[#2d2620] backdrop-blur-md p-6 sm:p-8 rounded-xl max-w-md mx-auto shadow-2xl">
               {error && (
                 <div className="mb-6 p-3 border border-red-500/30 bg-red-500/10 text-red-400 text-xs text-center rounded-sm tracking-wide">
                   {error}
@@ -93,7 +96,7 @@ export default function TrackPage() {
                     placeholder="e.g. #FM-2026-1049"
                     value={orderId}
                     onChange={(e) => setOrderId(e.target.value)}
-                    className="w-full bg-base-bg border border-base-border px-4 py-3 text-sm rounded-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-white/20"
+                    className="w-full bg-black/60 border border-[#3a3028] px-4 py-3 text-sm rounded-sm text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-white/30"
                   />
                 </div>
                 
@@ -108,7 +111,7 @@ export default function TrackPage() {
                     placeholder="Used at checkout"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-base-bg border border-base-border px-4 py-3 text-sm rounded-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-white/20"
+                    className="w-full bg-black/60 border border-[#3a3028] px-4 py-3 text-sm rounded-sm text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder:text-white/30"
                   />
                 </div>
                 
@@ -134,7 +137,7 @@ export default function TrackPage() {
                 <span>&larr;</span> Search Another
               </button>
 
-              <div className="bg-base-surface/50 border border-base-border p-6 sm:p-8 rounded-xl backdrop-blur-md">
+              <div className="bg-[#141210]/90 border border-[#2d2620] p-6 sm:p-8 rounded-xl backdrop-blur-md shadow-2xl">
                 <div className="mb-8 pb-6 border-b border-white/10 flex justify-between items-end">
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-accent uppercase mb-1">Order Found</p>

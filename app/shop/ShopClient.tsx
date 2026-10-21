@@ -79,18 +79,18 @@ function ShopContent({ products }: { products: Product[] }) {
  return (
   <>
    {/* ── Controls row: category filters + search ── */}
-   <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    {/* Category pills + price filter pills */}
-    <div className="flex flex-col gap-2">
+   <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    {/* Category pills + price filter pills (shifted a little right and down on laptop/PC for optimal slab placement) */}
+    <div className="flex flex-col gap-2.5 md:pl-6 lg:pl-8 md:pt-3.5">
      <div className="flex flex-wrap gap-2">
       {CATEGORIES.map((cat) => (
        <button
         key={cat}
         onClick={() => { setActiveCategory(cat); setPriceFilter(null); }}
-        className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+        className={`rounded-full border px-3.5 sm:px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors backdrop-blur-sm ${
          activeCategory === cat
-          ? "border-accent bg-accent/10 text-accent"
-          : "border-base-border text-text-secondary hover:border-accent/50 hover:text-text-primary"
+          ? "border-accent bg-accent/20 text-[#f5eee6] shadow-sm"
+          : "border-[#4a3f35]/90 bg-[#1c1815]/85 text-[#dcd1c2] hover:border-accent/50 hover:text-[#f5eee6]"
         }`}
        >
         {cat}
@@ -107,10 +107,10 @@ function ShopContent({ products }: { products: Product[] }) {
        <button
         key={opt.value}
         onClick={() => setPriceFilter(priceFilter === opt.value ? null : opt.value)}
-        className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors ${
+        className={`rounded-full border px-3.5 sm:px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors backdrop-blur-sm ${
          priceFilter === opt.value
-          ? 'border-accent bg-accent/10 text-accent'
-          : 'border-base-border text-text-secondary hover:border-accent/50 hover:text-text-primary'
+          ? 'border-accent bg-accent/20 text-[#f5eee6] shadow-sm'
+          : 'border-[#4a3f35]/90 bg-[#1c1815]/85 text-[#dcd1c2] hover:border-accent/50 hover:text-[#f5eee6]'
         }`}
        >
         {opt.label}
@@ -119,10 +119,10 @@ function ShopContent({ products }: { products: Product[] }) {
      </div>
     </div>
 
-    {/* Search */}
-    <div className="flex items-center gap-2">
+    {/* Search (shifted down on laptop/PC to align with categories) */}
+    <div className="flex items-center gap-2 md:pt-3.5">
      {searchOpen ? (
-      <div className="flex items-center gap-2 rounded-sm border border-base-border bg-base-surface px-3 py-2 transition-all">
+      <div className="flex w-full sm:w-auto items-center gap-2 rounded-sm border border-[#4a3f35] bg-[#1c1815]/90 px-3 py-2 transition-all">
        <svg
         className="h-3.5 w-3.5 shrink-0 text-text-secondary"
         fill="none"
@@ -142,7 +142,7 @@ function ShopContent({ products }: { products: Product[] }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search products..."
-        className="w-48 bg-transparent text-xs text-text-primary placeholder-text-secondary outline-none"
+        className="w-full sm:w-48 bg-transparent text-xs text-text-primary placeholder-text-secondary outline-none"
        />
        {query && (
         <button
@@ -163,7 +163,7 @@ function ShopContent({ products }: { products: Product[] }) {
      ) : (
       <button
        onClick={() => setSearchOpen(true)}
-       className="flex items-center gap-2 rounded-sm border border-base-border px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-text-secondary transition-colors hover:border-accent/50 hover:text-text-primary"
+       className="flex items-center gap-2 rounded-sm border border-[#4a3f35]/90 bg-[#1c1815]/85 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#dcd1c2] backdrop-blur-sm transition-colors hover:border-accent/50 hover:text-[#f5eee6]"
        aria-label="Open search"
       >
        <svg
@@ -186,7 +186,7 @@ function ShopContent({ products }: { products: Product[] }) {
    </div>
 
    {/* ── Result count ── */}
-   <p className="mb-6 text-[10px] uppercase tracking-widest text-text-secondary">
+   <p className="mb-6 text-[10px] font-semibold uppercase tracking-widest text-[#a89578] md:pl-6 lg:pl-8">
     {filtered.length} {filtered.length === 1 ? "product" : "products"}
     {activeCategory !== "All" && ` in ${activeCategory}`}
     {query.trim() && ` matching "${query.trim()}"`}
@@ -215,15 +215,33 @@ function ShopContent({ products }: { products: Product[] }) {
        <Link
         key={product.id}
         href={`/product/${product.id}`}
-        className="group flex flex-col justify-between rounded-sm border border-base-border bg-base-surface/60 p-6 backdrop-blur-sm transition-all duration-300 hover:border-accent hover:bg-base-surface"
+        className="group relative flex flex-col justify-between stone-frame rounded-sm overflow-hidden transition-all duration-300 ease-out hover:-translate-y-2 hover:border-accent/60 hover:shadow-[0_24px_50px_rgba(0,0,0,0.85),0_0_24px_rgba(194,120,71,0.2)]"
        >
-        <div>
-         <div className="mb-4 flex items-center justify-between text-[10px] uppercase tracking-widest text-text-secondary">
-          <span>{product.category || "COLLECTION"}</span>
-          <span className="font-bold text-accent">1 OF 100</span>
+        {/* Stone Frame Upper Body */}
+        <div className="p-5 pb-2">
+         {/* Top metadata strip */}
+         <div className="flex items-center justify-between text-[10px] tracking-widest text-text-secondary">
+          <div className="flex items-center gap-1.5">
+           <span className="text-accent/70 font-mono text-[11px] leading-none">+</span>
+           <span className="text-[9px] font-bold uppercase tracking-[0.24em] text-text-secondary/80">
+            {product.category || "COLLECTION"}
+           </span>
+          </div>
+          <span className="rounded-[2px] border border-accent/35 bg-accent/10 px-2 py-0.5 text-[9px] font-bold tracking-[0.18em] text-accent font-mono shadow-xs">
+           1 OF 100
+          </span>
          </div>
 
-         <div className="relative my-4 aspect-[3/4] w-full overflow-hidden">
+         {/* Garment Stage Area with Ambient Lighting & Hangtag */}
+         <div className="relative my-4 aspect-[3/4] w-full flex items-center justify-center overflow-hidden rounded-[2px] bg-gradient-to-b from-white/[0.02] to-black/30 p-2">
+          {/* Subtle hanging kraft-paper atelier tag */}
+          <div className="absolute top-2 right-2 z-10 hidden sm:flex flex-col items-center pointer-events-none opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:rotate-[-4deg]">
+           <div className="w-[1px] h-2.5 bg-[#a89578]/50 -mb-0.5" />
+           <div className="bg-[#bba486] text-[#241c14] text-[7.5px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded-[1px] shadow-sm border border-[#8a7457]/70 rotate-[-3deg]">
+            HT // ARCHIVE
+           </div>
+          </div>
+
           <Image
            src={img}
            alt={`${product.name} ${product.description}`}
@@ -232,17 +250,21 @@ function ShopContent({ products }: { products: Product[] }) {
            placeholder="blur"
            blurDataURL={DARK_BLUR_DATA_URL}
            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-           className="object-contain object-bottom transition-all duration-500 group-hover:scale-105 group-hover:[filter:drop-shadow(0_0_24px_rgb(var(--accent)/0.4))]"
+           className="object-contain object-bottom p-2 transition-all duration-500 ease-out group-hover:scale-105 group-hover:drop-shadow-[0_16px_28px_rgba(194,120,71,0.28)]"
           />
          </div>
         </div>
 
-        <div className="mt-2 border-t border-base-border/70 pt-4">
-         <div className="flex items-center justify-between">
-          <h2 className="font-display text-base font-bold uppercase tracking-widest text-text-primary transition-colors group-hover:text-accent">
-           {product.name}
-          </h2>
-          {/* Price: referral discount aware */}
+        {/* Stepped Stone Price Tab at the Bottom */}
+        <div className="stone-tab p-4 flex items-center justify-between gap-3 mt-auto bg-gradient-to-r from-[#1c1815] to-[#14110f]">
+         <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+           <h2 className="font-display text-base font-bold uppercase tracking-wider text-text-primary transition-colors group-hover:text-accent truncate">
+            {product.name}
+           </h2>
+          </div>
+
+          {/* Price display with referral discount awareness */}
           {(() => {
            const { discountedPrice, hasDiscount } = getDiscountedPrice(
             Number(product.price),
@@ -252,23 +274,26 @@ function ShopContent({ products }: { products: Product[] }) {
             referralCategories
            );
            return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-1">
              {hasDiscount ? (
               <>
-               <span className="font-display text-sm font-bold text-accent tracking-widest">
+               <span className="font-sans text-xs font-bold tracking-wide text-accent">
                 PKR {discountedPrice.toLocaleString()}
                </span>
-               <span className="text-[10px] text-text-secondary line-through">
+               <span className="text-[10px] text-text-secondary/60 line-through">
                 PKR {Number(product.price).toLocaleString()}
+               </span>
+               <span className="text-[8px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 px-1.5 py-0.5 rounded-xs">
+                SAVE {referralDiscountPct}%
                </span>
               </>
              ) : (
               <>
-               <span className="font-display text-sm font-bold text-accent tracking-widest">
+               <span className="font-sans text-xs font-bold tracking-wide text-accent">
                 PKR {Number(product.price).toLocaleString()}
                </span>
                {product.old_price && product.old_price > product.price && (
-                <span className="text-[10px] text-text-secondary line-through">
+                <span className="text-[10px] text-text-secondary/60 line-through">
                  PKR {Number(product.old_price).toLocaleString()}
                 </span>
                )}
@@ -278,13 +303,13 @@ function ShopContent({ products }: { products: Product[] }) {
            );
           })()}
          </div>
-         <p className="mt-1 truncate text-xs text-text-secondary">
-          {product.description}
-         </p>
-         <div className="mt-4 flex items-center justify-end text-[10px] uppercase tracking-widest text-text-secondary">
-          <span className="font-bold text-text-primary transition-colors group-hover:text-accent">
-           ORDER NOW &rarr;
-          </span>
+
+         {/* Signature Copper "+" Action Button */}
+         <div
+          className="btn-copper-plus shrink-0 group-hover:brightness-115 group-hover:scale-105"
+          aria-label={`View ${product.name}`}
+         >
+          +
          </div>
         </div>
        </Link>

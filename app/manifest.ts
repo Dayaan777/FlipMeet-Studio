@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "FlipMeet Studio Admin",
+    name: "HT x Studio Admin",
     short_name: "FlipMeet",
-    description: "FlipMeet Studio E-commerce & Store Management",
+    description: "HT x Studio E-commerce & Store Management",
     start_url: "/admin",
     scope: "/",
     display: "standalone",

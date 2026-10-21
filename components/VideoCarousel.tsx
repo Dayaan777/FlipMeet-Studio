@@ -146,7 +146,7 @@ export default function VideoCarousel() {
 
  return (
   <section
-   className="relative overflow-hidden border-b border-base-border px-4 py-20 sm:px-6 md:py-28"
+   className="relative overflow-hidden px-4 py-10 sm:px-6 md:py-14"
    aria-labelledby="in-motion-heading"
   >
    {/* Background ambient orange glow behind center stage */}
@@ -158,15 +158,15 @@ export default function VideoCarousel() {
 
    <div className="relative mx-auto max-w-7xl">
     {/* Section label & heading */}
-    <div className="mb-12 text-center md:mb-16">
+    <div className="mb-8 text-center md:mb-10">
      <p className="mb-2 text-xs tracking-[0.28em] text-accent">IN MOTION</p>
      <h2
       id="in-motion-heading"
-      className="font-display text-3xl tracking-wide text-text-primary md:text-4xl"
+      className="font-display text-3xl tracking-wide text-[#1c1510] md:text-4xl"
      >
       EDITORIAL ARCHIVE
      </h2>
-     <p className="mt-2 text-xs tracking-wider text-text-secondary">
+     <p className="mt-2 text-xs tracking-wider text-[#4e4034]">
       CAMPAIGN FOOTAGE. STREET LEVEL. RAW CUTS.
      </p>
     </div>
@@ -178,12 +178,12 @@ export default function VideoCarousel() {
      onTouchMove={handleTouchMove}
      onTouchEnd={handleTouchEnd}
     >
-     {/* Side navigation arrows */}
+     {/* Desktop Side navigation arrows */}
      <button
       type="button"
       aria-label="Previous video"
       onClick={() => shift(-1)}
-      className="absolute bottom-20 left-1/2 z-30 flex size-10 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-6 sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:left-12 md:size-12 md:text-xl"
+      className="hidden sm:flex absolute left-6 top-[38%] z-30 size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#4a3f35] bg-[#181412]/85 text-lg text-[#f5eee6] backdrop-blur-sm transition-all hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:left-12 md:size-12 md:text-xl"
      >
       <span aria-hidden="true">←</span>
      </button>
@@ -192,7 +192,7 @@ export default function VideoCarousel() {
       type="button"
       aria-label="Next video"
       onClick={() => shift(1)}
-      className="absolute bottom-20 left-1/2 z-30 flex size-10 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 bg-base-bg/80 text-lg text-text-primary backdrop-blur-sm transition-all hover:border-text-primary hover:bg-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-6 sm:left-auto sm:top-[38%] sm:bottom-auto sm:translate-x-0 sm:-translate-y-1/2 md:right-12 md:size-12 md:text-xl"
+      className="hidden sm:flex absolute right-6 top-[38%] z-30 size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#4a3f35] bg-[#181412]/85 text-lg text-[#f5eee6] backdrop-blur-sm transition-all hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:right-12 md:size-12 md:text-xl"
      >
       <span aria-hidden="true">→</span>
      </button>
@@ -200,15 +200,15 @@ export default function VideoCarousel() {
      {/* Left/right edge dissolves for cinema depth */}
      <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-20 bg-gradient-to-r from-base-bg via-base-bg/80 to-transparent sm:block md:w-36 lg:w-48"
+      className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-20 bg-gradient-to-r from-black/40 to-transparent sm:block md:w-36 lg:w-48"
      />
      <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-20 bg-gradient-to-l from-base-bg via-base-bg/80 to-transparent sm:block md:w-36 lg:w-48"
+      className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-20 bg-gradient-to-l from-black/40 to-transparent sm:block md:w-36 lg:w-48"
      />
 
      {/* Reel stage viewport */}
-     <div className="relative mb-16 h-[490px] w-[82vw] max-w-[310px] sm:mb-0 sm:h-[540px] sm:w-full sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
+     <div className="relative mb-4 h-[490px] w-[82vw] max-w-[310px] sm:mb-0 sm:h-[540px] sm:w-full sm:max-w-[340px] md:h-[590px] md:max-w-[370px]">
       {realVideos.map((video, index) => {
        const rel = getRelativePosition(index);
        const isActive = rel === 0;
@@ -279,7 +279,7 @@ export default function VideoCarousel() {
            <div className="absolute inset-x-0 top-3 z-20 flex items-center justify-between px-3.5">
             <span className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest text-accent">
              <span className="size-1.5 animate-pulse rounded-full bg-accent" />
-             FM // {video.tag}
+             HT // {video.tag}
             </span>
 
             <div className="flex items-center gap-2">
@@ -299,20 +299,41 @@ export default function VideoCarousel() {
         </div>
        );
       })}
-     </div>{/* Caption below center video */}
-     <div className="relative z-20 mt-8 flex min-h-16 flex-col items-center text-center">
-      <p className="text-[12px] font-bold uppercase tracking-widest text-text-primary md:text-[13px]">
+     </div>
+
+     {/* Caption below center video */}
+     <div className="relative z-20 mt-4 sm:mt-8 flex flex-col items-center text-center px-4">
+      <p className="text-[12px] font-bold uppercase tracking-widest text-[#1c1510] md:text-[13px]">
        {currentVideo.title}
       </p>
-      <p className="mt-1 text-[11px] font-normal tracking-wide text-text-secondary">
+      <p className="mt-1 text-[11px] font-normal tracking-wide text-[#4e4034]">
        {currentVideo.subtitle}
       </p>
-      
+
+      {/* Mobile navigation arrows (positioned cleanly below subtext) */}
+      <div className="mt-4 flex items-center justify-center gap-4 sm:hidden">
+       <button
+        type="button"
+        aria-label="Previous video"
+        onClick={() => shift(-1)}
+        className="flex size-10 items-center justify-center rounded-full border border-[#4a3f35] bg-[#181412] text-lg text-[#f5eee6] shadow-md transition-all active:scale-95 hover:border-accent hover:text-accent focus-visible:outline-none"
+       >
+        <span aria-hidden="true">←</span>
+       </button>
+       <button
+        type="button"
+        aria-label="Next video"
+        onClick={() => shift(1)}
+        className="flex size-10 items-center justify-center rounded-full border border-[#4a3f35] bg-[#181412] text-lg text-[#f5eee6] shadow-md transition-all active:scale-95 hover:border-accent hover:text-accent focus-visible:outline-none"
+       >
+        <span aria-hidden="true">→</span>
+       </button>
+      </div>
      </div>
 
      {/* Small orange progress dots matching the site's existing dot style (6 dots total) */}
      <div
-      className="mt-10 sm:mt-6 flex items-center justify-center gap-2"
+      className="mt-6 flex items-center justify-center gap-2"
       role="tablist"
       aria-label="Video carousel pagination"
      >

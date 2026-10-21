@@ -3,8 +3,8 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | FlipMeet Studio",
-  description: "Privacy policy for FlipMeet Studio.",
+  title: "Privacy Policy | HT x Studio",
+  description: "Privacy policy for HT x Studio.",
 };
 
 export default function PrivacyPage() {
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-sm font-bold uppercase tracking-widest text-text-primary mb-3">1. Information We Collect</h2>
               <p>
-                When you visit FlipMeet Studio, we collect certain information about your device, your interaction with the site, and information necessary to process your purchases. This may include your name, billing address, shipping address, payment information, email address, and phone number.
+                When you visit HT x Studio, we collect certain information about your device, your interaction with the site, and information necessary to process your purchases. This may include your name, billing address, shipping address, payment information, email address, and phone number.
               </p>
             </section>
 

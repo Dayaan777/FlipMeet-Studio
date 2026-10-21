@@ -457,7 +457,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
       `}</style>
       <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)]">
         {/* ── LEFT PANEL ────────────────────────────────────────────── */}
-        <aside className="w-full md:w-[40%] bg-base-surface border-b md:border-b-0 md:border-r border-base-border flex flex-col md:sticky md:top-[73px] md:h-[calc(100vh-73px)]">
+        <aside className="w-full md:w-[40%] bg-[#141210]/95 backdrop-blur-md border-b md:border-b-0 md:border-r border-[#2d2620] flex flex-col md:sticky md:top-[73px] md:h-[calc(100vh-73px)]">
           {/* Header */}
           <div className="px-4 py-4 border-b border-base-border shrink-0">
             <p className="text-[10px] tracking-[0.25em] uppercase text-accent font-bold">
@@ -527,7 +527,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
         </div>
 
         {/* Sticky Summary Bar */}
-        <div className="sticky bottom-0 border-t border-base-border bg-base-surface px-4 py-3">
+        <div className="sticky bottom-0 border-t border-[#2d2620] bg-[#141210] px-4 py-3">
           <p className="text-[10px] tracking-[0.2em] uppercase text-text-secondary/60 mb-1">
             Selected
           </p>
@@ -544,7 +544,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
       </aside>
 
       {/* ── RIGHT PANEL ───────────────────────────────────────────── */}
-      <main className="w-full md:w-[60%] bg-base-bg overflow-y-auto fm-scroll">
+      <main className="w-full md:w-[60%] bg-transparent overflow-y-auto fm-scroll">
         <div className="px-4 md:px-8 py-8 flex flex-col gap-8 max-w-2xl mx-auto">
 
           {/* Section label */}
@@ -553,9 +553,9 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
           </p>
 
           {/* Unified Outfit Preview Card */}
-          <div className="relative w-full max-w-xs mx-auto rounded-sm overflow-hidden border border-base-border bg-base-surface shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+          <div className="relative w-full max-w-xs mx-auto rounded-sm overflow-hidden border border-[#2d2620] bg-[#141210]/80 backdrop-blur-md shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
             {/* TOP half */}
-            <div className="relative w-full aspect-square bg-base-bg overflow-hidden">
+            <div className="relative w-full aspect-square bg-[#141210]/60 backdrop-blur-sm overflow-hidden">
               {selectedTop ? (
                 <Image
                   src={selectedTop.images?.[0] ?? "/images/placeholder.jpg"}
@@ -581,7 +581,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
             <div className="w-full h-[1px] bg-base-border" />
 
             {/* BOTTOM half */}
-            <div className="relative w-full aspect-square bg-base-bg overflow-hidden">
+            <div className="relative w-full aspect-square bg-[#141210]/60 backdrop-blur-sm overflow-hidden">
               {selectedBottom ? (
                 <Image
                   src={selectedBottom.images?.[0] ?? "/images/placeholder.jpg"}
@@ -616,7 +616,7 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
             </p>
 
             {/* Chat bubble card */}
-            <div className="bg-base-surface border border-base-border rounded-sm p-5 flex flex-col gap-4">
+            <div className="bg-[#141210]/90 border border-[#2d2620] backdrop-blur-md rounded-sm p-5 flex flex-col gap-4 shadow-xl">
               <div className="flex items-start gap-3">
                 {/* Icon */}
                 <div className="shrink-0 w-9 h-9 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-lg">

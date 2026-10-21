@@ -6,6 +6,7 @@ import AnimeDropReveal from "@/components/AnimeDropReveal";
 import VideoCarousel from "@/components/VideoCarousel";
 import TrustBadges from "@/components/TrustBadges";
 import AnimeBundle from "@/components/AnimeBundle";
+import HomeWallBackground from "@/components/HomeWallBackground";
 import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 
 export default function AnimePage() {
@@ -20,7 +21,7 @@ export default function AnimePage() {
           <div className="absolute inset-0 hidden md:block">
             <Image
               src="/images/anime-hero.jpg"
-              alt="FlipMeet Studio Anime Collection"
+              alt="HT x Studio Anime Collection"
               fill
               priority
               sizes="(max-width: 768px) 100vw, 80vw"
@@ -31,7 +32,7 @@ export default function AnimePage() {
           <div className="absolute inset-0 md:hidden aspect-square">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
-              alt="FlipMeet Studio Anime Collection"
+              alt="HT x Studio Anime Collection"
               fill
               priority
               sizes="100vw"
@@ -60,21 +61,26 @@ export default function AnimePage() {
           </div>
         </section>
 
-        {/* Anchor */}
-        <div id="collection" />
+        {/* ── Wall Container below hero ── */}
+        <div className="home-wall">
+          <HomeWallBackground />
 
-        {/* ── THE ANIME COLLECTION – 05 LOOKS (Editorial Reveal) ── */}
-        <AnimeDropReveal />
+          {/* Anchor */}
+          <div id="collection" />
 
-        {/* ── ANIME PACK 5 IN 1 ── */}
-        <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-0 sm:pt-4">
-          <AnimeBundle />
-        </section>
+          {/* ── THE ANIME COLLECTION – 05 LOOKS (Editorial Reveal) ── */}
+          <AnimeDropReveal />
 
-        {/* ── VIDEO / EDITORIAL ARCHIVE ── */}
-        <VideoCarousel />
+          {/* ── ANIME PACK 5 IN 1 ── */}
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
+            <AnimeBundle />
+          </section>
 
-        <TrustBadges />
+          {/* ── VIDEO / EDITORIAL ARCHIVE ── */}
+          <VideoCarousel />
+
+          <TrustBadges />
+        </div>
       </main>
       <Footer />
     </>

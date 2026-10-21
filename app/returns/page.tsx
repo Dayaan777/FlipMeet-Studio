@@ -3,8 +3,8 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Returns & Exchange | FlipMeet Studio",
-  description: "Returns and exchange policy for FlipMeet Studio.",
+  title: "Returns & Exchange | HT x Studio",
+  description: "Returns and exchange policy for HT x Studio.",
 };
 
 export default function ReturnsPage() {
@@ -45,7 +45,7 @@ export default function ReturnsPage() {
             <section>
               <h2 className="text-sm font-bold uppercase tracking-widest text-text-primary mb-3">4. Missing Packages</h2>
               <p>
-                FlipMeet Studio is not responsible for packages that are lost or stolen after they have been marked as delivered by the courier. If your package is lost in transit, please contact the courier directly to file a claim.
+                HT x Studio is not responsible for packages that are lost or stolen after they have been marked as delivered by the courier. If your package is lost in transit, please contact the courier directly to file a claim.
               </p>
             </section>
           </div>

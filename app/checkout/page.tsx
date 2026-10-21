@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import HomeWallBackground from "@/components/HomeWallBackground";
 import { useCartStore } from "@/lib/cart-store";
 import { useOrderStore, Order } from "@/lib/order-store";
 import { supabase } from "@/lib/supabase";
@@ -260,8 +261,9 @@ export default function CheckoutPage() {
     return (
       <>
         <NavBar />
-        <main className="min-h-screen bg-base-bg px-4 sm:px-6 pt-36 pb-24 flex items-center justify-center">
-          <div className="w-full max-w-lg rounded-sm border border-base-border bg-base-surface/90 p-6 sm:p-8 text-center backdrop-blur-md">
+        <main className="home-wall min-h-screen px-4 sm:px-6 pt-36 pb-24 flex items-center justify-center">
+        <HomeWallBackground />
+          <div className="relative z-10 w-full max-w-lg rounded-sm border border-[#2d2620] bg-[#141210]/95 p-6 sm:p-8 text-center backdrop-blur-md shadow-2xl">
             <span className="size-12 rounded-full border border-emerald-500/50 bg-emerald-500/10 flex items-center justify-center mx-auto text-xl text-emerald-400 mb-4">
               ✓
             </span>
@@ -290,7 +292,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-text-secondary">
                 <span>Total Amount</span>
-                <span className="text-accent font-bold font-display tracking-widest">
+                <span className="text-accent font-bold font-sans tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                   PKR {completedOrder.total.toLocaleString()}
                 </span>
               </div>
@@ -320,8 +322,9 @@ export default function CheckoutPage() {
     return (
       <>
         <NavBar />
-        <main className="min-h-screen bg-base-bg px-6 pt-36 pb-20 flex items-center justify-center">
-          <div className="w-full max-w-md text-center rounded-sm border border-base-border bg-base-surface/80 p-8">
+        <main className="home-wall min-h-screen px-6 pt-36 pb-20 flex items-center justify-center">
+        <HomeWallBackground />
+          <div className="relative z-10 w-full max-w-md text-center rounded-sm border border-[#2d2620] bg-[#141210]/95 p-8 shadow-2xl backdrop-blur-md">
             <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-text-primary">
               NO ITEMS IN BAG
             </h1>
@@ -344,13 +347,15 @@ export default function CheckoutPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-base-bg px-4 sm:px-6 pt-32 pb-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-8 border-b border-base-border pb-6">
+      <main className="home-wall min-h-screen px-4 sm:px-6 pt-32 pb-24">
+        <HomeWallBackground />
+        <div className="relative z-10 mx-auto max-w-5xl">
+        
+          <div className="mb-8 border-b border-[#4e4034]/20 pb-6">
             <p className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
               FINAL STEP
             </p>
-            <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
+            <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-[#1c1510] mt-1">
               CHECKOUT
             </h1>
           </div>
@@ -367,7 +372,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Contact & Delivery Form */}
-                <div className="rounded-sm border border-base-border bg-base-surface/80 p-6 backdrop-blur-sm space-y-4">
+                <div className="rounded-sm border border-[#2d2620] bg-[#141210]/90 p-6 backdrop-blur-sm space-y-4 shadow-md">
                   <h2 className="font-display text-base font-bold uppercase tracking-wide text-text-primary border-b border-base-border pb-3">
                     Contact &amp; Delivery Details
                   </h2>
@@ -605,7 +610,7 @@ export default function CheckoutPage() {
                           <div className="text-right shrink-0">
                             {hasDiscount ? (
                               <>
-                                <p className="font-display text-xs font-bold text-emerald-400 tracking-widest">
+                                <p className="font-sans text-xs font-bold text-emerald-400 tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                                   PKR{" "}
                                   {(
                                     discountedPrice * item.quantity
@@ -618,7 +623,7 @@ export default function CheckoutPage() {
                               </>
                             ) : (
                               <>
-                                <p className="font-display text-xs font-bold text-text-primary tracking-widest">
+                                <p className="font-sans text-xs font-bold text-text-primary tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                                   PKR{" "}
                                   {(basePrice * item.quantity).toLocaleString()}
                                 </p>
@@ -682,7 +687,7 @@ export default function CheckoutPage() {
                   <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
                     Total
                   </span>
-                  <span className="font-display text-xl font-bold text-accent tracking-widest">
+                  <span className="font-sans text-xl font-bold text-accent tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                     PKR {total.toLocaleString()}
                   </span>
                 </div>

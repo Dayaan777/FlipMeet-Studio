@@ -68,18 +68,7 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
 
   useEffect(() => {
     const onScroll = () => {
-      if (pathname === "/") {
-        // On mobile, MobileStoryHero is only 88dvh — show navbar after 8px like all other pages.
-        // On desktop, wait until the scroll-animation VideoHero (h-[500vh]) is fully scrolled past.
-        if (window.innerWidth < 768) {
-          setScrolled(window.scrollY > 8);
-        } else {
-          const heroHeight = window.innerHeight * 5;
-          setScrolled(window.scrollY > heroHeight - 100);
-        }
-      } else {
-        setScrolled(window.scrollY > 8);
-      }
+      setScrolled(window.scrollY > 8);
     };
     window.addEventListener("scroll", onScroll);
     // Call once on mount to set initial state
@@ -122,7 +111,7 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
     <>
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-          isHome && !scrolled ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+          "translate-y-0 opacity-100"
         } ${
           scrolled && !isProcess
             ? "bg-base-bg/90 backdrop-blur border-b border-base-border"
@@ -132,12 +121,14 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
         }`}
       >
       <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 py-5">
-        <Link href="/" className="font-display text-2xl font-bold tracking-widest text-text-primary uppercase">
-          FLIPMEET STUDIO
+        <Link href="/" className="group flex items-center">
+          <span className="font-display text-2xl font-normal tracking-[0.16em] text-text-primary uppercase group-hover:text-accent transition-colors">
+            HT <span className="font-serif italic lowercase text-accent font-light text-xl">x</span> STUDIO
+          </span>
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden md:flex items-center gap-8 text-xs tracking-widest text-text-secondary">
+        <ul className="hidden md:flex items-center gap-8 text-[11px] uppercase tracking-[0.22em] text-[#e2ded9] font-semibold drop-shadow-sm">
           {LINKS.map((link) => (
             <li key={link.href}>
               <Link href={link.href} className="hover:text-text-primary transition-colors">
@@ -152,21 +143,21 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
           {/* Gender Toggle */}
           <button 
             onClick={toggleGender}
-            className="relative hidden sm:flex items-center h-[34px] w-[112px] rounded-full border border-base-border bg-base-surface p-1 backdrop-blur-sm transition-colors hover:border-text-secondary overflow-hidden"
+            className="relative hidden sm:flex items-center h-[32px] w-[110px] rounded-full border border-base-border bg-base-surface/80 p-0.5 backdrop-blur-sm transition-colors hover:border-accent/40 overflow-hidden"
             aria-label="Toggle Gender Theme"
           >
             {/* Slider Pill */}
             <div 
-              className={`absolute top-1 bottom-1 w-[50px] rounded-full bg-accent transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+              className={`absolute top-0.5 bottom-0.5 w-[50px] rounded-full bg-gradient-to-r from-accent to-accent-dim shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 gender === 'female' ? 'translate-x-[54px]' : 'translate-x-0'
               }`}
             />
             
             <div className="relative z-10 flex w-full justify-between pointer-events-none">
-              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'male' ? 'text-black' : 'text-white/60'}`}>
+              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'male' ? 'text-base-bg' : 'text-text-secondary'}`}>
                 MEN
               </span>
-              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'female' ? 'text-black' : 'text-white/60'}`}>
+              <span className={`text-[10px] w-full text-center font-bold tracking-widest transition-colors duration-300 ${gender === 'female' ? 'text-base-bg' : 'text-text-secondary'}`}>
                 WOMEN
               </span>
             </div>
@@ -175,10 +166,10 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
           {/* Cart link */}
           <a
             href="/cart"
-            className={`relative text-xs tracking-widest border rounded-full px-4 py-2 text-text-primary transition-colors ${
+            className={`relative text-[11px] uppercase tracking-[0.2em] border rounded-full px-4 py-1.5 text-text-primary bg-base-surface/50 transition-all ${
               cartBump
-                ? "border-accent text-accent"
-                : "border-base-border hover:border-text-secondary"
+                ? "border-accent text-accent shadow-[0_0_12px_rgba(194,120,71,0.3)]"
+                : "border-base-border hover:border-accent/60 hover:bg-base-surface"
             }`}
           >
             CART{" "}
@@ -236,7 +227,7 @@ export default function NavBar({ mobileSolid = false }: { mobileSolid?: boolean 
             {/* Mobile drawer footer */}
             <div className="border-t border-base-border pt-4">
               <p className="mt-2 text-[10px] tracking-widest text-text-secondary/60">
-                FLIPMEET STUDIO © 2026. BUILT FOR THE CULTURE.
+                HT X STUDIO © 2026. BUILT FOR THE CULTURE.
               </p>
             </div>
           </div>

@@ -112,7 +112,7 @@ export async function sendOrderConfirmationEmail(
   const resend = new Resend(apiKey);
   const fromEmail =
     process.env.RESEND_FROM_EMAIL ||
-    "FlipMeet Studio <onboarding@resend.dev>";
+    "HT x Studio <onboarding@resend.dev>";
   const deliveryWindow = data.deliveryEstimate || "2-3 Working Days";
 
   // Build items HTML
@@ -156,7 +156,7 @@ export async function sendOrderConfirmationEmail(
           <tr>
             <td style="padding: 32px 32px 20px 32px; border-bottom: 1px solid #242424;">
               <div style="color: #FF4D1E; font-size: 10px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase;">
-                FLIPMEET STUDIO // DROP 001
+                HT X STUDIO // DROP 001
               </div>
               <h1 style="margin: 8px 0 0 0; color: #FFFFFF; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase;">
                 ORDER CONFIRMED
@@ -235,7 +235,7 @@ export async function sendOrderConfirmationEmail(
                 Each garment in Drop 001 is individually numbered and limited to 100 units worldwide.
               </p>
               <p style="margin: 12px 0 0 0; font-size: 10px; letter-spacing: 0.2em; color: #666666; text-transform: uppercase;">
-                FLIPMEET STUDIO &copy; 2026. BUILT FOR THE CULTURE.
+                HT X STUDIO &copy; 2026. BUILT FOR THE CULTURE.
               </p>
             </td>
           </tr>
@@ -252,7 +252,7 @@ export async function sendOrderConfirmationEmail(
     const result = await resend.emails.send({
       from: fromEmail,
       to: data.customerEmail,
-      subject: `Order Confirmed: ${data.orderId} | FlipMeet Studio`,
+      subject: `Order Confirmed: ${data.orderId} | HT x Studio`,
       html: emailHtml,
     });
 

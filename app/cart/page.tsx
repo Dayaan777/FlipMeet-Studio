@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import HomeWallBackground from "@/components/HomeWallBackground";
 import { useCartStore } from "@/lib/cart-store";
 
 // ---------------------------------------------------------------------------
@@ -85,15 +86,17 @@ export default function CartPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-base-bg px-4 sm:px-6 pt-32 pb-24">
-        <div className="mx-auto max-w-4xl">
+      <main className="home-wall min-h-screen px-4 sm:px-6 pt-32 pb-24">
+        <HomeWallBackground />
+        <div className="relative z-10 mx-auto max-w-4xl">
+        
           {/* Header */}
-          <div className="mb-8 border-b border-base-border pb-6 flex items-center justify-between">
+          <div className="mb-8 border-b border-[#4e4034]/20 pb-6 flex items-center justify-between">
             <div>
               <p className="text-accent text-[10px] tracking-[0.28em] uppercase font-bold">
                 SECURE YOUR CUT
               </p>
-              <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-text-primary mt-1">
+              <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-[#1c1510] mt-1">
                 BAG ({items.length})
               </h1>
             </div>
@@ -102,7 +105,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={clear}
-                className="text-xs text-text-secondary hover:text-accent tracking-widest uppercase transition-colors"
+                className="text-xs font-bold text-[#1c1612] hover:text-[#78330a] tracking-widest uppercase transition-colors"
               >
                 Clear All
               </button>
@@ -110,7 +113,7 @@ export default function CartPage() {
           </div>
 
           {items.length === 0 ? (
-            <div className="rounded-sm border border-base-border bg-base-surface/50 p-12 text-center">
+            <div className="rounded-sm border border-[#2d2620] bg-[#141210]/90 p-12 text-center backdrop-blur-md shadow-2xl">
               <p className="text-sm font-bold uppercase tracking-widest text-text-primary">
                 Your bag is empty
               </p>
@@ -161,7 +164,7 @@ export default function CartPage() {
                   return (
                     <div
                       key={`${item.lookId}-${item.size}-${idx}`}
-                      className="flex items-start justify-between gap-4 rounded-sm border border-base-border bg-base-surface/70 p-4 backdrop-blur-sm"
+                      className="flex items-start justify-between gap-4 rounded-sm border border-[#2d2620] bg-[#141210]/90 p-4 backdrop-blur-sm shadow-md"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <div className="relative size-16 sm:size-20 rounded-sm border border-base-border bg-base-bg overflow-hidden shrink-0">
@@ -206,7 +209,7 @@ export default function CartPage() {
                       <div className="text-right shrink-0">
                         {hasDiscount ? (
                           <>
-                            <p className="font-display text-sm sm:text-base font-bold text-emerald-400 tracking-widest">
+                            <p className="font-sans text-sm sm:text-base font-bold text-emerald-400 tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                               PKR{" "}
                               {(discountedPrice * item.quantity).toLocaleString()}
                             </p>
@@ -216,7 +219,7 @@ export default function CartPage() {
                           </>
                         ) : (
                           <div className="flex items-center gap-2 justify-end">
-                            <p className="font-display text-sm sm:text-base font-bold text-text-primary tracking-widest">
+                            <p className="font-sans text-sm sm:text-base font-bold text-text-primary tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                               PKR {(basePrice * item.quantity).toLocaleString()}
                             </p>
                             {item.oldPrice && item.oldPrice > basePrice && (
@@ -249,7 +252,7 @@ export default function CartPage() {
                 <div className="space-y-3 text-xs border-b border-base-border pb-4">
                   <div className="flex justify-between text-text-secondary">
                     <span>Items Subtotal</span>
-                    <span className="font-display text-text-primary font-bold tracking-widest">
+                    <span className="font-sans text-text-primary font-bold tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                       PKR {subtotal.toLocaleString()}
                     </span>
                   </div>
@@ -275,7 +278,7 @@ export default function CartPage() {
                   <span className="text-xs font-bold uppercase tracking-widest text-text-primary">
                     Total
                   </span>
-                  <span className="font-display text-xl font-bold text-accent tracking-widest">
+                  <span className="font-sans text-xl font-bold text-accent tracking-widest [font-variant-numeric:lining-nums_tabular-nums]">
                     PKR {total.toLocaleString()}
                   </span>
                 </div>

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import GlobalAudioPlayer from "@/components/GlobalAudioPlayer";
 import GenderGate from "@/components/GenderGate";
 import { GoogleAnalytics } from '@next/third-parties/google';
 
-const display = Bebas_Neue({
+const display = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700"],
   variable: "--font-display",
 });
 
@@ -18,7 +18,7 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FlipMeet Studio",
+  title: "HT x Studio",
   description:
     "A new clothing label from the FlipMeet ecosystem. Premium fabrics. Limited pieces. Built for the culture.",
   icons: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "FlipMeet Studio",
+    title: "HT x Studio",
   },
 };
 
@@ -48,7 +48,7 @@ export default function RootLayout({
                 var g = localStorage.getItem('fm_gender');
                 if (g) {
                   document.documentElement.dataset.theme = g;
-                } else {
+                } else if (window.location.search.indexOf('nogate') === -1) {
                   var style = document.createElement('style');
                   style.id = 'fm-lock-style';
                   style.innerHTML = '#fm-gender-gate { display: flex !important; } body { overflow: hidden !important; }';

@@ -411,7 +411,7 @@ export default function MobileStoryHero() {
             </div>
             <div className="flex-1 px-4 py-3">
               <p className="text-[8px] uppercase tracking-[0.28em] text-white/45 mb-1">
-                FlipMeet Studio
+                HT x Studio
               </p>
               <p className="text-[12px] font-bold text-white leading-snug tracking-wide line-clamp-2">
                 {liveProducts[activeHotspot.slug]?.name || activeHotspot.name}

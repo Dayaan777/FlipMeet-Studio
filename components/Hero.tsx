@@ -12,7 +12,7 @@ export default function Hero({ drop }: { drop: Drop }) {
    <div className="hidden md:block absolute inset-y-0 right-0 w-[58%]">
     <Image
      src="/images/hero-drop-001.jpg"
-     alt="FlipMeet Studio Drop 001 campaign two models wearing Look 01"
+     alt="HT x Studio Drop 001 campaign two models wearing Look 01"
      fill
      priority
      sizes="58vw"
@@ -81,7 +81,7 @@ export default function Hero({ drop }: { drop: Drop }) {
     <div className="md:hidden relative mt-12 -mx-6 h-[min(118vw,520px)]">
      <Image
       src="/images/hero-drop-001.jpg"
-      alt="FlipMeet Studio Drop 001 campaign two models wearing Look 01"
+      alt="HT x Studio Drop 001 campaign two models wearing Look 01"
       fill
       priority
       sizes="100vw"

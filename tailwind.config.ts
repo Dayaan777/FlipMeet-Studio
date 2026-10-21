@@ -8,27 +8,52 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Design tokens from FLIPMEET_STUDIO_GUIDE.md §2 Visual Identity
+        // Theme tokens from mockup: dark brown/charcoal base, warm beige text, copper/bronze accent
         base: {
-          bg: "#000000",
-          surface: "#111111",
-          border: "#242424",
+          bg: "#141210",          // Dark brown / charcoal base
+          surface: "#1c1916",     // Warm stone surface
+          elevated: "#24201c",    // Raised stone pedestal surface
+          border: "#332d27",      // Weathered stone border
+          divider: "#26211c",     // Subtle section divider
         },
         accent: {
           DEFAULT: "rgb(var(--accent) / <alpha-value>)",
           dim:     "rgb(var(--accent-dim) / <alpha-value>)",
+          copper:  "#c27847",
+          bronze:  "#8e4f27",
+          warm:    "#d48b59",
         },
         text: {
-          primary: "#FFFFFF",
-          secondary: "#9A9A9A",
+          primary: "#f0e8dc",     // Warm beige / linen text
+          secondary: "#a69a8d",   // Warm stone taupe
+          muted:   "#786e63",     // Weathered stone
+        },
+        stone: {
+          50:  "#f0e8dc",
+          100: "#dcd1c2",
+          200: "#b8a996",
+          300: "#968673",
+          400: "#756655",
+          500: "#574b3e",
+          600: "#3d342a",
+          700: "#2d261f",
+          800: "#1c1916",
+          900: "#141210",
         },
       },
       fontFamily: {
-        display: ["var(--font-display)"],
-        body: ["var(--font-body)"],
+        display: ["var(--font-display)", "Cormorant Garamond", "Georgia", "serif"],
+        body: ["var(--font-body)", "Inter", "sans-serif"],
+        serif: ["var(--font-display)", "Cormorant Garamond", "Georgia", "serif"],
+        sans: ["var(--font-body)", "Inter", "sans-serif"],
+      },
+      letterSpacing: {
+        ultra: "0.28em",
+        widest: "0.2em",
+        wider: "0.12em",
       },
       borderRadius: {
-        sm: "4px",
+        sm: "3px",
       },
       keyframes: {
         "cart-bump": {

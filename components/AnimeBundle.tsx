@@ -584,42 +584,42 @@ export default function AnimeBundle() {
         <div className="w-full md:w-[40%] flex flex-col gap-5 shrink-0 ">
           {/* Label */}
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-accent" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#8f3d0c] shadow-sm" />
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.28em] text-[#78330a]">
               LIMITED BUNDLE
             </span>
           </div>
 
           {/* Title */}
           <div>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold uppercase tracking-widest text-text-primary leading-none">
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-widest text-[#0e0b08] leading-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">
               ANIME PACK
             </h2>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold uppercase tracking-widest text-accent leading-none">
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-widest text-[#78330a] leading-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] [font-variant-numeric:lining-nums_tabular-nums]">
               5 IN 1
             </h2>
           </div>
 
           {/* Description */}
-          <p className="text-xs text-text-secondary max-w-xs leading-relaxed">
+          <p className="text-xs font-medium text-[#1c1612] max-w-xs leading-relaxed">
             5 complete outfits (jersey + pants) in one order.
           </p>
 
-          {/* Price block */}
+          {/* Price block — fixed number font baseline alignment & enhanced contrast */}
           {loadingProducts ? (
             <div className="h-10 w-48 bg-base-surface/60 rounded-sm animate-pulse" />
           ) : (
             <div className="flex flex-wrap items-center gap-3">
-              <p className="font-display text-3xl font-bold text-accent">
+              <p className="font-sans text-3xl sm:text-4xl font-extrabold text-[#78330a] tracking-tight [font-variant-numeric:lining-nums_tabular-nums] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]">
                 PKR {bundlePrice.toLocaleString()}
               </p>
               {bundleOldPrice && bundleOldPrice > bundlePrice && (
-                <p className="text-base text-text-secondary line-through">
+                <p className="font-sans text-base font-semibold text-[#3b3026] line-through [font-variant-numeric:lining-nums_tabular-nums]">
                   PKR {bundleOldPrice.toLocaleString()}
                 </p>
               )}
               {savings && (
-                <span className="rounded-sm bg-accent/10 border border-accent/30 px-2.5 py-1 text-[10px] font-bold text-accent uppercase tracking-widest">
+                <span className="rounded-sm bg-[#8f3d0c]/15 border border-[#8f3d0c]/40 px-2.5 py-1 text-[11px] font-extrabold text-[#6e2c07] uppercase tracking-widest shadow-sm">
                   SAVE PKR {savings.toLocaleString()}
                 </span>
               )}
@@ -627,7 +627,7 @@ export default function AnimeBundle() {
           )}
 
           {/* Shipping line */}
-          <p className="text-[10px] text-text-secondary">
+          <p className="text-xs font-semibold text-[#1c1612]">
             5 outfits · Ships together
           </p>
         </div>
@@ -674,7 +674,7 @@ export default function AnimeBundle() {
         <button
           type="button"
           onClick={() => setShowIndividual((v) => !v)}
-          className="w-full py-3.5 text-xs font-bold uppercase tracking-[0.2em] rounded-sm border border-base-border text-text-primary hover:border-accent hover:text-accent transition-all duration-200"
+          className="w-full py-3.5 text-xs font-bold uppercase tracking-[0.2em] rounded-sm border border-[#b86228] bg-[#181412] text-[#f7eee4] hover:bg-[#b86228] hover:text-[#141210] shadow-md shadow-black/30 transition-all duration-200"
         >
           {showIndividual ? "HIDE INDIVIDUAL" : "BUY INDIVIDUALLY"}
         </button>
@@ -682,7 +682,7 @@ export default function AnimeBundle() {
 
       {/* ── Individual products (revealed below on "BUY INDIVIDUALLY") ── */}
       {showIndividual && (
-        <div className="mt-10 pt-8 border-t border-base-border">
+        <div className="mt-8 pt-6 border-t border-[#4e4034]/20">
           <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent mb-6">
             Individual Pieces
           </p>

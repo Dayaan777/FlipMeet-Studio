@@ -11,6 +11,7 @@ export default function GenderGate() {
   useEffect(() => {
     setMounted(true);
     try {
+      if (window.location.search.includes('nogate')) { setVisible(false); return; }
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) setVisible(false);
     } catch {
@@ -52,7 +53,7 @@ export default function GenderGate() {
       >
         {/* Wordmark */}
         <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.38em] text-text-secondary">
-          FlipMeet Studio
+          HT x Studio
         </p>
 
         {/* Headline */}

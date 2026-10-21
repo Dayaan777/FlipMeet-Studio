@@ -2,12 +2,13 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { getProducts } from "@/lib/products";
 import OutfitBuilder from "./OutfitBuilder";
+import HomeWallBackground from "@/components/HomeWallBackground";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Make Your Outfit | FlipMeet Studio",
+  title: "Make Your Outfit | HT x Studio",
   description:
-    "Build your perfect look. Mix and match tops and bottoms from the FlipMeet Studio archive.",
+    "Build your perfect look. Mix and match tops and bottoms from the HT x Studio archive.",
 };
 
 export default async function MakeYourOwnPage() {
@@ -22,8 +23,11 @@ export default async function MakeYourOwnPage() {
   return (
     <>
       <NavBar mobileSolid />
-      <main className="bg-base-bg min-h-screen pt-[73px]">
+      <main className="home-wall min-h-screen pt-[73px]">
+        <HomeWallBackground />
+        <div className="relative z-10">
         <OutfitBuilder tops={tops} bottoms={bottoms} />
+      </div>
       </main>
       <Footer />
     </>

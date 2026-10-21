@@ -98,7 +98,7 @@ export default function ReferralSection({
 
   return (
     <div className={className}>
-      <p className="font-bold text-text-primary text-xs tracking-widest uppercase mb-3">
+      <p className="font-semibold text-text-primary text-[10px] tracking-[0.26em] uppercase mb-4">
         {title}
       </p>
       <p className="text-xs text-text-secondary mb-3 leading-relaxed">
@@ -121,13 +121,13 @@ export default function ReferralSection({
             }}
             placeholder="e.g. SARA10"
             disabled={loading}
-            className="bg-base-surface border border-base-border rounded-sm px-3 py-2.5 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50 disabled:opacity-50 font-mono uppercase tracking-widest"
+            className="bg-base-surface/90 border border-base-border rounded-[2px] px-3.5 py-2.5 text-xs text-text-primary flex-1 min-w-0 focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/40 disabled:opacity-50 font-mono uppercase tracking-widest"
             maxLength={20}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-accent hover:bg-accent-dim transition-colors px-4 py-2.5 rounded-sm ml-2 text-text-primary font-bold text-xs tracking-widest disabled:opacity-50 whitespace-nowrap"
+            className="btn-copper ml-2 py-2.5 px-4 text-xs tracking-widest disabled:opacity-50 whitespace-nowrap"
           >
             {loading ? "..." : "Apply"}
           </button>

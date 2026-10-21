@@ -101,15 +101,15 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
 
   return (
     <section
-      className="overflow-hidden border-b border-base-border px-6 py-24"
+      className="overflow-hidden px-6 py-10 sm:py-14"
       aria-labelledby="look-carousel-heading"
     >
       <div className="mx-auto max-w-7xl">
         {/* ── Section header — matches FeaturedLooksGrid typography ── */}
-        <p className="mb-2 text-center text-xs tracking-[0.28em] text-accent">THE COLLECTION</p>
+        <p className="mb-2 text-center text-xs font-extrabold tracking-[0.28em] text-[#78330a]">THE COLLECTION</p>
         <h2
           id="anime-carousel-heading"
-          className="mb-14 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
+          className="mb-8 sm:mb-10 text-center font-display text-3xl font-extrabold tracking-wide text-[#0d0a08] md:text-4xl"
         >
           ANIME
         </h2>
@@ -121,7 +121,7 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
               type="button"
               aria-label="Previous look"
               onClick={() => shift(-1)}
-              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 -translate-x-[calc(100%+0.75rem)] items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
+              className="absolute bottom-0 left-1/2 z-30 flex h-11 w-11 shrink-0 -translate-x-[calc(100%+0.85rem)] items-center justify-center rounded-full border border-[#b86228] bg-[#181412] text-xl font-bold text-[#f7eee4] shadow-md shadow-black/40 transition-all duration-200 hover:bg-[#b86228] hover:text-[#141210] hover:scale-105 active:scale-95 md:static md:translate-x-0 cursor-pointer"
             >
               ←
             </button>
@@ -205,9 +205,9 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                         />
                       </div>
 
-                      {/* Label — visible only for the active look (unchanged behaviour) */}
+                      {/* Label — visible only for the active look — moved below stage ring */}
                       <div
-                        className={`transition-opacity duration-300 ${
+                        className={`mt-4 sm:mt-5 transition-opacity duration-300 ${
                           activeLook
                             ? "opacity-100"
                             : "pointer-events-none invisible opacity-0"
@@ -215,14 +215,12 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                         aria-hidden={!activeLook}
                       >
                         {/* Look name — matches FeaturedLooksGrid typography */}
-                        <p className="text-[11px] font-bold uppercase tracking-widest text-text-primary">
+                        <p className="text-xs font-black uppercase tracking-[0.25em] text-[#0d0a08] drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">
                           {look.name}
                         </p>
-                        <p className="mt-1 text-[10px] text-text-secondary">
+                        <p className="mt-1.5 text-xs font-medium text-[#1c1612] max-w-lg mx-auto leading-relaxed">
                           {look.description}
                         </p>
-                        {/* Active indicator bar — matches FeaturedLooksGrid */}
-                        <span className="mx-auto mt-3 block h-0.5 w-7 bg-accent" />
                       </div>
                     </Link>
                   );
@@ -235,17 +233,17 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
               type="button"
               aria-label="Next look"
               onClick={() => shift(1)}
-              className="absolute bottom-0 left-1/2 z-20 flex h-10 w-10 shrink-0 translate-x-3/4 items-center justify-center rounded-full border border-text-secondary/50 text-lg text-text-secondary transition-colors hover:border-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:static md:translate-x-0"
+              className="absolute bottom-0 left-1/2 z-30 flex h-11 w-11 shrink-0 translate-x-[0.85rem] items-center justify-center rounded-full border border-[#b86228] bg-[#181412] text-xl font-bold text-[#f7eee4] shadow-md shadow-black/40 transition-all duration-200 hover:bg-[#b86228] hover:text-[#141210] hover:scale-105 active:scale-95 md:static md:translate-x-0 cursor-pointer"
             >
               →
             </button>
           </div>
 
-          {/* CTA to view anime page */}
-          <div className="mt-8 text-center">
+          {/* CTA to view anime page — moved up and styled with solid dark backing */}
+          <div className="mt-4 sm:mt-5 text-center relative z-20">
             <Link
               href="/anime"
-              className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent/10 px-8 py-4 text-sm font-bold uppercase tracking-[0.2em] text-accent hover:bg-accent hover:text-text-primary transition-all duration-200 shadow-[0_0_20px_rgba(255,168,56,0.2)] hover:shadow-[0_0_30px_rgba(255,168,56,0.4)]"
+              className="inline-flex items-center gap-2 rounded-sm border border-[#b86228] bg-[#181412] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-[#f7eee4] shadow-md shadow-black/40 hover:bg-[#b86228] hover:text-[#141210] hover:border-[#b86228] hover:shadow-lg transition-all duration-200"
             >
               EXPLORE ANIME COLLECTION →
             </Link>

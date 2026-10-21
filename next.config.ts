@@ -32,6 +32,24 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/home/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/shop/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
         source: "/favicon.png",
         headers: [
           {

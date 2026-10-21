@@ -58,5 +58,14 @@ ehthumbs.db
 
 # python bytecode
 __pycache__/
+
+# temporary, backup, and raw workspace assets
+*.bak
+*.tmp
+public/home/*.bak
+public/home/ht-studio-wall-background-v2*.png
+public/images/hero-banner.jpg
+public/images/hero-banner-v2.jpg
+
 *.py[cod]
 *$py.class

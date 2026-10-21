@@ -3,8 +3,8 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | FlipMeet Studio",
-  description: "Terms and conditions for FlipMeet Studio.",
+  title: "Terms & Conditions | HT x Studio",
+  description: "Terms and conditions for HT x Studio.",
 };
 
 export default function TermsPage() {
@@ -24,21 +24,21 @@ export default function TermsPage() {
             <section>
               <h2 className="text-sm font-bold uppercase tracking-widest text-text-primary mb-3">1. Introduction</h2>
               <p>
-                Welcome to FlipMeet Studio. These Terms & Conditions govern your use of our website and the purchase of our products. By accessing our site or placing an order, you agree to be bound by these terms. FlipMeet Studio reserves the right to update these terms at any time without prior notice.
+                Welcome to HT x Studio. These Terms & Conditions govern your use of our website and the purchase of our products. By accessing our site or placing an order, you agree to be bound by these terms. HT x Studio reserves the right to update these terms at any time without prior notice.
               </p>
             </section>
 
             <section>
               <h2 className="text-sm font-bold uppercase tracking-widest text-text-primary mb-3">2. Intellectual Property</h2>
               <p>
-                All content, designs, graphics, logos, and garments featured on this website are the exclusive property of FlipMeet Studio. Any unauthorized reproduction, distribution, or resale of our products or digital content is strictly prohibited.
+                All content, designs, graphics, logos, and garments featured on this website are the exclusive property of HT x Studio. Any unauthorized reproduction, distribution, or resale of our products or digital content is strictly prohibited.
               </p>
             </section>
 
             <section>
               <h2 className="text-sm font-bold uppercase tracking-widest text-text-primary mb-3">3. Product Availability & Drops</h2>
               <p>
-                FlipMeet Studio operates on a strictly limited-edition &quot;drop&quot; model. We do not restock items once they are sold out unless explicitly stated otherwise. Adding an item to your cart does not guarantee its availability until the checkout process is fully completed and payment is confirmed.
+                HT x Studio operates on a strictly limited-edition &quot;drop&quot; model. We do not restock items once they are sold out unless explicitly stated otherwise. Adding an item to your cart does not guarantee its availability until the checkout process is fully completed and payment is confirmed.
               </p>
             </section>
 

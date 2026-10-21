@@ -3,8 +3,8 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy | FlipMeet Studio",
-  description: "Shipping policy for FlipMeet Studio.",
+  title: "Shipping Policy | HT x Studio",
+  description: "Shipping policy for HT x Studio.",
 };
 
 export default function ShippingPage() {

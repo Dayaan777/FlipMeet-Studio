@@ -1,259 +1,208 @@
 "use client";
 
 import Image from "next/image";
-import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 import Link from "next/link";
 import { useState } from "react";
 
-// Each look: backdrop card (always full color) + garment PNG (silhouette → revealed)
-// Platform ring color is character-specific
 const LOOKS = [
   {
     id: "anime-op-flame-outfit",
-    name: "LOOK 01",
-    character: "OP FLAME",
+    slabLabel: "01  PINK FLAME",
+    character: "PINK FLAME",
     series: "ONE PIECE",
     image: "/images/products/anime-op-flame-outfit.png",
-    card: "/images/anime/cards/doflamingo-card.jpg",
+    defaultPoster: "/images/anime/posters/pink-flame-default.png",
+    hoverPoster: "/images/anime/posters/pink-flame-hover.png",
     color: "#F43F5E",
     glow: "rgba(244, 63, 94, 0.4)",
-    dimRing: "rgba(244, 63, 94, 0.12)",
   },
   {
     id: "anime-gojo-outfit",
-    name: "LOOK 02",
-    character: "GOJO",
+    slabLabel: "02  SATORU",
+    character: "SATORU",
     series: "JUJUTSU KAISEN",
     image: "/images/products/anime-gojo-outfit.png",
-    card: "/images/anime/cards/gojo-card.jpg",
+    defaultPoster: "/images/anime/posters/satoru-default.png",
+    hoverPoster: "/images/anime/posters/satoru-hover.png",
     color: "#A855F7",
     glow: "rgba(168, 85, 247, 0.4)",
-    dimRing: "rgba(168, 85, 247, 0.1)",
   },
   {
     id: "anime-luffy-blue-outfit",
-    name: "LOOK 03",
-    character: "LUFFY BLUE",
+    slabLabel: "03  LUFFY",
+    character: "LUFFY",
     series: "ONE PIECE",
     image: "/images/products/anime-luffy-blue-outfit.png",
-    card: "/images/anime/cards/luffy-card.jpg",
+    defaultPoster: "/images/anime/posters/luffy-default.png",
+    hoverPoster: "/images/anime/posters/luffy-hover.png",
     color: "#3B82F6",
     glow: "rgba(59, 130, 246, 0.4)",
-    dimRing: "rgba(59, 130, 246, 0.12)",
   },
   {
     id: "anime-robin-purple-outfit",
-    name: "LOOK 04",
-    character: "ROBIN",
+    slabLabel: "04  NICO ROBIN",
+    character: "NICO ROBIN",
     series: "ONE PIECE",
     image: "/images/products/anime-robin-purple-outfit.png",
-    card: "/images/anime/cards/robin-card.jpg",
+    defaultPoster: "/images/anime/posters/nico-robin-default.png",
+    hoverPoster: "/images/anime/posters/nico-robin-hover.png",
     color: "#A855F7",
     glow: "rgba(168, 85, 247, 0.4)",
-    dimRing: "rgba(168, 85, 247, 0.1)",
   },
   {
     id: "anime-zoro-green-outfit",
-    name: "LOOK 05",
+    slabLabel: "05  ZORO",
     character: "ZORO",
     series: "ONE PIECE",
     image: "/images/products/anime-zoro-green-outfit.png",
-    card: "/images/anime/cards/zoro-card.jpg",
+    defaultPoster: "/images/anime/posters/zoro-default.png",
+    hoverPoster: "/images/anime/posters/zoro-hover.png",
     color: "#22C55E",
     glow: "rgba(34, 197, 94, 0.4)",
-    dimRing: "rgba(34, 197, 94, 0.12)",
-  }
+  },
 ] as const;
 
 export default function AnimeDropReveal() {
- const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
- const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
- return (
-  <section
-   className="overflow-hidden px-4 py-20 sm:px-6 sm:py-28"
-   aria-labelledby="anime-drop-reveal-heading"
-  >
-   <div className="mx-auto max-w-7xl">
-    {/* ── Section header ── */}
-    <p className="mb-1 text-center text-[10px] font-bold tracking-[0.34em] text-text-secondary">
-     アニメコレクション
-    </p>
-    <p className="mb-2 text-center text-xs tracking-[0.28em] text-accent">
-     THE ANIME COLLECTION
-    </p>
-    <h2
-     id="anime-drop-reveal-heading"
-     className="mb-14 text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl"
+  return (
+    <section
+      className="overflow-hidden px-4 py-10 sm:px-6 sm:py-14"
+      aria-labelledby="anime-drop-reveal-heading"
     >
-     ANIME 05 LOOKS
-    </h2>
+      <div className="mx-auto max-w-7xl">
+        {/* ── Section Header (matches Editorial Archive style) ── */}
+        <div className="mb-10 text-center md:mb-14">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.28em] text-accent">
+            05 LOOKS
+          </p>
+          <h2
+            id="anime-drop-reveal-heading"
+            className="font-display text-3xl tracking-wide text-[#1c1510] md:text-4xl"
+          >
+            THE ANIME COLLECTION
+          </h2>
+          <p className="mt-2 text-xs tracking-wider text-[#4e4034]">
+            <span className="hidden [@media(hover:hover)]:inline">
+              HOVER A LOOK TO LIGHT IT UP
+            </span>
+          </p>
+        </div>
 
-    {/* ── 5 looks in a straight horizontal row ── */}
-    {/* Horizontally scrollable on mobile, full grid on large screens */}
-    <div className="overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:overflow-visible lg:px-0">
-     <div className="flex gap-3 md:gap-4 min-w-max lg:min-w-0 lg:grid lg:grid-cols-5">
-      {LOOKS.map((look, i) => {
-       const isFocused = focusedIndex === i;
-       const isActive = isFocused || hoveredIndex === i;
-
-       return (
-        <Link
-         key={look.id}
-         href={`/product/${look.id}`}
-         onPointerEnter={() => setHoveredIndex(i)}
-         onPointerLeave={() => setHoveredIndex(null)}
-         onPointerDown={(event) => {
-          if (event.pointerType === "touch") {
-           event.preventDefault();
-           setFocusedIndex(i);
-          }
-         }}
-         className="group contents"
+        {/* ── 5 Cards Layout (Desktop: 5 cols; Tablet: 3 + 2 centered; Mobile: horizontal scroll-snap) ── */}
+        <div
+          className="
+            flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 pb-6 scrollbar-none
+            md:overflow-visible md:snap-none md:flex-wrap md:justify-center md:gap-x-6 md:gap-y-12 md:px-0 md:pb-0
+            lg:grid lg:grid-cols-5 lg:gap-4 xl:gap-6 lg:justify-items-center
+          "
         >
-         <div
-          className="flex w-[162px] flex-col sm:w-[185px] lg:w-auto"
-         >
-         {/* ── Portrait card: backdrop (always color) + garment (silhouette → revealed) ── */}
-         <div
-          className={`relative aspect-[9/16] overflow-hidden rounded-sm border transition-all duration-700 group-hover:brightness-100 group-focus-visible:brightness-100 ${isActive ? "brightness-100" : "brightness-[0.65]"}`}
-          style={{
-           borderColor: isActive ? `${look.color}55` : "rgba(255,255,255,0.06)",
-           boxShadow: isActive ? `0 0 28px 3px ${look.glow}, inset 0 0 0 1px ${look.color}25` : "none",
-          }}
-         >
-          {/* Backdrop card ALWAYS full color, regardless of reveal state */}
-          <Image
-           src={look.card}
-           alt=""
-           aria-hidden="true"
-           fill
-           sizes="(max-width: 640px) 162px, (max-width: 1024px) 185px, 20vw"
-           className="object-cover object-center transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
-           style={{ filter: isActive ? "brightness(1)" : "brightness(0.65)" }}
-           priority={i === 0}
-           placeholder="blur"
-           blurDataURL={DARK_BLUR_DATA_URL}
-          />
+          {LOOKS.map((look, i) => {
+            const isActive = hoveredIndex === i || focusedIndex === i;
 
-          {/* Garment cutout */}
-          <div className="absolute inset-0 p-[5%]">
-           <Image
-            src={look.image}
-            alt={`${look.series} ${look.character} jersey`}
-            fill
-            priority={i === 0}
-            placeholder="blur"
-            blurDataURL={DARK_BLUR_DATA_URL}
-            sizes="(max-width: 640px) 162px, (max-width: 1024px) 185px, 20vw"
-            className="object-contain object-bottom transition-[filter] duration-700 group-hover:brightness-100 group-focus-visible:brightness-100"
-            style={{
-             filter: isActive ? "brightness(1)" : "brightness(0.65)",
-             padding: "4%",
-            }}
-           />
-          </div>
+            return (
+              <Link
+                key={look.id}
+                href={`/product/${look.id}`}
+                onPointerEnter={() => setHoveredIndex(i)}
+                onPointerLeave={() => setHoveredIndex(null)}
+                onFocus={() => setFocusedIndex(i)}
+                onBlur={() => setFocusedIndex(null)}
+                className="group relative block w-[220px] shrink-0 snap-center outline-none transition-none md:w-[220px] lg:w-full lg:max-w-[250px]"
+                aria-label={`View ${look.slabLabel} outfit`}
+              >
+                {/* Fixed aspect-ratio stage matching 250px x 536px architecture */}
+                <div className="relative aspect-[250/536] w-full select-none">
+                  {/* Hover ambient color splash behind poster (stays dimmer than the outfit) */}
+                  <div
+                    className="pointer-events-none absolute left-1/2 top-[4%] h-[62%] w-[96%] -translate-x-1/2 rounded-full blur-2xl transition-opacity duration-300"
+                    style={{
+                      background: `radial-gradient(ellipse at center, ${look.glow} 0%, transparent 72%)`,
+                      opacity: isActive ? 0.7 : 0,
+                    }}
+                    aria-hidden="true"
+                  />
 
-          {/* Revealed: character-colored glow at bottom of card */}
-          <div
-           className="absolute inset-x-0 bottom-0 h-[30%] pointer-events-none transition-opacity duration-700"
-           style={{
-            background: `linear-gradient(to top, ${look.glow} 0%, transparent 100%)`,
-            opacity: isActive ? 1 : 0,
-           }}
-          />
-         </div>
+                  {/* 1. Back Layer: Character Poster (centered, 210px x 340px at 250px container, straight, no tilt) */}
+                  <div
+                    className="pointer-events-none absolute left-1/2 top-0 h-[63.43%] w-[84%] -translate-x-1/2 select-none"
+                    style={{
+                      filter: "drop-shadow(6px 10px 14px rgba(0,0,0,0.45))",
+                    }}
+                  >
+                    {/* Default monochrome concrete-toned poster */}
+                    <Image
+                      src={look.defaultPoster}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 185px, (max-width: 1024px) 210px, 210px"
+                      className="object-contain object-top transition-opacity duration-300"
+                      style={{ opacity: isActive ? 0 : 1 }}
+                      priority={i < 2}
+                    />
+                    {/* Hover full-color poster */}
+                    <Image
+                      src={look.hoverPoster}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 185px, (max-width: 1024px) 210px, 210px"
+                      className="object-contain object-top transition-opacity duration-300"
+                      style={{ opacity: isActive ? 1 : 0 }}
+                      priority={i < 2}
+                    />
+                  </div>
 
-         {/* ── Platform ring glowing ellipse in character color ── */}
-         <div className="relative mt-0.5 h-7 select-none" aria-hidden="true">
-          <svg
-           viewBox="0 0 200 28"
-           className="absolute inset-0 h-full w-full"
-          >
-           <defs>
-            {/* Glow filter unique per look to avoid ID collisions */}
-            <filter
-             id={`rg-${look.id}`}
-             x="-50%"
-             y="-100%"
-             width="200%"
-             height="400%"
-            >
-             <feGaussianBlur stdDeviation="2.5" result="blurred" />
-             <feMerge>
-              <feMergeNode in="blurred" />
-              <feMergeNode in="SourceGraphic" />
-             </feMerge>
-            </filter>
-           </defs>
+                  {/* 2. Middle Layer: Outfit Image (centered in front, 410px tall, starts 1/4 down poster, pants hang below poster) */}
+                  <div
+                    className="pointer-events-none absolute left-1/2 top-[15.86%] z-10 h-[76.49%] w-full -translate-x-1/2 select-none"
+                    style={{
+                      filter: "drop-shadow(10px 10px 10px rgba(0,0,0,0.6))",
+                    }}
+                  >
+                    <Image
+                      src={look.image}
+                      alt={`${look.character} outfit`}
+                      fill
+                      sizes="(max-width: 640px) 220px, (max-width: 1024px) 250px, 250px"
+                      className="object-contain object-bottom"
+                      priority={i < 2}
+                    />
+                  </div>
 
-           {/* Outer halo ring */}
-           <ellipse
-            cx="100"
-            cy="18"
-            rx="95"
-            ry="11"
-            fill="none"
-            stroke={isActive ? look.color : look.dimRing}
-            strokeWidth={isActive ? 2.8 : 1}
-            opacity={isActive ? 0.9 : 0.35}
-            filter={isActive ? `url(#rg-${look.id})` : undefined}
-            style={{ transition: "stroke 0.7s ease, stroke-width 0.7s ease, opacity 0.7s ease" }}
-           />
-           {/* Inner specular ring */}
-           <ellipse
-            cx="100"
-            cy="18"
-            rx="70"
-            ry="7.5"
-            fill="none"
-            stroke={isActive ? look.color : look.dimRing}
-            strokeWidth="1"
-            opacity={isActive ? 0.4 : 0.18}
-            style={{ transition: "stroke 0.7s ease, opacity 0.7s ease" }}
-           />
-          </svg>
+                  {/* 3. Front Layer: Concrete Slab (250px wide, feet overlap lighter top face by ~6px) */}
+                  <div className="pointer-events-none absolute bottom-0 inset-x-0 z-20 h-[9.33%] w-full select-none">
+                    {/* Soft blurred shadow under each slab */}
+                    <div
+                      className="pointer-events-none absolute -bottom-2 inset-x-2 h-3.5 rounded-full bg-black/45 blur-md"
+                      aria-hidden="true"
+                    />
 
-          {/* Floor bloom beneath the ring */}
-          <div
-           className="absolute inset-x-[8%] bottom-0 h-full pointer-events-none transition-opacity duration-700"
-           style={{
-            background: `radial-gradient(ellipse at 50% 80%, ${look.glow} 0%, transparent 70%)`,
-            filter: "blur(5px)",
-            opacity: isActive ? 1 : 0,
-           }}
-          />
-         </div>
+                    {/* Slab image */}
+                    <div className="relative h-full w-full">
+                      <Image
+                        src="/images/anime/posters/concrete-slab.png"
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 220px, 250px"
+                        className="object-fill select-none"
+                        priority
+                      />
 
-         {/* ── Character label ── */}
-         <div className="mt-2.5 text-center space-y-0.5">
-          <p
-           className="text-[9px] font-bold uppercase tracking-[0.22em] transition-colors duration-700"
-           style={{ color: isActive ? look.color : "#252525" }}
-          >
-           {look.series}
-          </p>
-          <p
-           className="text-[11px] font-bold uppercase tracking-widest transition-colors duration-700"
-           style={{ color: isActive ? "#ffffff" : "#252525" }}
-          >
-           {look.character}
-          </p>
-          <p
-           className="text-[8px] tracking-[0.14em] transition-colors duration-700"
-           style={{ color: isActive ? "#6b6b6b" : "#1a1a1a" }}
-          >
-           {look.name}
-          </p>
-         </div>
-         </div>
-        </Link>
-       );
-      })}
-     </div>
-    </div>
-
-   </div>
-  </section>
- );
+                      {/* 4. Slab Label: Live text centered on front vertical face (bottom ~70% of slab) */}
+                      <div className="absolute inset-x-0 bottom-0 top-[28%] flex items-center justify-center px-1 text-center">
+                        <span className="select-none font-sans text-[11px] font-bold uppercase leading-none tracking-[0.25em] text-[#2c2621] sm:text-[12px] lg:text-[13px] whitespace-nowrap">
+                          {look.slabLabel}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
 }

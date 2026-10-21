@@ -8,42 +8,40 @@ import PlatformRing from "@/components/PlatformRing";
 
 function FeaturedLook({ look, active, onSelect }: { look: Look; active: boolean; onSelect: () => void }) {
  return (
-  <Link
-   href={`/product/${look.id}`}
-   aria-label={`View ${look.name}`}
+  <div
    onClick={onSelect}
-   className={`relative flex min-w-0 flex-1 cursor-pointer flex-col items-center text-center transition-opacity duration-200 ${
-    active ? "z-10 opacity-100" : "opacity-55 hover:opacity-85"
+   className={`group relative flex min-w-0 flex-1 flex-col stone-frame rounded-[2px] overflow-hidden transition-all duration-300 ${
+    active ? "ring-1 ring-accent/70 shadow-[0_16px_40px_rgba(0,0,0,0.7)]" : "opacity-80 hover:opacity-100"
    }`}
   >
-   {/* Outfit image feet touch bottom of the image container which lands on the ring */}
-   <div
-    className={`relative z-10 flex h-64 w-full origin-bottom items-end justify-center transition-transform duration-200 sm:h-72 lg:h-80 ${
-     active ? "scale-[1.06]" : "scale-[0.96]"
-    }`}
-   >
-    <Image
-     src={look.images[0]}
-     alt={`${look.name} ${look.description}`}
-     fill
-     sizes="(min-width: 1024px) 20vw, 45vw"
-     className="object-contain object-bottom"
-    />
-   </div>
+   <Link href={`/product/${look.id}`} aria-label={`View ${look.name}`} className="flex flex-col h-full">
+    {/* Outfit image with ambient stone pedestal lighting */}
+    <div className="relative h-64 sm:h-72 w-full p-4 flex items-center justify-center bg-gradient-to-b from-base-surface/40 via-base-surface/10 to-base-bg/60 overflow-hidden">
+     <Image
+      src={look.images[0]}
+      alt={`${look.name} ${look.description}`}
+      fill
+      sizes="(min-width: 1024px) 20vw, 45vw"
+      className="object-contain p-2 transition-transform duration-500 ease-out group-hover:scale-105"
+     />
+    </div>
 
-   {/* Label + indicator beneath the outfit */}
-   <div className="relative z-10 mt-4 flex min-h-14 flex-col items-center">
-    <p className={`text-[11px] font-bold uppercase tracking-widest ${active ? "text-text-primary" : "text-text-secondary"}`}>
-     {look.name}
-    </p>
-    <p className="mt-1 text-[10px] text-text-secondary">{look.description}</p>
-    <span
-     className={`mt-3 block transition-all duration-200 ${
-      active ? "h-0.5 w-7 bg-accent" : "h-2 w-2 rounded-full bg-white/40"
-     }`}
-    />
-   </div>
-  </Link>
+    {/* Stone Bottom Price Tab with Title & Copper "+" Button */}
+    <div className="stone-tab p-3 flex items-center justify-between gap-2 mt-auto">
+     <div className="min-w-0 text-left">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-text-primary truncate group-hover:text-accent transition-colors">
+       {look.name}
+      </p>
+      <p className="text-[10px] tracking-wide text-accent font-medium mt-0.5">
+       PKR {look.price ? look.price.toLocaleString() : "5,490"}
+      </p>
+     </div>
+     <span className="btn-copper-plus shrink-0" aria-hidden="true">
+      +
+     </span>
+    </div>
+   </Link>
+  </div>
  );
 }
 
@@ -59,9 +57,9 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
  if (!looks.length) return null;
 
  return (
-  <section className="overflow-hidden border-b border-base-border px-6 pb-24 pt-20" aria-labelledby="featured-looks-heading">
+  <section className="stone-divider overflow-hidden px-6 pb-24 pt-20" aria-labelledby="featured-looks-heading">
    <div className="mx-auto max-w-7xl">
-    <p className="mb-2 text-center text-xs tracking-[0.28em] text-accent">THE COLLECTION</p>
+    <p className="mb-2 text-center section-label">NEW COLLECTION</p>
     <h2 id="featured-looks-heading" className="text-balance text-center font-display text-3xl tracking-wide text-text-primary md:text-4xl">
      {drop.name} - FEATURED LOOKS
     </h2>
@@ -107,9 +105,9 @@ export default function FeaturedLooksGrid({ drop }: { drop: Drop }) {
     <div className="mt-12 text-center">
      <Link
       href={`/product/${looks[focusedIndex]?.id || looks[0]?.id || ""}`}
-      className="inline-flex items-center gap-2 rounded-sm border border-accent bg-accent/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-accent hover:bg-accent hover:text-text-primary transition-all duration-200"
+      className="btn-copper"
      >
-      VIEW {looks[focusedIndex]?.name || "LOOK"} DETAILS →
+      EXPLORE THE COLLECTION →
      </Link>
     </div>
    </div>

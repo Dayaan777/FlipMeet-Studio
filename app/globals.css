@@ -1,40 +1,580 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-display: "Neue Machina", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* --- Accent color tokens (male / default: orange) --- */
-  --accent:     255 77 30;    /* #FF4D1E - used as `rgb(var(--accent))` */
-  --accent-dim: 179 58 22;    /* #B33A16 */
+  /* --- Accent color tokens: Copper / Bronze (from mockup) --- */
+  --accent:      194 120 71;   /* #C27847 - warm burnished copper */
+  --accent-dim:  142 79 39;    /* #8E4F27 - rich deep bronze */
+  --accent-glow: 222 145 94;   /* #DE915E - highlighted warm copper */
+
+  /* Base palette tokens */
+  --base-bg:      #141210;     /* dark brown / charcoal */
+  --base-surface: #1c1916;     /* warm stone surface */
+  --base-border:  #332d27;     /* weathered stone border */
+  --text-primary: #f0e8dc;     /* warm beige text */
+  --text-secondary: #a69a8d;   /* warm taupe text */
 }
 
-/* --- Female theme: rose / dusty pink --- */
+/* --- Female theme: dusty copper rose --- */
 [data-theme="female"] {
-  --accent:     232 147 179;  /* #E893B3 */
-  --accent-dim: 180 90 130;   /* #B45A82 */
+  --accent:      214 138 120;  /* #D68A78 */
+  --accent-dim:  168 96 82;    /* #A86052 */
+  --accent-glow: 236 172 158;
 }
+
 
 html {
   scroll-behavior: smooth;
+  background-color: #141210;
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #141210;
+  color: #f0e8dc;
   font-family: var(--font-body);
 }
 
-/* Keyboard focus ring - uses themed accent */
+/* ─── Home Wall: Architectural concrete/limestone slab wall ────────────
+   Single wall-bg.webp image, no overlays, no filters, no blend modes.
+   ─────────────────────────────────────────────────────────────────────── */
+.home-wall {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  /* Fallback base color matching the slab texture */
+  background-color: #988f83;
+}
+
+/* The wall texture layer — image only, no extras */
+.home-wall-bg {
+  background-image: url(/home/wall-bg-v3.webp);
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: repeat-y;
+}
+
+/* Mobile: scale to ~140% width, centered, so baked-in brick edges bleed off-screen */
+@media (max-width: 767px) {
+  .home-wall-bg {
+    background-size: 140% auto;
+  }
+}
+
+/* ─── Shop Wall: Architectural Stepped Limestone Plinth ────────────────── */
+.shop-wall {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #141210;
+}
+
+.shop-wall-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    url(/shop/shop-stone-plinth.webp),
+    url(/shop/shop-stone-tile.webp);
+  background-position:
+    center top,
+    center top;
+  background-repeat:
+    no-repeat,
+    repeat;
+  background-size:
+    100% auto,
+    512px 512px;
+}
+
+@media (max-width: 767px) {
+  .shop-wall-bg {
+    background-image:
+      linear-gradient(to bottom, #141210 0px, #141210 130px, transparent 185px),
+      url(/shop/shop-stone-plinth.webp),
+      url(/shop/shop-stone-tile.webp);
+    background-position:
+      center top,
+      center 110px,
+      center 110px;
+    background-repeat:
+      no-repeat,
+      no-repeat,
+      repeat;
+    background-size:
+      100% 185px,
+      140% auto,
+      512px 512px;
+  }
+}
+
+/* Section wrappers inside home-wall: transparent and remove harsh dark divider lines */
+.home-wall > section,
+.home-wall section {
+  background-color: transparent;
+  border-color: transparent !important;
+}
+
+.home-wall .stone-divider {
+  border-top-color: transparent !important;
+}
+.home-wall .stone-divider::before,
+.home-wall .stone-divider::after {
+  display: none !important;
+}
+
+/* Text color overrides inside home-wall — deep rich obsidian & high-contrast espresso */
+.home-wall .text-text-primary {
+  color: #0d0a08 !important;
+  font-weight: 700;
+  text-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.4);
+}
+.home-wall .text-text-secondary {
+  color: #1c1612 !important;
+  font-weight: 500;
+  text-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.3);
+}
+.home-wall h1,
+.home-wall h2,
+.home-wall h3,
+.home-wall h4 {
+  color: #0d0a08 !important;
+}
+.home-wall > section > div > p,
+.home-wall section > p {
+  color: #1c1612 !important;
+  font-weight: 500;
+}
+
+/* Restore original light text INSIDE opaque dark card / video containers */
+.home-wall .stone-frame .text-text-primary,
+.home-wall .stone-frame .text-text-secondary,
+.home-wall .stone-frame h2,
+.home-wall .stone-frame p,
+.home-wall [class*="bg-[#141210]"] .text-text-primary,
+.home-wall [class*="bg-[#141210]"] h1,
+.home-wall [class*="bg-[#141210]"] h2,
+.home-wall [class*="bg-[#141210]"] h3,
+.home-wall [class*="bg-base-surface"] .text-text-primary,
+.home-wall [class*="bg-base-surface"] h1,
+.home-wall [class*="bg-base-surface"] h2,
+.home-wall [class*="bg-base-surface"] h3 {
+  color: #ededed !important;
+}
+
+.home-wall [class*="bg-[#141210]"] .text-text-secondary,
+.home-wall [class*="bg-[#141210]"] p,
+.home-wall [class*="bg-base-surface"] .text-text-secondary,
+.home-wall [class*="bg-base-surface"] p {
+  color: #a1a1aa !important;
+}
+
+.home-wall [class*="bg-[#141210]"] .text-accent,
+.home-wall [class*="bg-base-surface"] .text-accent {
+  color: rgb(var(--accent)) !important;
+}
+
+/* Keyboard focus ring - uses themed copper accent */
 *:focus-visible {
   outline: 2px solid rgb(var(--accent));
   outline-offset: 4px;
+}
+
+/* Subtle concrete & sandstone texture gradients */
+.bg-concrete-ambient {
+  background-color: #141210;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(68, 59, 51, 0.28) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(46, 39, 33, 0.35) 0%, transparent 50%),
+    linear-gradient(to bottom, #141210 0%, #181513 50%, #12100e 100%);
+}
+
+.bg-stone-surface {
+  background: linear-gradient(180deg, #221e1a 0%, #1a1714 100%);
+}
+
+/* Stone slab frame for cards */
+.stone-frame {
+  background: linear-gradient(180deg, #201c18 0%, #171412 100%);
+  border: 1px solid #383028;
+  border-top-color: #4c4238;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* Stone bottom price tab */
+.stone-tab {
+  background: #181512;
+  border-top: 1px solid #332d27;
+}
+
+/* Signature Copper gradient button with arrow */
+.btn-copper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #c27847 0%, #b36638 50%, #8e4f27 100%);
+  color: #141210;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 0.75rem 1.4rem;
+  border-radius: 2px;
+  box-shadow: 0 4px 16px rgba(179, 102, 56, 0.25);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-copper:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 24px rgba(179, 102, 56, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-copper:active {
+  transform: translateY(0);
+}
+
+/* Copper "+" icon button on product cards */
+.btn-copper-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, #c27847 0%, #8e4f27 100%);
+  color: #141210;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(179, 102, 56, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-copper-plus:hover {
+  filter: brightness(1.15);
+  transform: scale(1.05);
+}
+
+/* Section divider with subtle corner crosshairs "+" */
+.stone-divider {
+  position: relative;
+  border-top: 1px solid #332d27;
+}
+
+.stone-divider::before {
+  content: "+";
+  position: absolute;
+  left: 0;
+  top: -0.55rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #c27847;
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+.stone-divider::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: -0.55rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #c27847;
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+/* Section labels: wide-tracked uppercase */
+.section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: #c27847;
+  font-weight: 600;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+
+/* ─── Product Detail Page (PDP) Brutalist Architectural Theme ─────────── */
+.pdp-wall {
+  position: relative;
+  isolation: isolate;
+  background-color: #988f83;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: url(/home/wall-bg-v3.webp);
+  background-repeat: repeat-y;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.pdp-page-container {
+  position: relative;
+  isolation: isolate;
+  background-color: #988f83;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: url(/home/wall-bg-v3.webp);
+  background-repeat: repeat-y;
+  background-position: center top;
+  background-size: 100% auto;
+}
+
+.pdp-wall-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    url(/images/pdp/pdp-backdrop-desktop.jpg), /* pdp-hero-stage.webp */
+    url(/home/wall-bg-v3.webp);
+  background-position: center top, center top;
+  background-repeat: no-repeat, repeat-y;
+  background-size: cover, 100% auto;
+}
+
+@media (max-width: 767px) {
+  .pdp-wall,
+.pdp-page-container {
+    background-size: 140% auto;
+  }
+}
+
+.pdp-hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  min-height: 860px;
+  background-image: url(/images/pdp/pdp-backdrop-desktop.jpg);
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  mask-image: linear-gradient(to bottom, black calc(100% - 240px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 240px), transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (max-width: 767px) {
+  .pdp-hero-backdrop {
+    background-image: url(/images/pdp/pdp-backdrop-mobile.jpg);
+    background-size: cover;
+    min-height: 740px;
+    mask-image: linear-gradient(to bottom, black calc(100% - 200px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 200px), transparent 100%);
+  }
+}
+
+.pdp-navbar-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 110px;
+  background: linear-gradient(to bottom, rgba(16, 14, 12, 0.6) 0%, rgba(16, 14, 12, 0.25) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.pdp-info-scrim {
+  position: absolute;
+  inset: -20px -24px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(16, 14, 12, 0.65) 0%, rgba(16, 14, 12, 0.35) 70%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+/* Glowing flame-gradient ADD TO BAG button */
+.btn-flame-magenta {
+  background: linear-gradient(135deg, #d48b59 0%, #c27847 50%, #a65e31 100%);
+  background-size: 200% auto;
+  color: #141210;
+  box-shadow: 0 4px 24px rgba(194, 120, 71, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-flame-magenta:hover {
+  background-position: right center;
+  box-shadow: 0 6px 32px rgba(194, 120, 71, 0.6);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-flame-magenta:active {
+  transform: translateY(0);
+}
+
+/* Outlined checkout button */
+.btn-outline-checkout {
+  border: 1px solid rgba(200, 131, 74, 0.55);
+  background: rgba(24, 20, 18, 0.85);
+  color: #df9b66;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-checkout:hover {
+  border-color: #e5a46f;
+  color: #f7eee4;
+  background: rgba(36, 30, 26, 0.95);
+  transform: translateY(-1px);
+}
+
+/* Tactile sizing pills */
+.pill-tactile-active {
+  background: linear-gradient(135deg, #d48b59 0%, #c27847 60%, #8e4f27 100%);
+  color: #141210;
+  font-weight: 700;
+  border: 1px solid #de915e;
+  box-shadow: 0 2px 10px rgba(194, 120, 71, 0.4);
+}
+
+.pill-tactile-inactive {
+  background: rgba(28, 25, 22, 0.8);
+  border: 1px solid #383028;
+  color: #a69a8d;
+  transition: all 0.2s ease-in-out;
+}
+
+.pill-tactile-inactive:hover {
+  border-color: rgba(194, 120, 71, 0.6);
+  color: #f0e8dc;
+}
+
+/* Thumbnails sitting on the slab face (no dark container/tray) */
+.pdp-slab-thumb,
+.plinth-inset-thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(18, 15, 13, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.pdp-slab-thumb.active,
+.plinth-inset-thumb.active {
+  border: 2px solid #c27847;
+  box-shadow: 0 0 16px rgba(200, 131, 74, 0.65), 0 4px 12px rgba(0, 0, 0, 0.7);
+  transform: translateY(-2px);
+}
+
+.pdp-slab-thumb:not(.active) {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  opacity: 0.85;
+}
+
+.pdp-slab-thumb:not(.active):hover {
+  opacity: 1;
+  border-color: rgba(200, 131, 74, 0.8);
+  transform: translateY(-1px);
+}
+
+/* Scarcity Rose Accent */
+.scarcity-rose {
+  color: #e59a4c;
+  text-shadow: 0 0 12px rgba(229, 154, 76, 0.5);
+}
+/* ── Enhanced Gold / Accent Typography & Outline Buttons on Home Wall ── */
+.home-wall .text-accent {
+  color: #78330a !important; /* Deep rich radiant burnished copper-gold with maximum contrast against stone */
+  font-weight: 800 !important;
+  text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.55);
+}
+
+/* Headers with text-accent like 'ANIME PACK 5 IN 1' */
+.home-wall h2.text-accent,
+.home-wall .font-display.text-accent {
+  color: #78330a !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6), 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+/* Gold / Outline Buttons on Home Wall (e.g. 'ORDER LOOK', 'BUY INDIVIDUALLY', 'EXPLORE ANIME COLLECTION') */
+.home-wall a[class*="border-accent"],
+.home-wall button[class*="border-accent"] {
+  border: 1.5px solid #b86228 !important;
+  background-color: #181412 !important; /* Solid dark espresso backing so wall texture & mortar lines cannot bleed through */
+  color: #f7eee4 !important; /* Warm ivory/cream text with high contrast */
+  font-weight: 700 !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35), 0 0 8px rgba(184, 98, 40, 0.25) !important;
+  transition: all 0.25s ease-in-out !important;
+}
+
+.home-wall a[class*="border-accent"]:hover,
+.home-wall button[class*="border-accent"]:hover {
+  background-color: #b86228 !important;
+  color: #141210 !important;
+  border-color: #b86228 !important;
+  box-shadow: 0 6px 20px rgba(184, 98, 40, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+/* Solid gold / copper buttons on Home Wall */
+.home-wall button.bg-accent,
+.home-wall a.bg-accent,
+.home-wall [class*="bg-accent"] button,
+.home-wall [class*="bg-accent"] a {
+  background: linear-gradient(135deg, #c27847 0%, #a65b28 50%, #8c4a1e 100%) !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(140, 74, 30, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* In TrustBadges Marquee */
+.home-wall .animate-marquee .text-accent {
+  color: #78330a !important;
+  font-weight: 900 !important;
+}
+
+/* Inside dark cards, keep bright amber gold and clean warm white */
+.home-wall [class*="bg-[#141210]"] .text-accent,
+.home-wall [class*="bg-base-surface"] .text-accent,
+.home-wall [class*="bg-[#141210]"] .text-accent *,
+.home-wall [class*="bg-base-surface"] .text-accent * {
+  color: #f59e0b !important;
+  text-shadow: none !important;
+}
+
+.home-wall .stone-frame .text-text-primary,
+.home-wall [class*="bg-[#141210]"] .text-text-primary,
+.home-wall [class*="bg-[#141210]"] h1,
+.home-wall [class*="bg-[#141210]"] h2,
+.home-wall [class*="bg-[#141210]"] h3,
+.home-wall [class*="bg-base-surface"] .text-text-primary,
+.home-wall [class*="bg-base-surface"] h1,
+.home-wall [class*="bg-base-surface"] h2,
+.home-wall [class*="bg-base-surface"] h3 {
+  color: #f0e8dc !important;
+  text-shadow: none !important;
+}
+
+.home-wall .stone-frame .text-text-secondary,
+.home-wall [class*="bg-[#141210]"] .text-text-secondary,
+.home-wall [class*="bg-[#141210]"] p,
+.home-wall [class*="bg-base-surface"] .text-text-secondary,
+.home-wall [class*="bg-base-surface"] p {
+  color: #b0a496 !important;
+  text-shadow: none !important;
 }

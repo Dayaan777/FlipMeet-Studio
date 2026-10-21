@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { getSupabaseDrop } from "@/lib/products";
 
 import ResponsiveHero from "@/components/ResponsiveHero";
+import HomeWallBackground from "@/components/HomeWallBackground";
 
 export default async function Home() {
   const drop = await getSupabaseDrop();
@@ -20,18 +21,25 @@ export default async function Home() {
       <main className="bg-base-bg">
         <ResponsiveHero />
 
-        <LookCarousel drop={drop} />
-        {/* <FeaturedLooksGrid drop={drop} /> */}
-        <AnimeTeaser drop={drop} />
-        {/* <TryOnPanel drop={drop} /> */}
-        
-        {/* ── ANIME PACK 5 IN 1 ── */}
-        <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 pb-12 sm:pb-20 pt-12 sm:pt-20 border-t border-base-border">
-          <AnimeBundle />
-        </section>
+        {/* ── Sections below the hero — concrete wall background ── */}
+        <div className="home-wall">
+          <HomeWallBackground />
 
-        <VideoCarousel />
-        <TrustBadges />
+          <LookCarousel drop={drop} />
+          {/* <FeaturedLooksGrid drop={drop} /> */}
+
+          <AnimeTeaser drop={drop} />
+          {/* <TryOnPanel drop={drop} /> */}
+
+          {/* ── ANIME PACK 5 IN 1 ── */}
+          <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
+            <AnimeBundle />
+          </section>
+
+          <VideoCarousel />
+
+          <TrustBadges />
+        </div>
       </main>
      <Footer />
     </>

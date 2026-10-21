@@ -15,7 +15,7 @@ const ROW_ONE = [
 
 const ROW_TWO = [
   // { label: "DROP 001", accent: true },
-  { label: "FLIPMEET STUDIO", accent: false },
+  { label: "HT X STUDIO", accent: false },
   { label: "STREET COLLECTIVE", accent: true },
   { label: "OVERSIZED FIT", accent: false },
   { label: "ANIME ARCHIVE", accent: true },
@@ -28,7 +28,7 @@ const ROW_TWO = [
 
 function Dot() {
   return (
-    <span className="mx-6 inline-block h-[3px] w-[3px] shrink-0 rounded-full bg-accent/50 align-middle" />
+    <span className="mx-6 inline-block h-[4px] w-[4px] shrink-0 rounded-full bg-[#1c1510]/40 align-middle" />
   );
 }
 
@@ -66,7 +66,7 @@ function MarqueeRow({
           <span key={i} className="flex items-center shrink-0">
             <span
               className={`text-[10px] font-black uppercase tracking-[0.24em] whitespace-nowrap ${
-                item.accent ? "text-accent" : "text-text-primary/70"
+                item.accent ? "text-accent font-black tracking-[0.24em]" : "text-[#1c1510] font-black tracking-[0.24em]"
               }`}
             >
               {item.label}
@@ -82,7 +82,7 @@ function MarqueeRow({
 export default function TrustBadges() {
   return (
     // "group" here — hovering the section pauses both rows via group-hover
-    <section className="group border-y border-base-border bg-base-surface/40 py-6 space-y-5 overflow-hidden cursor-default">
+    <section className="group py-5 space-y-3 overflow-hidden cursor-default">
       {/* Row 1 — scrolls left */}
       <MarqueeRow items={ROW_ONE} duration="38s" />
       {/* Row 2 — scrolls right (reverse) */}
