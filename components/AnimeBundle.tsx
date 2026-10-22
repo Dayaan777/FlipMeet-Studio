@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart-store";
 import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
@@ -531,11 +532,17 @@ export default function AnimeBundle() {
     price: number;
     old_price?: number;
     images: string[];
-  } | null>(null);
+  } | null>({
+    id: "anime-bundle-5-outfits",
+    name: "ANIME PACK 5 IN 1",
+    price: 19999,
+    old_price: 26000,
+    images: ["/brick-frames/anime-bundle-wall.webp"],
+  });
   const [individualProducts, setIndividualProducts] = useState<AnimeProduct[]>(
     []
   );
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
   const [showPopup, setShowPopup] = useState(false);
   const [showIndividual, setShowIndividual] = useState(false);
@@ -579,9 +586,9 @@ export default function AnimeBundle() {
   return (
     <div className="w-full">
       {/* ── Top Row: Text and Image ── */}
-      <div className="flex flex-col md:flex-row md:items-start gap-8 lg:gap-12">
+      <div className="flex flex-col md:flex-row md:items-center gap-8 lg:gap-10">
         {/* LEFT: Text column */}
-        <div className="w-full md:w-[40%] flex flex-col gap-5 shrink-0 ">
+        <div className="w-full md:w-[32%] lg:w-[28%] flex flex-col gap-4 sm:gap-5 shrink-0">
           {/* Label */}
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#8f3d0c] shadow-sm" />
@@ -595,7 +602,7 @@ export default function AnimeBundle() {
             <h2 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-widest text-[#0e0b08] leading-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">
               ANIME PACK
             </h2>
-            <h2 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-widest text-[#78330a] leading-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] [font-variant-numeric:lining-nums_tabular-nums]">
+            <h2 className="font-display text-4xl sm:text-5xl font-extrabold uppercase tracking-widest text-[#0e0b08] leading-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] [font-variant-numeric:lining-nums_tabular-nums] mt-1">
               5 IN 1
             </h2>
           </div>
@@ -632,22 +639,51 @@ export default function AnimeBundle() {
           </p>
         </div>
 
-        {/* RIGHT: Image column (Swipeable on mobile) */}
-        <div className="w-full md:w-[60%] flex-1 relative ">
+        {/* RIGHT: Broken Brick Wall with 5 Outfits (Swipeable on mobile) */}
+        <div className="w-full md:w-[68%] lg:w-[72%] flex-1 relative">
           <div className="overflow-x-auto no-scrollbar w-full relative group">
             {/* Mobile swipe hint */}
-            <div className="absolute right-4 top-4 bg-black/70 text-white text-[10px] px-3 py-1.5 rounded-full md:hidden pointer-events-none z-10 font-bold tracking-widest">
+            <div className="absolute right-3 top-3 bg-black/75 backdrop-blur-sm text-white text-[10px] px-3 py-1.5 rounded-full md:hidden pointer-events-none z-20 font-bold tracking-widest shadow-md">
               SWIPE ↔
             </div>
-            
-            <div className="relative min-w-[600px] md:min-w-0 w-full h-[340px] md:h-[400px]">
+
+            {/* Frame container maintaining 1024/536 aspect ratio */}
+            <div className="relative min-w-[580px] md:min-w-0 w-full aspect-[1024/536]">
+              {/* Broken brick wall background image with rubble */}
               <Image
-                src={bundleProduct?.images?.[0] || "/images/anime-bundle.png"}
-                alt="Anime Pack – 5 Outfits"
+                src="/brick-frames/anime-bundle-wall.webp"
+                alt="Anime Pack 5 in 1 Broken Brick Wall"
                 fill
-                sizes="(min-width: 768px) 60vw, 600px"
-                className="object-contain object-left md:object-center"
+                sizes="(min-width: 1024px) 800px, 95vw"
+                className="object-contain pointer-events-none select-none z-0"
+                priority
               />
+
+              {/* 5 Outfits standing inside the cavity resting on rubble floor */}
+              <div className="absolute left-[6%] right-[6%] bottom-[18%] top-[10%] z-10 grid grid-cols-5 items-end justify-items-center">
+                {BUNDLE_ITEMS.map((item) => (
+                  <Link
+                    key={item.bottomId}
+                    href={`/product/${item.bottomId}`}
+                    className="group relative flex flex-col items-center justify-end h-full w-full max-w-[150px] transition-transform duration-200 hover:-translate-y-2 focus:outline-none"
+                    title={`${item.topName} Outfit`}
+                  >
+                    {/* Outfit cutout */}
+                    <div className="relative w-full h-[96%] flex items-end justify-center">
+                      <Image
+                        src={item.bottomImg}
+                        alt={item.topName}
+                        fill
+                        sizes="(min-width: 768px) 180px, 140px"
+                        className="object-contain object-bottom drop-shadow-[0_8px_14px_rgba(0,0,0,0.65)] transition-all duration-200 group-hover:drop-shadow-[0_14px_24px_rgba(0,0,0,0.85)] group-hover:scale-[1.03]"
+                      />
+                    </div>
+
+                    {/* Grounding contact shadow directly on top of the rubble */}
+                    <div className="w-[65%] h-2.5 -mt-1 bg-black/75 rounded-full blur-[2.5px] pointer-events-none transition-all duration-200 group-hover:w-[75%] group-hover:bg-black/90" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>

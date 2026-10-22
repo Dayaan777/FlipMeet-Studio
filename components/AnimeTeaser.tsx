@@ -219,7 +219,7 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
 
                   {/* ── Active-Outfit Accent Marker: Painted Corner Brackets on Stage Top Face ── */}
                   <div
-                    className="absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none transition-transform duration-350 ease-out motion-reduce:transition-none"
+                    className="hidden sm:block absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none transition-transform duration-350 ease-out motion-reduce:transition-none"
                     style={{
                       transform: `translate(calc(-50% + ${markerOffset}px), -50%)`,
                     }}
@@ -253,10 +253,10 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                   // Active lifts ~6px (24px desktop / -1px mobile) with springy ease-out.
                   // Cuffs land firmly inside the corner brackets and directly onto the stage top face!
                   const activeY = isMobile
-                    ? (isLifted ? -31 : -25)
+                    ? (isLifted ? -19 : -13)
                     : (isLifted ? 24 : 30);
-                  const sideY1 = isMobile ? -36 : 14;
-                  const sideY2 = isMobile ? -40 : 10;
+                  const sideY1 = isMobile ? -24 : 14;
+                  const sideY2 = isMobile ? -28 : 10;
 
                   const transform = activeLook
                     ? `translate3d(0, ${activeY}px, 80px) rotateY(0deg) scale(1)`
