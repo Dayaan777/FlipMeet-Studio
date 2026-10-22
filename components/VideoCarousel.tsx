@@ -146,7 +146,7 @@ export default function VideoCarousel() {
 
  return (
   <section
-   className="relative overflow-hidden px-4 py-10 sm:px-6 md:py-14"
+   className="relative overflow-hidden px-6 py-10 sm:px-8 md:py-14"
    aria-labelledby="in-motion-heading"
   >
    {/* Background ambient orange glow behind center stage */}

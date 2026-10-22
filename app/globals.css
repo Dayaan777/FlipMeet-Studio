@@ -58,10 +58,18 @@ body {
   background-repeat: repeat-y;
 }
 
-/* Mobile: scale to ~140% width, centered, so baked-in brick edges bleed off-screen */
+/* Mobile: display wall texture with brick edges on the sides */
 @media (max-width: 767px) {
   .home-wall-bg {
-    background-size: 140% auto;
+    background-size: 100% auto;
+    background-position: center top;
+  }
+
+  /* Content side clearance so text, section content, and outfits never overlap the side bricks */
+  .home-wall > section,
+  .home-wall.min-h-screen {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
   }
 }
 

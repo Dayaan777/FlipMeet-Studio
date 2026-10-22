@@ -12,15 +12,15 @@ import { DARK_BLUR_DATA_URL } from "@/lib/image-placeholder";
 export default function AnimePage() {
   return (
     <>
-      <NavBar mobileSolid />
-      <main className="bg-base-bg min-h-screen pt-[73px] md:pt-0">
+      <NavBar />
+      <main className="bg-base-bg min-h-screen">
 
         {/* ── HERO ── */}
-        <section className="relative w-full aspect-square md:aspect-[1538/688] overflow-hidden border-b border-base-border bg-black">
+        <section className="relative w-full aspect-[691/1024] md:aspect-[1538/688] overflow-hidden border-b border-base-border bg-black">
           {/* Desktop hero */}
           <div className="absolute inset-0 hidden md:block">
             <Image
-              src="/images/anime-hero.jpg"
+              src="/images/anime-hero-v2.jpg"
               alt="HT x Studio Anime Collection"
               fill
               priority
@@ -29,15 +29,13 @@ export default function AnimePage() {
             />
           </div>
           {/* Mobile hero */}
-          <div className="absolute inset-0 md:hidden aspect-square">
+          <div className="absolute inset-0 md:hidden">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image%20%28MOBILE%29-QGU6bIvrhkv2UcogDPbqDa1sEjfg0y.jpg"
+              src="/images/anime-hero-mobile.jpg"
               alt="HT x Studio Anime Collection"
               fill
               priority
               sizes="100vw"
-              placeholder="blur"
-              blurDataURL={DARK_BLUR_DATA_URL}
               className="size-full object-cover object-center"
             />
           </div>

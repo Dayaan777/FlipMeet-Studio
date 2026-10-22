@@ -261,7 +261,7 @@ export default function CheckoutPage() {
     return (
       <>
         <NavBar />
-        <main className="home-wall min-h-screen px-4 sm:px-6 pt-36 pb-24 flex items-center justify-center">
+        <main className="home-wall min-h-screen px-6 sm:px-8 pt-36 pb-24 flex items-center justify-center">
         <HomeWallBackground />
           <div className="relative z-10 w-full max-w-lg rounded-sm border border-[#2d2620] bg-[#141210]/95 p-6 sm:p-8 text-center backdrop-blur-md shadow-2xl">
             <span className="size-12 rounded-full border border-emerald-500/50 bg-emerald-500/10 flex items-center justify-center mx-auto text-xl text-emerald-400 mb-4">
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
     return (
       <>
         <NavBar />
-        <main className="home-wall min-h-screen px-6 pt-36 pb-20 flex items-center justify-center">
+        <main className="home-wall min-h-screen px-6 sm:px-8 pt-36 pb-20 flex items-center justify-center">
         <HomeWallBackground />
           <div className="relative z-10 w-full max-w-md text-center rounded-sm border border-[#2d2620] bg-[#141210]/95 p-8 shadow-2xl backdrop-blur-md">
             <h1 className="font-display text-2xl font-bold uppercase tracking-wide text-text-primary">
@@ -347,7 +347,7 @@ export default function CheckoutPage() {
   return (
     <>
       <NavBar />
-      <main className="home-wall min-h-screen px-4 sm:px-6 pt-32 pb-24">
+      <main className="home-wall min-h-screen px-6 sm:px-8 pt-32 pb-24">
         <HomeWallBackground />
         <div className="relative z-10 mx-auto max-w-5xl">
         

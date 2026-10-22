@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const LOOKS = [
   {
@@ -65,10 +65,84 @@ const LOOKS = [
 export default function AnimeDropReveal() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isTouchRef = useRef(false);
+
+  // Close active hover state if touching outside carousel on mobile
+  useEffect(() => {
+    const handlePointerDown = (e: PointerEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        if (isTouchRef.current) {
+          setHoveredIndex(null);
+        }
+      }
+    };
+    window.addEventListener("pointerdown", handlePointerDown);
+    return () => window.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
+  // When dragging finger over cards on mobile, hover the card currently beneath finger
+  const handleTouchMove = (e: React.TouchEvent) => {
+    isTouchRef.current = true;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!target) return;
+    const card = target.closest<HTMLElement>("[data-look-index]");
+    if (card && card.dataset.lookIndex !== undefined) {
+      const idx = parseInt(card.dataset.lookIndex, 10);
+      if (!isNaN(idx) && idx !== hoveredIndex) {
+        setHoveredIndex(idx);
+      }
+    }
+  };
+
+  // When scrolling/swiping through the carousel, hover the card nearest center
+  const handleScroll = () => {
+    if (!containerRef.current || !isTouchRef.current) return;
+    const container = containerRef.current;
+    const cards = container.querySelectorAll<HTMLElement>("[data-look-index]");
+    if (!cards.length) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+
+    let closestIndex = -1;
+    let minDistance = Infinity;
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const cardCenter = rect.left + rect.width / 2;
+      const dist = Math.abs(containerCenter - cardCenter);
+      if (dist < minDistance) {
+        minDistance = dist;
+        const idx = parseInt(card.dataset.lookIndex || "-1", 10);
+        if (!isNaN(idx) && idx !== -1) closestIndex = idx;
+      }
+    });
+
+    if (closestIndex !== -1 && closestIndex !== hoveredIndex) {
+      setHoveredIndex(closestIndex);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent, index: number) => {
+    if (isTouchRef.current) {
+      if (hoveredIndex !== index) {
+        // First tap: light up this card with full color & glow
+        e.preventDefault();
+        setHoveredIndex(index);
+      }
+      // If already active, let it proceed to /product/${look.id}
+    }
+  };
 
   return (
     <section
-      className="overflow-hidden px-4 py-10 sm:px-6 sm:py-14"
+      className="overflow-hidden px-6 py-10 sm:px-8 sm:py-14"
       aria-labelledby="anime-drop-reveal-heading"
     >
       <div className="mx-auto max-w-7xl">
@@ -87,13 +161,19 @@ export default function AnimeDropReveal() {
             <span className="hidden [@media(hover:hover)]:inline">
               HOVER A LOOK TO LIGHT IT UP
             </span>
+            <span className="[@media(hover:hover)]:hidden">
+              TOUCH A LOOK TO LIGHT IT UP
+            </span>
           </p>
         </div>
 
         {/* ── 5 Cards Layout (Desktop: 5 cols; Tablet: 3 + 2 centered; Mobile: horizontal scroll-snap) ── */}
         <div
+          ref={containerRef}
+          onTouchMove={handleTouchMove}
+          onScroll={handleScroll}
           className="
-            flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 pb-6 scrollbar-none
+            flex overflow-x-auto snap-x snap-mandatory gap-4 px-6 pb-6 scrollbar-none
             md:overflow-visible md:snap-none md:flex-wrap md:justify-center md:gap-x-6 md:gap-y-12 md:px-0 md:pb-0
             lg:grid lg:grid-cols-5 lg:gap-4 xl:gap-6 lg:justify-items-center
           "
@@ -105,8 +185,23 @@ export default function AnimeDropReveal() {
               <Link
                 key={look.id}
                 href={`/product/${look.id}`}
-                onPointerEnter={() => setHoveredIndex(i)}
-                onPointerLeave={() => setHoveredIndex(null)}
+                data-look-index={i}
+                onClick={(e) => handleCardClick(e, i)}
+                onTouchStart={() => {
+                  isTouchRef.current = true;
+                  setHoveredIndex(i);
+                }}
+                onPointerEnter={(e) => {
+                  if (e.pointerType === "mouse") {
+                    isTouchRef.current = false;
+                    setHoveredIndex(i);
+                  }
+                }}
+                onPointerLeave={(e) => {
+                  if (e.pointerType === "mouse") {
+                    setHoveredIndex(null);
+                  }
+                }}
                 onFocus={() => setFocusedIndex(i)}
                 onBlur={() => setFocusedIndex(null)}
                 className="group relative block w-[220px] shrink-0 snap-center outline-none transition-none md:w-[220px] lg:w-full lg:max-w-[250px]"

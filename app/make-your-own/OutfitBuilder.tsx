@@ -455,9 +455,9 @@ export default function OutfitBuilder({ tops, bottoms }: OutfitBuilderProps) {
         .fm-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
         .fm-scroll { scrollbar-width: thin; scrollbar-color: #333 transparent; }
       `}</style>
-      <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)]">
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-73px)] px-4 sm:px-6 md:px-0 max-md:py-4 max-md:gap-6">
         {/* ── LEFT PANEL ────────────────────────────────────────────── */}
-        <aside className="w-full md:w-[40%] bg-[#141210]/95 backdrop-blur-md border-b md:border-b-0 md:border-r border-[#2d2620] flex flex-col md:sticky md:top-[73px] md:h-[calc(100vh-73px)]">
+        <aside className="w-full md:w-[40%] bg-[#141210]/95 backdrop-blur-md rounded-sm border border-[#2d2620] md:rounded-none md:border-b-0 md:border-r flex flex-col md:sticky md:top-[73px] md:h-[calc(100vh-73px)] shadow-xl">
           {/* Header */}
           <div className="px-4 py-4 border-b border-base-border shrink-0">
             <p className="text-[10px] tracking-[0.25em] uppercase text-accent font-bold">

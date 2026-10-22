@@ -86,7 +86,7 @@ export default function CartPage() {
   return (
     <>
       <NavBar />
-      <main className="home-wall min-h-screen px-4 sm:px-6 pt-32 pb-24">
+      <main className="home-wall min-h-screen px-6 sm:px-8 pt-32 pb-24">
         <HomeWallBackground />
         <div className="relative z-10 mx-auto max-w-4xl">
         
