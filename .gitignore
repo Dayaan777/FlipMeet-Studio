@@ -67,5 +67,9 @@ public/home/ht-studio-wall-background-v2*.png
 public/images/hero-banner.jpg
 public/images/hero-banner-v2.jpg
 
+# Development verification & extraction kits (kept locally, ignored from repo)
+brick-card-kit/
+public/brick-cards-screenshots/
+
 *.py[cod]
 *$py.class

@@ -10,7 +10,7 @@ const LINKS = [
   { label: "SHOP",    href: "/shop" },
   { label: "ANIME",   href: "/anime" },
   { label: "MAKE YOUR OUTFIT", href: "/make-your-own" },
-  { label: "PROCESS", href: "/process" },
+  // { label: "PROCESS", href: "/process" },
   { label: "TRACK ORDER", href: "/track" },
 ];
 

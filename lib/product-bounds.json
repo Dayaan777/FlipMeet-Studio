@@ -1,0 +1,882 @@
+{
+  "anime-gojo-jersey": {
+    "id": "anime-gojo-jersey",
+    "imageWidth": 975,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 1.85,
+      "right": 1.64,
+      "top": 8.98,
+      "bottom": 8.4
+    },
+    "visibleBox": {
+      "minX": 18,
+      "maxX": 958,
+      "minY": 92,
+      "maxY": 937,
+      "width": 941,
+      "height": 846
+    },
+    "visibleAspect": 1.1123
+  },
+  "anime-gojo-outfit": {
+    "id": "anime-gojo-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 17.01,
+      "right": 16.86,
+      "top": 4.79,
+      "bottom": 2.54
+    },
+    "visibleBox": {
+      "minX": 116,
+      "maxX": 566,
+      "minY": 49,
+      "maxY": 997,
+      "width": 451,
+      "height": 949
+    },
+    "visibleAspect": 0.4752
+  },
+  "anime-luffy-blue-jersey": {
+    "id": "anime-luffy-blue-jersey",
+    "imageWidth": 975,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 0,
+      "right": 0.1,
+      "top": 1.07,
+      "bottom": 2.64
+    },
+    "visibleBox": {
+      "minX": 0,
+      "maxX": 973,
+      "minY": 11,
+      "maxY": 996,
+      "width": 974,
+      "height": 986
+    },
+    "visibleAspect": 0.9878
+  },
+  "anime-luffy-blue-outfit": {
+    "id": "anime-luffy-blue-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 13.2,
+      "right": 13.34,
+      "top": 4,
+      "bottom": 1.37
+    },
+    "visibleBox": {
+      "minX": 90,
+      "maxX": 590,
+      "minY": 41,
+      "maxY": 1009,
+      "width": 501,
+      "height": 969
+    },
+    "visibleAspect": 0.517
+  },
+  "anime-op-flame-jersey": {
+    "id": "anime-op-flame-jersey",
+    "imageWidth": 975,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 1.13,
+      "right": 1.54,
+      "top": 9.38,
+      "bottom": 8.69
+    },
+    "visibleBox": {
+      "minX": 11,
+      "maxX": 959,
+      "minY": 96,
+      "maxY": 934,
+      "width": 949,
+      "height": 839
+    },
+    "visibleAspect": 1.1311
+  },
+  "anime-op-flame-outfit": {
+    "id": "anime-op-flame-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 15.1,
+      "right": 14.81,
+      "top": 1.86,
+      "bottom": 2.83
+    },
+    "visibleBox": {
+      "minX": 103,
+      "maxX": 580,
+      "minY": 19,
+      "maxY": 994,
+      "width": 478,
+      "height": 976
+    },
+    "visibleAspect": 0.4898
+  },
+  "anime-robin-purple-jersey": {
+    "id": "anime-robin-purple-jersey",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 1.61,
+      "right": 1.61,
+      "top": 15.82,
+      "bottom": 18.55
+    },
+    "visibleBox": {
+      "minX": 11,
+      "maxX": 670,
+      "minY": 162,
+      "maxY": 833,
+      "width": 660,
+      "height": 672
+    },
+    "visibleAspect": 0.9821
+  },
+  "anime-robin-purple-outfit": {
+    "id": "anime-robin-purple-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 19.94,
+      "right": 19.94,
+      "top": 3.13,
+      "bottom": 2.34
+    },
+    "visibleBox": {
+      "minX": 136,
+      "maxX": 545,
+      "minY": 32,
+      "maxY": 999,
+      "width": 410,
+      "height": 968
+    },
+    "visibleAspect": 0.4236
+  },
+  "anime-zoro-green-jersey": {
+    "id": "anime-zoro-green-jersey",
+    "imageWidth": 1024,
+    "imageHeight": 935,
+    "insets": {
+      "left": 2.15,
+      "right": 2.83,
+      "top": 3.96,
+      "bottom": 3.1
+    },
+    "visibleBox": {
+      "minX": 22,
+      "maxX": 994,
+      "minY": 37,
+      "maxY": 905,
+      "width": 973,
+      "height": 869
+    },
+    "visibleAspect": 1.1197
+  },
+  "anime-zoro-green-outfit": {
+    "id": "anime-zoro-green-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 15.54,
+      "right": 15.54,
+      "top": 6.35,
+      "bottom": 2.34
+    },
+    "visibleBox": {
+      "minX": 106,
+      "maxX": 575,
+      "minY": 65,
+      "maxY": 999,
+      "width": 470,
+      "height": 935
+    },
+    "visibleAspect": 0.5027
+  },
+  "core-black-trousers": {
+    "id": "core-black-trousers",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 19.06,
+      "right": 18.91,
+      "top": 5.27,
+      "bottom": 5.37
+    },
+    "visibleBox": {
+      "minX": 130,
+      "maxX": 552,
+      "minY": 54,
+      "maxY": 968,
+      "width": 423,
+      "height": 915
+    },
+    "visibleAspect": 0.4623
+  },
+  "core-black-utility-shirt": {
+    "id": "core-black-utility-shirt",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 1.61,
+      "right": 1.32,
+      "top": 14.26,
+      "bottom": 11.82
+    },
+    "visibleBox": {
+      "minX": 11,
+      "maxX": 672,
+      "minY": 146,
+      "maxY": 902,
+      "width": 662,
+      "height": 757
+    },
+    "visibleAspect": 0.8745
+  },
+  "cream-textured-camp-shirt": {
+    "id": "cream-textured-camp-shirt",
+    "imageWidth": 1024,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 4.59,
+      "right": 4.59,
+      "top": 1.66,
+      "bottom": 0.98
+    },
+    "visibleBox": {
+      "minX": 47,
+      "maxX": 976,
+      "minY": 17,
+      "maxY": 1013,
+      "width": 930,
+      "height": 997
+    },
+    "visibleAspect": 0.9328
+  },
+  "dreamer-jersey": {
+    "id": "dreamer-jersey",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 3.03,
+      "right": 3.35,
+      "top": 9.89,
+      "bottom": 8.85
+    },
+    "visibleBox": {
+      "minX": 38,
+      "maxX": 1211,
+      "minY": 124,
+      "maxY": 1142,
+      "width": 1174,
+      "height": 1019
+    },
+    "visibleAspect": 1.1521
+  },
+  "dreamer-outfit": {
+    "id": "dreamer-outfit",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 18.04,
+      "right": 18.18,
+      "top": 6.25,
+      "bottom": 2.93
+    },
+    "visibleBox": {
+      "minX": 123,
+      "maxX": 557,
+      "minY": 64,
+      "maxY": 993,
+      "width": 435,
+      "height": 930
+    },
+    "visibleAspect": 0.4677
+  },
+  "dreamer-pants": {
+    "id": "dreamer-pants",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 8.94,
+      "right": 9.24,
+      "top": 4.59,
+      "bottom": 5.08
+    },
+    "visibleBox": {
+      "minX": 61,
+      "maxX": 618,
+      "minY": 47,
+      "maxY": 971,
+      "width": 558,
+      "height": 925
+    },
+    "visibleAspect": 0.6032
+  },
+  "dtsiinctlve-navy-shirt": {
+    "id": "dtsiinctlve-navy-shirt",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 1.76,
+      "right": 1.32,
+      "top": 16.5,
+      "bottom": 16.7
+    },
+    "visibleBox": {
+      "minX": 12,
+      "maxX": 672,
+      "minY": 169,
+      "maxY": 852,
+      "width": 661,
+      "height": 684
+    },
+    "visibleAspect": 0.9664
+  },
+  "dtsiinctlve-olive-shirt": {
+    "id": "dtsiinctlve-olive-shirt",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 2.64,
+      "right": 2.64,
+      "top": 17.97,
+      "bottom": 18.55
+    },
+    "visibleBox": {
+      "minX": 18,
+      "maxX": 663,
+      "minY": 184,
+      "maxY": 833,
+      "width": 646,
+      "height": 650
+    },
+    "visibleAspect": 0.9938
+  },
+  "dtsiinctlve-white-shirt": {
+    "id": "dtsiinctlve-white-shirt",
+    "imageWidth": 1024,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 4.3,
+      "right": 4.88,
+      "top": 7.71,
+      "bottom": 5.96
+    },
+    "visibleBox": {
+      "minX": 44,
+      "maxX": 973,
+      "minY": 79,
+      "maxY": 962,
+      "width": 930,
+      "height": 884
+    },
+    "visibleAspect": 1.052
+  },
+  "light-blue-outfit": {
+    "id": "light-blue-outfit",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 18.75,
+      "right": 19.14,
+      "top": 5.73,
+      "bottom": 3.78
+    },
+    "visibleBox": {
+      "minX": 192,
+      "maxX": 827,
+      "minY": 88,
+      "maxY": 1477,
+      "width": 636,
+      "height": 1390
+    },
+    "visibleAspect": 0.4576
+  },
+  "light-blue-pants": {
+    "id": "light-blue-pants",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 16.6,
+      "right": 16.6,
+      "top": 6.05,
+      "bottom": 4.62
+    },
+    "visibleBox": {
+      "minX": 170,
+      "maxX": 853,
+      "minY": 93,
+      "maxY": 1464,
+      "width": 684,
+      "height": 1372
+    },
+    "visibleAspect": 0.4985
+  },
+  "light-blue-shirt": {
+    "id": "light-blue-shirt",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 3.99,
+      "right": 3.99,
+      "top": 10.85,
+      "bottom": 8.45
+    },
+    "visibleBox": {
+      "minX": 50,
+      "maxX": 1203,
+      "minY": 136,
+      "maxY": 1147,
+      "width": 1154,
+      "height": 1012
+    },
+    "visibleAspect": 1.1403
+  },
+  "limited-edition-1996-green-outfit": {
+    "id": "limited-edition-1996-green-outfit",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 18.75,
+      "right": 18.75,
+      "top": 6.32,
+      "bottom": 4.1
+    },
+    "visibleBox": {
+      "minX": 192,
+      "maxX": 831,
+      "minY": 97,
+      "maxY": 1472,
+      "width": 640,
+      "height": 1376
+    },
+    "visibleAspect": 0.4651
+  },
+  "limited-edition-1996-green-shirt": {
+    "id": "limited-edition-1996-green-shirt",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 2.31,
+      "right": 2.39,
+      "top": 7.34,
+      "bottom": 7.34
+    },
+    "visibleBox": {
+      "minX": 29,
+      "maxX": 1223,
+      "minY": 92,
+      "maxY": 1161,
+      "width": 1195,
+      "height": 1070
+    },
+    "visibleAspect": 1.1168
+  },
+  "limited-edition-1996-green-trouser": {
+    "id": "limited-edition-1996-green-trouser",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 10.74,
+      "right": 11.23,
+      "top": 7.68,
+      "bottom": 4.23
+    },
+    "visibleBox": {
+      "minX": 110,
+      "maxX": 908,
+      "minY": 118,
+      "maxY": 1470,
+      "width": 799,
+      "height": 1353
+    },
+    "visibleAspect": 0.5905
+  },
+  "limited-edition-1996-red-outfit": {
+    "id": "limited-edition-1996-red-outfit",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 19.82,
+      "right": 20.12,
+      "top": 5.34,
+      "bottom": 4.69
+    },
+    "visibleBox": {
+      "minX": 203,
+      "maxX": 817,
+      "minY": 82,
+      "maxY": 1463,
+      "width": 615,
+      "height": 1382
+    },
+    "visibleAspect": 0.445
+  },
+  "limited-edition-1996-red-shirt": {
+    "id": "limited-edition-1996-red-shirt",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 4.94,
+      "right": 5.02,
+      "top": 8.85,
+      "bottom": 7.66
+    },
+    "visibleBox": {
+      "minX": 62,
+      "maxX": 1190,
+      "minY": 111,
+      "maxY": 1157,
+      "width": 1129,
+      "height": 1047
+    },
+    "visibleAspect": 1.0783
+  },
+  "limited-edition-1996-red-trouser": {
+    "id": "limited-edition-1996-red-trouser",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 16.99,
+      "right": 15.72,
+      "top": 9.83,
+      "bottom": 6.51
+    },
+    "visibleBox": {
+      "minX": 174,
+      "maxX": 862,
+      "minY": 151,
+      "maxY": 1435,
+      "width": 689,
+      "height": 1285
+    },
+    "visibleAspect": 0.5362
+  },
+  "product-42": {
+    "id": "product-42",
+    "imageWidth": 400,
+    "imageHeight": 1200,
+    "insets": {
+      "left": 1.25,
+      "right": 1.5,
+      "top": 18.42,
+      "bottom": 16.25
+    },
+    "visibleBox": {
+      "minX": 5,
+      "maxX": 393,
+      "minY": 221,
+      "maxY": 1004,
+      "width": 389,
+      "height": 784
+    },
+    "visibleAspect": 0.4962
+  },
+  "product-43": {
+    "id": "product-43",
+    "imageWidth": 800,
+    "imageHeight": 1200,
+    "insets": {
+      "left": 11.25,
+      "right": 10.5,
+      "top": 7.25,
+      "bottom": 3.33
+    },
+    "visibleBox": {
+      "minX": 90,
+      "maxX": 715,
+      "minY": 87,
+      "maxY": 1159,
+      "width": 626,
+      "height": 1073
+    },
+    "visibleAspect": 0.5834
+  },
+  "product-44": {
+    "id": "product-44",
+    "imageWidth": 1200,
+    "imageHeight": 800,
+    "insets": {
+      "left": 10.33,
+      "right": 10.83,
+      "top": 3.25,
+      "bottom": 4.13
+    },
+    "visibleBox": {
+      "minX": 124,
+      "maxX": 1069,
+      "minY": 26,
+      "maxY": 766,
+      "width": 946,
+      "height": 741
+    },
+    "visibleAspect": 1.2767
+  },
+  "product-45": {
+    "id": "product-45",
+    "imageWidth": 1200,
+    "imageHeight": 800,
+    "insets": {
+      "left": 10.67,
+      "right": 10.58,
+      "top": 2.5,
+      "bottom": 2.75
+    },
+    "visibleBox": {
+      "minX": 128,
+      "maxX": 1072,
+      "minY": 20,
+      "maxY": 777,
+      "width": 945,
+      "height": 758
+    },
+    "visibleAspect": 1.2467
+  },
+  "product-46": {
+    "id": "product-46",
+    "imageWidth": 408,
+    "imageHeight": 612,
+    "insets": {
+      "left": 12.5,
+      "right": 12.5,
+      "top": 5.72,
+      "bottom": 3.59
+    },
+    "visibleBox": {
+      "minX": 51,
+      "maxX": 356,
+      "minY": 35,
+      "maxY": 589,
+      "width": 306,
+      "height": 555
+    },
+    "visibleAspect": 0.5514
+  },
+  "raggiante-91-polo": {
+    "id": "raggiante-91-polo",
+    "imageWidth": 1200,
+    "imageHeight": 1200,
+    "insets": {
+      "left": 1.92,
+      "right": 1.92,
+      "top": 7.5,
+      "bottom": 5.75
+    },
+    "visibleBox": {
+      "minX": 23,
+      "maxX": 1176,
+      "minY": 90,
+      "maxY": 1130,
+      "width": 1154,
+      "height": 1041
+    },
+    "visibleAspect": 1.1085
+  },
+  "saint-culture-jersey": {
+    "id": "saint-culture-jersey",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 4.47,
+      "right": 4.63,
+      "top": 10.13,
+      "bottom": 7.66
+    },
+    "visibleBox": {
+      "minX": 56,
+      "maxX": 1195,
+      "minY": 127,
+      "maxY": 1157,
+      "width": 1140,
+      "height": 1031
+    },
+    "visibleAspect": 1.1057
+  },
+  "saint-culture-outfit": {
+    "id": "saint-culture-outfit",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 20.51,
+      "right": 20.8,
+      "top": 8.98,
+      "bottom": 4.95
+    },
+    "visibleBox": {
+      "minX": 210,
+      "maxX": 810,
+      "minY": 138,
+      "maxY": 1459,
+      "width": 601,
+      "height": 1322
+    },
+    "visibleAspect": 0.4546
+  },
+  "saint-culture-trouser": {
+    "id": "saint-culture-trouser",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 16.8,
+      "right": 16.89,
+      "top": 9.05,
+      "bottom": 7.68
+    },
+    "visibleBox": {
+      "minX": 172,
+      "maxX": 850,
+      "minY": 139,
+      "maxY": 1417,
+      "width": 679,
+      "height": 1279
+    },
+    "visibleAspect": 0.5309
+  },
+  "stwd-outfit": {
+    "id": "stwd-outfit",
+    "imageWidth": 1024,
+    "imageHeight": 1536,
+    "insets": {
+      "left": 20.41,
+      "right": 20.12,
+      "top": 6.25,
+      "bottom": 3.65
+    },
+    "visibleBox": {
+      "minX": 209,
+      "maxX": 817,
+      "minY": 96,
+      "maxY": 1479,
+      "width": 609,
+      "height": 1384
+    },
+    "visibleAspect": 0.44
+  },
+  "stwd-shirt": {
+    "id": "stwd-shirt",
+    "imageWidth": 1254,
+    "imageHeight": 1254,
+    "insets": {
+      "left": 4.55,
+      "right": 4.94,
+      "top": 7.34,
+      "bottom": 7.66
+    },
+    "visibleBox": {
+      "minX": 57,
+      "maxX": 1191,
+      "minY": 92,
+      "maxY": 1157,
+      "width": 1135,
+      "height": 1066
+    },
+    "visibleAspect": 1.0647
+  },
+  "stwd-shirt-charcoal": {
+    "id": "stwd-shirt-charcoal",
+    "imageWidth": 1024,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 3.52,
+      "right": 3.81,
+      "top": 5.57,
+      "bottom": 4.59
+    },
+    "visibleBox": {
+      "minX": 36,
+      "maxX": 984,
+      "minY": 57,
+      "maxY": 976,
+      "width": 949,
+      "height": 920
+    },
+    "visibleAspect": 1.0315
+  },
+  "stwd-shirt-cream": {
+    "id": "stwd-shirt-cream",
+    "imageWidth": 1024,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 4.59,
+      "right": 4.98,
+      "top": 8.59,
+      "bottom": 6.74
+    },
+    "visibleBox": {
+      "minX": 47,
+      "maxX": 972,
+      "minY": 88,
+      "maxY": 954,
+      "width": 926,
+      "height": 867
+    },
+    "visibleAspect": 1.0681
+  },
+  "stwd-shirt-grey": {
+    "id": "stwd-shirt-grey",
+    "imageWidth": 1024,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 5.66,
+      "right": 6.35,
+      "top": 9.18,
+      "bottom": 7.23
+    },
+    "visibleBox": {
+      "minX": 58,
+      "maxX": 958,
+      "minY": 94,
+      "maxY": 949,
+      "width": 901,
+      "height": 856
+    },
+    "visibleAspect": 1.0526
+  },
+  "vintage-dark-indigo-denim": {
+    "id": "vintage-dark-indigo-denim",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 5.72,
+      "right": 5.87,
+      "top": 4.49,
+      "bottom": 4.88
+    },
+    "visibleBox": {
+      "minX": 39,
+      "maxX": 641,
+      "minY": 46,
+      "maxY": 973,
+      "width": 603,
+      "height": 928
+    },
+    "visibleAspect": 0.6498
+  },
+  "vintage-light-wash-denim": {
+    "id": "vintage-light-wash-denim",
+    "imageWidth": 682,
+    "imageHeight": 1024,
+    "insets": {
+      "left": 7.92,
+      "right": 8.5,
+      "top": 4.79,
+      "bottom": 5.08
+    },
+    "visibleBox": {
+      "minX": 54,
+      "maxX": 623,
+      "minY": 49,
+      "maxY": 971,
+      "width": 570,
+      "height": 923
+    },
+    "visibleAspect": 0.6176
+  }
+}

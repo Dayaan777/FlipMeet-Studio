@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/products";
 import { useCartStore } from "@/lib/cart-store";
 import { getDiscountedPrice } from "@/lib/referral-utils";
+import BrickCard from "@/components/BrickCard";
 
 const CATEGORIES = ["All", "Shirts", "Jerseys", "Pants", "Trousers", "Outfits"] as const;
 
@@ -204,104 +205,36 @@ function ShopContent({ products }: { products: Product[] }) {
      </button>
     </div>
    ) : (
-    <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
      {filtered.map((product, idx) => {
       const img =
        product.images && product.images.length > 0
         ? product.images[0]
         : `/images/looks/${product.id}.jpg`;
 
+      const { discountedPrice, hasDiscount } = getDiscountedPrice(
+       Number(product.price),
+       product.category,
+       referralCode,
+       referralDiscountPct,
+       referralCategories
+      );
+
       return (
-       <Link
+       <BrickCard
         key={product.id}
-        href={`/product/${product.id}`}
-        className="group relative flex flex-col justify-between stone-frame rounded-sm overflow-hidden transition-all duration-300 ease-out hover:-translate-y-2 hover:border-accent/60 hover:shadow-[0_24px_50px_rgba(0,0,0,0.85),0_0_24px_rgba(194,120,71,0.2)]"
-       >
-        {/* Stone Frame Upper Body */}
-        <div className="p-3 sm:p-5 pb-1 sm:pb-2">
-         {/* Top metadata strip */}
-         <div className="flex items-center justify-between text-[10px] tracking-widest text-text-secondary">
-          <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.16em] sm:tracking-[0.24em] text-text-secondary/80 truncate pr-1">
-           {product.category || "COLLECTION"}
-          </span>
-          <span className="shrink-0 rounded-[2px] border border-accent/35 bg-accent/10 px-1.5 sm:px-2 py-0.5 text-[7.5px] sm:text-[9px] font-bold tracking-[0.14em] sm:tracking-[0.18em] text-accent font-mono shadow-xs">
-           1 OF 100
-          </span>
-         </div>
-
-         {/* Garment Stage Area with Ambient Lighting & Hangtag */}
-         <div className="relative my-2 sm:my-4 aspect-[3/4] w-full flex items-center justify-center overflow-hidden rounded-[2px] bg-gradient-to-b from-white/[0.02] to-black/30 p-1 sm:p-2">
-          {/* Subtle hanging kraft-paper atelier tag */}
-          <div className="absolute top-2 right-2 z-10 hidden sm:flex flex-col items-center pointer-events-none opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:rotate-[-4deg]">
-           <div className="w-[1px] h-2.5 bg-[#a89578]/50 -mb-0.5" />
-           <div className="bg-[#bba486] text-[#241c14] text-[7.5px] font-mono font-bold tracking-wider px-1.5 py-0.5 rounded-[1px] shadow-sm border border-[#8a7457]/70 rotate-[-3deg]">
-            HT // ARCHIVE
-           </div>
-          </div>
-
-          <Image
-           src={img}
-           alt={`${product.name} ${product.description}`}
-           fill
-           priority={idx < 4}
-           placeholder="blur"
-           blurDataURL={DARK_BLUR_DATA_URL}
-           sizes="(min-width: 1024px) 33vw, 50vw"
-           className="object-contain object-bottom p-1.5 sm:p-2 transition-all duration-500 ease-out group-hover:scale-105 group-hover:drop-shadow-[0_16px_28px_rgba(194,120,71,0.28)]"
-          />
-         </div>
-        </div>
-
-        {/* Stepped Stone Price Tab at the Bottom */}
-        <div className="stone-tab p-2.5 sm:p-4 flex items-center justify-between gap-2 sm:gap-3 mt-auto bg-gradient-to-r from-[#1c1815] to-[#14110f]">
-         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-           <h2 className="font-display text-xs sm:text-base font-bold uppercase tracking-wider text-text-primary transition-colors group-hover:text-accent truncate">
-            {product.name}
-           </h2>
-          </div>
-
-          {/* Price display with referral discount awareness */}
-          {(() => {
-           const { discountedPrice, hasDiscount } = getDiscountedPrice(
-            Number(product.price),
-            product.category,
-            referralCode,
-            referralDiscountPct,
-            referralCategories
-           );
-           return (
-            <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-0.5 sm:mt-1">
-             {hasDiscount ? (
-              <>
-               <span className="font-sans text-[11px] sm:text-xs font-bold tracking-wide text-accent whitespace-nowrap">
-                PKR {discountedPrice.toLocaleString()}
-               </span>
-               <span className="text-[9px] sm:text-[10px] text-text-secondary/60 line-through whitespace-nowrap">
-                PKR {Number(product.price).toLocaleString()}
-               </span>
-               <span className="text-[7px] sm:text-[8px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 px-1 sm:px-1.5 py-0.5 rounded-xs whitespace-nowrap">
-                SAVE {referralDiscountPct}%
-               </span>
-              </>
-             ) : (
-              <>
-               <span className="font-sans text-[11px] sm:text-xs font-bold tracking-wide text-accent whitespace-nowrap">
-                PKR {Number(product.price).toLocaleString()}
-               </span>
-               {product.old_price && product.old_price > product.price && (
-                <span className="text-[9px] sm:text-[10px] text-text-secondary/60 line-through whitespace-nowrap">
-                 PKR {Number(product.old_price).toLocaleString()}
-                </span>
-               )}
-              </>
-             )}
-            </div>
-           );
-          })()}
-         </div>
-        </div>
-       </Link>
+        id={product.id}
+        name={product.name}
+        category={product.category}
+        price={Number(product.price)}
+        oldPrice={product.old_price ? Number(product.old_price) : undefined}
+        image={img}
+        setId={product.set_id}
+        priority={idx < 4}
+        discountedPrice={discountedPrice}
+        hasDiscount={hasDiscount}
+        referralDiscountPct={referralDiscountPct}
+       />
       );
      })}
     </div>

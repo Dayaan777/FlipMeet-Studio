@@ -115,7 +115,7 @@ export default function Footer() {
             <Link href="/shop" className="hover:text-accent transition-colors w-fit">Women</Link>
             <Link href="/anime" className="hover:text-accent transition-colors w-fit">Lookbook</Link>
             <Link href="/track" className="hover:text-accent transition-colors w-fit text-accent font-medium">Track Order</Link>
-            <Link href="/process" className="hover:text-accent transition-colors w-fit">Outlet</Link>
+            {/* <Link href="/process" className="hover:text-accent transition-colors w-fit">Outlet</Link> */}
           </div>
         </div>
 

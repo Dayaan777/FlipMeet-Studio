@@ -9,6 +9,7 @@ import type { Product } from "@/lib/products";
 import { parseSizeVariants } from "@/lib/products";
 import ReferralSection from "@/components/ReferralSection";
 import ProductCard from "@/components/ProductCard";
+import BrickCard from "@/components/BrickCard";
 import { getDiscountedPrice } from "@/lib/referral-utils";
 
 const SizeChartTable = () => (
@@ -782,17 +783,29 @@ export default function ProductDetailClient({
                   piece.images && piece.images.length > 0
                     ? piece.images[0]
                     : `/images/looks/${piece.id}.jpg`;
+
+                const { discountedPrice: pieceDiscountedPrice, hasDiscount: pieceHasDiscount } =
+                  getDiscountedPrice(
+                    Number(piece.price),
+                    piece.category,
+                    referralCode,
+                    referralDiscountPct,
+                    referralCategories
+                  );
+
                 return (
-                  <ProductCard
+                  <BrickCard
                     key={piece.id}
                     id={piece.id}
                     name={piece.name}
-                    price={piece.price}
-                    oldPrice={piece.old_price}
-                    image={img}
                     category={piece.category}
-                    description={piece.description}
-                    variant="pedestal"
+                    price={Number(piece.price)}
+                    oldPrice={piece.old_price ? Number(piece.old_price) : undefined}
+                    image={img}
+                    setId={piece.set_id}
+                    discountedPrice={pieceDiscountedPrice}
+                    hasDiscount={pieceHasDiscount}
+                    referralDiscountPct={referralDiscountPct}
                   />
                 );
               })}

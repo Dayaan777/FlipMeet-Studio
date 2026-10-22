@@ -48,6 +48,7 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
   const [active, setActive] = useState(0);
   const [markerOffset, setMarkerOffset] = useState(0);
   const [isLifted, setIsLifted] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const count = OUTFITS.length;
 
   const touchStartX = useRef<number | null>(null);
@@ -62,6 +63,15 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
     setIsLifted(false);
     setActive((index) => (index + direction + count) % count);
   };
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
@@ -242,11 +252,17 @@ export default function AnimeTeaser({ drop }: { drop: Drop }) {
                   // Center outfit: base translateY is 30px (desktop) / 5px (mobile).
                   // Active lifts ~6px (24px desktop / -1px mobile) with springy ease-out.
                   // Cuffs land firmly inside the corner brackets and directly onto the stage top face!
+                  const activeY = isMobile
+                    ? (isLifted ? -31 : -25)
+                    : (isLifted ? 24 : 30);
+                  const sideY1 = isMobile ? -36 : 14;
+                  const sideY2 = isMobile ? -40 : 10;
+
                   const transform = activeLook
-                    ? `translate3d(0, ${isLifted ? 24 : 30}px, 80px) rotateY(0deg) scale(1)`
+                    ? `translate3d(0, ${activeY}px, 80px) rotateY(0deg) scale(1)`
                     : distance === 1
-                    ? `translate3d(${side * 22}%, 14px, -50px) rotateY(${side * -14}deg) scale(0.78)`
-                    : `translate3d(${side * (36 + Math.min(distance - 2, 2) * 4)}%, 10px, -${130 + distance * 25}px) rotateY(${side * -22}deg) scale(${Math.max(0.54, 0.64 - (distance - 2) * 0.05)})`;
+                    ? `translate3d(${side * 22}%, ${sideY1}px, -50px) rotateY(${side * -14}deg) scale(0.78)`
+                    : `translate3d(${side * (36 + Math.min(distance - 2, 2) * 4)}%, ${sideY2}px, -${130 + distance * 25}px) rotateY(${side * -22}deg) scale(${Math.max(0.54, 0.64 - (distance - 2) * 0.05)})`;
 
                   // Opacity falloff — side outfits remain clearly visible down to hem (0.64 opacity)
                   const opacity = activeLook
